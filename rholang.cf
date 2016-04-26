@@ -1,6 +1,6 @@
 
 -- Top level contract declaration
-DContr. Contr ::= "contract" Ident "(" [Ident] ")" "=" "{" Proc "}" ;
+DContr. Contr ::= "contract" Ident "(" [Arg] ")" "=" "{" Proc "}" ;
 
 separator nonempty Ident "," ;
 
@@ -8,7 +8,7 @@ separator nonempty Ident "," ;
 PNil.    Proc ::= "Nil" ;
 PInput.  Proc ::= "for" "(" [Bind] ")" "{" Proc "}" ;
 PChoice. Proc ::= "select" "{" [CBranch] "}" ;
--- PMatch.  Proc ::= "match" Proc "{" [PMBranch] "}" ;
+PMatch.  Proc ::= "match" Ident "{" [PMBranch] "}" ; -- should be Proc instead of Ident
 POutput. Proc ::= Chan "!" "(" [Ident] ")" ; -- should be Proc instead of Ident
 PPar.    Proc ::= Proc "|" Proc ;
 PDrop.   Proc ::= "*" Proc ;
@@ -17,14 +17,34 @@ PConstr. Proc ::= Ident "(" [Ident] ")" ; -- should be Proc instead of Ident
 PValue.  Proc ::= Value ;
 separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
 
--- PatternMatch. PMBranch ::= Pattern "=>" Proc ;
--- separator nonempty PMBranch ";" ; 
+ArgPattern. Arg ::= Pattern ;
+ArgIdent.   Arg ::= Ident ;
+separator nonempty Arg "," ;
+
+PatternMatch. PMBranch ::= Pattern "=>" "{" Proc "}" ;
+separator nonempty PMBranch "" ; 
+
+-- Pattern matching
+PtNil.    Pattern ::= "Nil" ;
+--PtInput.  Pattern ::= "for" ;
+PtOutput. Pattern ::= Chan "!" "(" [Pattern] ")" ;
+PtPar.    Pattern ::= Pattern "|" Pattern ;
+PtDrop.   Pattern ::= "*" Chan ;
+PtConstr. Pattern ::= Ident "(" [Pattern] ")" ;
+PtVal.    Pattern ::= VPattern ;
+PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ;
+separator nonempty Pattern "," ;
+
+-- VPtString. VPattern ::=  ;
+-- VPtArray.  VPattern ::=  ;
+-- VPtList.   VPattern ::=  ;
+VPtStruct. VPattern ::= Ident "{" [Ident] "}" ; -- second Ident should be Proc
 
 Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
 separator nonempty CBranch "" ;
 
 -- Variable binding
-Bind. Bind ::= Ident "<-" Chan ;
+Bind. Bind ::= Arg "<-" Chan ;
 separator nonempty Bind ";" ;
 
 -- Channels
