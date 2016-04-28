@@ -1,24 +1,31 @@
 
 -- Top level contract declaration
-DContr. Contr ::= "contract" Ident "(" [Arg] ")" "=" "{" Proc "}" ;
+DContr. Contr ::= "contract" Name "(" [Arg] ")" "=" "{" Proc "}" ;
 
 separator nonempty Ident "," ;
+
+VarIdent.  Var  ::= Ident ;
+NameIdent. Name ::= Ident ;
+
+separator nonempty Var "," ;
+separator nonempty Name "," ;
 
 -- Processes
 PNil.    Proc ::= "Nil" ;
 PInput.  Proc ::= "for" "(" [Bind] ")" "{" Proc "}" ;
 PChoice. Proc ::= "select" "{" [CBranch] "}" ;
-PMatch.  Proc ::= "match" Ident "{" [PMBranch] "}" ; -- should be Proc instead of Ident
-POutput. Proc ::= Chan "!" "(" [Ident] ")" ; -- should be Proc instead of Ident
+PMatch.  Proc ::= "match" Proc "{" [PMBranch] "}" ; -- should be Proc instead of Var
+POutput. Proc ::= Chan "!" "(" [Proc] ")" ; -- should be Proc instead of Var
 PPar.    Proc ::= Proc "|" Proc ;
-PDrop.   Proc ::= "*" Proc ;
-PNew.    Proc ::= "new" [Ident] "in" Proc ;
-PConstr. Proc ::= Ident "(" [Ident] ")" ; -- should be Proc instead of Ident
+PDrop.   Proc ::= "*" Chan ;
+PNew.    Proc ::= "new" [Var] "in" Proc ;
+PConstr. Proc ::= Name "(" [Proc] ")" ; -- should be Proc instead of Var
 PValue.  Proc ::= Value ;
+PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
 separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
 
 ArgPattern. Arg ::= Pattern ;
-ArgIdent.   Arg ::= Ident ;
+ArgVar.     Arg ::= Var ;
 separator nonempty Arg "," ;
 
 PatternMatch. PMBranch ::= Pattern "=>" "{" Proc "}" ;
@@ -30,15 +37,15 @@ PtNil.    Pattern ::= "Nil" ;
 PtOutput. Pattern ::= Chan "!" "(" [Pattern] ")" ;
 PtPar.    Pattern ::= Pattern "|" Pattern ;
 PtDrop.   Pattern ::= "*" Chan ;
-PtConstr. Pattern ::= Ident "(" [Pattern] ")" ;
+PtConstr. Pattern ::= Name "(" [Pattern] ")" ;
 PtVal.    Pattern ::= VPattern ;
-PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ;
+PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ; -- does this really make sense?
 separator nonempty Pattern "," ;
 
 -- VPtString. VPattern ::=  ;
 -- VPtArray.  VPattern ::=  ;
 -- VPtList.   VPattern ::=  ;
-VPtStruct. VPattern ::= Ident "{" [Ident] "}" ; -- second Ident should be Proc
+VPtStruct. VPattern ::= Name "{" [Proc] "}" ; -- second Ident should be Proc
 
 Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
 separator nonempty CBranch "" ;
@@ -49,7 +56,7 @@ separator nonempty Bind ";" ;
 
 -- Channels
 ChanAddr. Chan ::= Addr ;
-ChanVar.  Chan ::= Ident ;
+ChanVar.  Chan ::= Var ;
 
 -- AddrHash. Addr ::= Hash ;
 AddrLift. Addr ::= "@" Proc ;
@@ -64,7 +71,7 @@ EChar.    Entity   ::= Char ;
 EStruct.  Entity   ::= Struct ;
 ECollect. Entity   ::= Collect ;
 
-Struct. Struct ::= Ident "{" [Proc] "}" ;
+Struct. Struct ::= Name "{" [Proc] "}" ;
 
 CString. Collect ::= String ;
 -- CArray.  Collect ::= Array ;
