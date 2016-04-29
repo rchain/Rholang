@@ -6,7 +6,7 @@ separator nonempty Ident "," ;
 
 -- Processes
 PNil.    Proc ::= "Nil" ;
-PInput.  Proc ::= "for" "(" [Bind] ")" "{" Proc "}" ;
+PInput.  Proc ::= "for" "(" [Bind] ")" Proc ;
 PChoice. Proc ::= "select" "{" [CBranch] "}" ;
 PMatch.  Proc ::= "match" Ident "{" [PMBranch] "}" ; -- should be Proc instead of Ident
 POutput. Proc ::= Chan "!" "(" [Ident] ")" ; -- should be Proc instead of Ident
@@ -15,13 +15,14 @@ PDrop.   Proc ::= "*" Proc ;
 PNew.    Proc ::= "new" [Ident] "in" Proc ;
 PConstr. Proc ::= Ident "(" [Ident] ")" ; -- should be Proc instead of Ident
 PValue.  Proc ::= Value ;
+_.       Proc ::= "{" Proc "}" ;
 separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
 
 ArgPattern. Arg ::= Pattern ;
 ArgIdent.   Arg ::= Ident ;
 separator nonempty Arg "," ;
 
-PatternMatch. PMBranch ::= Pattern "=>" "{" Proc "}" ;
+PatternMatch. PMBranch ::= Pattern "=>" Proc ;
 separator nonempty PMBranch "" ; 
 
 -- Pattern matching
@@ -40,7 +41,7 @@ separator nonempty Pattern "," ;
 -- VPtList.   VPattern ::=  ;
 VPtStruct. VPattern ::= Ident "{" [Ident] "}" ; -- second Ident should be Proc
 
-Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
+Choice. CBranch ::= "case" [Bind] "=>" Proc ;
 separator nonempty CBranch "" ;
 
 -- Variable binding
