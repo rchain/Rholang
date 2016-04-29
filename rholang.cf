@@ -1,37 +1,44 @@
 
 -- Top level contract declaration
-DContr. Contr ::= "contract" Name "(" [Arg] ")" "=" "{" Proc "}" ;
+DContr. Contr ::= "contract" Name "(" [Pattern] ")" "=" "{" Proc "}" ;
 
 separator nonempty Ident "," ;
 
-VarIdent.  Var  ::= Ident ;
-NameIdent. Name ::= Ident ;
+token Name (upper (letter | digit | '_' | '\'')*) ;
+token Var (lower (letter | digit | '_' | '\'')*) ;
 
 separator nonempty Var "," ;
 separator nonempty Name "," ;
 
 -- Processes
 PNil.    Proc ::= "Nil" ;
+PValue.  Proc ::= Value ;
+PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
 PInput.  Proc ::= "for" "(" [Bind] ")" "{" Proc "}" ;
 PChoice. Proc ::= "select" "{" [CBranch] "}" ;
 PMatch.  Proc ::= "match" Proc "{" [PMBranch] "}" ; -- should be Proc instead of Var
-POutput. Proc ::= Chan "!" "(" [Proc] ")" ; -- should be Proc instead of Var
+PLift.   Proc ::= Chan "!" "(" [Proc] ")" ; -- should be Proc instead of Var
+POutput. Proc ::= Chan "!" "(" [Var] ")" ;
 PPar.    Proc ::= Proc "|" Proc ;
 PDrop.   Proc ::= "*" Chan ;
 PNew.    Proc ::= "new" [Var] "in" Proc ;
 PConstr. Proc ::= Name "(" [Proc] ")" ; -- should be Proc instead of Var
-PValue.  Proc ::= Value ;
-PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
 separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
 
-ArgPattern. Arg ::= Pattern ;
-ArgVar.     Arg ::= Var ;
-separator nonempty Arg "," ;
+-- Channels
+ChanAddr. Chan ::= Addr ;
+ChanVar.  Chan ::= Var ;
+
+--ArgPattern. Arg ::= Pattern ;
+--ArgVar.     Arg ::= Var ;
+--separator nonempty Arg "," ;
 
 PatternMatch. PMBranch ::= Pattern "=>" "{" Proc "}" ;
 separator nonempty PMBranch "" ; 
 
 -- Pattern matching
+PtWild.   Pattern ::= "_" ;
+PtVar.    Pattern ::= Var ;
 PtNil.    Pattern ::= "Nil" ;
 --PtInput.  Pattern ::= "for" ;
 PtOutput. Pattern ::= Chan "!" "(" [Pattern] ")" ;
@@ -39,27 +46,23 @@ PtPar.    Pattern ::= Pattern "|" Pattern ;
 PtDrop.   Pattern ::= "*" Chan ;
 PtConstr. Pattern ::= Name "(" [Pattern] ")" ;
 PtVal.    Pattern ::= VPattern ;
-PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ; -- does this really make sense?
+-- PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ; -- does this really make sense?
 separator nonempty Pattern "," ;
 
 -- VPtString. VPattern ::=  ;
 -- VPtArray.  VPattern ::=  ;
 -- VPtList.   VPattern ::=  ;
-VPtStruct. VPattern ::= Name "{" [Proc] "}" ; -- second Ident should be Proc
+VPtStruct. VPattern ::= Var "{" [Proc] "}" ; -- second Ident should be Proc
 
 Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
 separator nonempty CBranch "" ;
 
 -- Variable binding
-Bind. Bind ::= Arg "<-" Chan ;
+Bind. Bind ::= Pattern "<-" Chan ;
 separator nonempty Bind ";" ;
 
--- Channels
-ChanAddr. Chan ::= Addr ;
-ChanVar.  Chan ::= Var ;
-
 -- AddrHash. Addr ::= Hash ;
-AddrLift. Addr ::= "@" Proc ;
+AddrQuote. Addr ::= "@" Proc ;
 
 VQuant.   Value    ::= Quantity ;
 VEnt.     Value    ::= Entity ;
@@ -71,7 +74,7 @@ EChar.    Entity   ::= Char ;
 EStruct.  Entity   ::= Struct ;
 ECollect. Entity   ::= Collect ;
 
-Struct. Struct ::= Name "{" [Proc] "}" ;
+Struct. Struct ::= Var "{" [Proc] "}" ;
 
 CString. Collect ::= String ;
 -- CArray.  Collect ::= Array ;
