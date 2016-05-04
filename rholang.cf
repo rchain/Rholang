@@ -1,6 +1,6 @@
 
 -- Top level contract declaration
-DContr. Contr ::= "contract" Name "(" [PPattern] ")" "=" "{" Proc "}" ;
+DContr. Contr ::= "contract" Name "(" [Pattern] ")" "=" "{" Expr "}" ;
 
 separator nonempty Ident "," ;
 
@@ -10,71 +10,60 @@ token Var (lower (letter | digit | '_' | '\'')*) ;
 separator nonempty Var "," ;
 separator nonempty Name "," ;
 
-EProc.   Expr ::= Proc ;
-EVar.    Expr ::= Var ;
---EValue.  Expr ::= Value ;
-EChan.   Expr ::= Addr ;
-separator nonempty Expr "," ;
+--EExpr.   Expr3 ::= Proc ;
+--EChan.   Expr3 ::= Chan ;
+--separator nonempty Expr "," ;
 
 -- Processes
-PNil.    Proc2 ::= "Nil" ;
-PValue.  Proc2 ::= Value ;
---PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
-PInput.  Proc1 ::= "for" "(" [Bind] ")" "{" Proc "}" ;
-PChoice. Proc1 ::= "select" "{" [CBranch] "}" ;
-PMatch.  Proc1 ::= "match" Expr "with" [PMBranch] ; -- should be Proc instead of Var
-PLift.   Proc1 ::= Chan "!" "(" [Expr] ")" ; -- should be Proc instead of Var
-PDrop.   Proc1 ::= "*" Chan ;
-PNew.    Proc1 ::= "new" [Var] "in" Proc1 ;
-PConstr. Proc1 ::= Name "(" [Expr] ")" ; -- should be Proc instead of Var
-PPar.    Proc  ::= Proc "|" Proc1 ;
-separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
-coercions Proc 2 ;
+ENil.    Expr4 ::= "Nil" ;
+EValue.  Expr4 ::= Value ;
+EVar.    Expr4 ::= Var ;
+EDrop.   Expr3 ::= "*" Expr3 ;
+EQuote.  Expr3 ::= "@" Expr3 ;
+EInject. Expr3 ::= "#" Expr3 ;
+ELift.   Expr2 ::= Expr3 "!" "(" [Expr] ")" ;
+EInput.  Expr1 ::= "for" "(" [Bind] ")" "{" Expr "}" ;
+EChoice. Expr1 ::= "select" "{" [CBranch] "}" ;
+EMatch.  Expr1 ::= "match" Expr "with" [PMBranch] ; -- should be Expr instead of Var
+ENew.    Expr1 ::= "new" [Var] "in" Expr1 ;
+EConstr. Expr1 ::= Name "(" [Expr] ")" ; -- should be Expr instead of Var
+EPar.    Expr  ::= Expr "|" Expr1 ;
+separator nonempty Expr "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
+coercions Expr 4 ;
 
 -- Channels
-ChanAddr. Chan ::= Addr ;
-ChanVar.  Chan ::= Var ;
+--CHash.  Chan ::= ;
 
---ArgPattern. Arg ::= Pattern ;
---ArgVar.     Arg ::= Var ;
---separator nonempty Arg "," ;
-
-PatternMatch. PMBranch ::= PPattern "=>" "{" Proc "}" ;
+PatternMatch. PMBranch ::= Pattern "=>" "{" Expr "}" ;
 separator nonempty PMBranch "" ; 
 
 -- Pattern matching
-PPtWild.   PPattern2 ::= "_" ;
-PPtVar.    PPattern2 ::= Var ;
-PPtNil.    PPattern2 ::= "Nil" ;
---PPtInput.  PPattern ::= "for" ;
-PPtOutput. PPattern1 ::= Chan "!" "(" [PPattern] ")" ;
-PPtPar.    PPattern ::= PPattern "|" PPattern1 ;
-PPtDrop.   PPattern1 ::= "*" Chan ;
-PPtConstr. PPattern1 ::= Name "(" [PPattern] ")" ;
-PPtVal.    PPattern2 ::= VPattern ;
--- PPtMatch.  PPattern ::= "match" PPattern "{" [Ident] "}" ; -- does this really make sense?
-separator nonempty PPattern "," ;
-coercions PPattern 2 ;
+PtWild.   Pattern4 ::= "_" ;
+PtNil.    Pattern4 ::= "Nil" ;
+PtVar.    Pattern4 ::= Var ;
+PtVal.    Pattern4 ::= VPattern ;
+PtDrop.   Pattern3 ::= "*" Pattern3 ;
+PtInject. Pattern3 ::= "#" Pattern3 ;
+PtQuote.  Pattern3 ::= "@" Pattern3 ;
+PtOutput. Pattern2 ::= Pattern3 "!" "(" [Pattern] ")" ;
+--PtInput.  Pattern1 ::= "for" "(" [PatternBind] ")" "{" Pattern "}" ;
+--PtMatch.  Pattern1 ::= "match" Pattern "with" [PatternPatternMatch] ;
+PtConstr. Pattern1 ::= Name "(" [Pattern] ")" ;
+--PtString. Pattern ::=  ;
+--PtArray.  Pattern ::=  ;
+--PtList.   Pattern ::=  ;
+PtPar.    Pattern ::= Pattern "|" Pattern1 ;
+separator nonempty Pattern "," ;
+coercions Pattern 4 ;
 
--- VPtString. VPattern ::=  ;
--- VPtArray.  VPattern ::=  ;
--- VPtList.   VPattern ::=  ;
-VPtStruct. VPattern ::= Var "{" [PPattern] "}" ;
-VPtAddr.   VPattern ::= "#" APattern ;
+VPtStruct. VPattern ::= Var "{" [Pattern] "}" ;
 
-APtQuote.  APattern ::= "@" PPattern1 ;
-APtVar.    APattern ::= Var ;
-
-
-Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
+Choice. CBranch ::= "case" [Bind] "=>" "{" Expr "}" ;
 separator nonempty CBranch "" ;
 
 -- Variable binding
-Bind. Bind ::= PPattern "<-" Chan ;
+Bind. Bind ::= Pattern "<-" Expr ;
 separator nonempty Bind ";" ;
-
--- AddrHash. Addr ::= Hash ;
-AddrQuote. Addr ::= "@" Proc1 ;
 
 VQuant.   Value    ::= Quantity ;
 VEnt.     Value    ::= Entity ;
