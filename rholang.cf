@@ -1,6 +1,6 @@
 
 -- Top level contract declaration
-DContr. Contr ::= "contract" Name "(" [Pattern] ")" "=" "{" Proc "}" ;
+DContr. Contr ::= "contract" Name "(" [PPattern] ")" "=" "{" Proc "}" ;
 
 separator nonempty Ident "," ;
 
@@ -10,20 +10,26 @@ token Var (lower (letter | digit | '_' | '\'')*) ;
 separator nonempty Var "," ;
 separator nonempty Name "," ;
 
+EProc.   Expr ::= Proc ;
+EVar.    Expr ::= Var ;
+--EValue.  Expr ::= Value ;
+EChan.   Expr ::= Addr ;
+separator nonempty Expr "," ;
+
 -- Processes
-PNil.    Proc ::= "Nil" ;
-PValue.  Proc ::= Value ;
-PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
-PInput.  Proc ::= "for" "(" [Bind] ")" "{" Proc "}" ;
-PChoice. Proc ::= "select" "{" [CBranch] "}" ;
-PMatch.  Proc ::= "match" Proc "{" [PMBranch] "}" ; -- should be Proc instead of Var
-PLift.   Proc ::= Chan "!" "(" [Proc] ")" ; -- should be Proc instead of Var
-POutput. Proc ::= Chan "!" "(" [Var] ")" ;
-PPar.    Proc ::= Proc "|" Proc ;
-PDrop.   Proc ::= "*" Chan ;
-PNew.    Proc ::= "new" [Var] "in" Proc ;
-PConstr. Proc ::= Name "(" [Proc] ")" ; -- should be Proc instead of Var
+PNil.    Proc2 ::= "Nil" ;
+PValue.  Proc2 ::= Value ;
+--PVar.    Proc ::= Var ; -- induces reduce/reduce conflicts :(
+PInput.  Proc1 ::= "for" "(" [Bind] ")" "{" Proc "}" ;
+PChoice. Proc1 ::= "select" "{" [CBranch] "}" ;
+PMatch.  Proc1 ::= "match" Expr "with" [PMBranch] ; -- should be Proc instead of Var
+PLift.   Proc1 ::= Chan "!" "(" [Expr] ")" ; -- should be Proc instead of Var
+PDrop.   Proc1 ::= "*" Chan ;
+PNew.    Proc1 ::= "new" [Var] "in" Proc1 ;
+PConstr. Proc1 ::= Name "(" [Expr] ")" ; -- should be Proc instead of Var
+PPar.    Proc  ::= Proc "|" Proc1 ;
 separator nonempty Proc "," ; -- Might make sense to not have this nonempty, to allow pure synchronization?
+coercions Proc 2 ;
 
 -- Channels
 ChanAddr. Chan ::= Addr ;
@@ -33,48 +39,55 @@ ChanVar.  Chan ::= Var ;
 --ArgVar.     Arg ::= Var ;
 --separator nonempty Arg "," ;
 
-PatternMatch. PMBranch ::= Pattern "=>" "{" Proc "}" ;
+PatternMatch. PMBranch ::= PPattern "=>" "{" Proc "}" ;
 separator nonempty PMBranch "" ; 
 
 -- Pattern matching
-PtWild.   Pattern ::= "_" ;
-PtVar.    Pattern ::= Var ;
-PtNil.    Pattern ::= "Nil" ;
---PtInput.  Pattern ::= "for" ;
-PtOutput. Pattern ::= Chan "!" "(" [Pattern] ")" ;
-PtPar.    Pattern ::= Pattern "|" Pattern ;
-PtDrop.   Pattern ::= "*" Chan ;
-PtConstr. Pattern ::= Name "(" [Pattern] ")" ;
-PtVal.    Pattern ::= VPattern ;
--- PtMatch.  Pattern ::= "match" Pattern "{" [Ident] "}" ; -- does this really make sense?
-separator nonempty Pattern "," ;
+PPtWild.   PPattern2 ::= "_" ;
+PPtVar.    PPattern2 ::= Var ;
+PPtNil.    PPattern2 ::= "Nil" ;
+--PPtInput.  PPattern ::= "for" ;
+PPtOutput. PPattern1 ::= Chan "!" "(" [PPattern] ")" ;
+PPtPar.    PPattern ::= PPattern "|" PPattern1 ;
+PPtDrop.   PPattern1 ::= "*" Chan ;
+PPtConstr. PPattern1 ::= Name "(" [PPattern] ")" ;
+PPtVal.    PPattern2 ::= VPattern ;
+-- PPtMatch.  PPattern ::= "match" PPattern "{" [Ident] "}" ; -- does this really make sense?
+separator nonempty PPattern "," ;
+coercions PPattern 2 ;
 
 -- VPtString. VPattern ::=  ;
 -- VPtArray.  VPattern ::=  ;
 -- VPtList.   VPattern ::=  ;
-VPtStruct. VPattern ::= Var "{" [Proc] "}" ; -- second Ident should be Proc
+VPtStruct. VPattern ::= Var "{" [PPattern] "}" ;
+VPtAddr.   VPattern ::= "#" APattern ;
+
+APtQuote.  APattern ::= "@" PPattern1 ;
+APtVar.    APattern ::= Var ;
+
 
 Choice. CBranch ::= "case" [Bind] "=>" "{" Proc "}" ;
 separator nonempty CBranch "" ;
 
 -- Variable binding
-Bind. Bind ::= Pattern "<-" Chan ;
+Bind. Bind ::= PPattern "<-" Chan ;
 separator nonempty Bind ";" ;
 
 -- AddrHash. Addr ::= Hash ;
-AddrQuote. Addr ::= "@" Proc ;
+AddrQuote. Addr ::= "@" Proc1 ;
 
 VQuant.   Value    ::= Quantity ;
 VEnt.     Value    ::= Entity ;
 -- QBool.    Quantity ::= Boolean ;
 QInt.     Quantity ::= Integer ;
 QDouble.  Quantity ::= Double ;
+--EAddr.    Entity   ::= "#" Addr ;
 EChar.    Entity   ::= Char ;
 -- EDate.    Entity   ::= Datetime ;
 EStruct.  Entity   ::= Struct ;
 ECollect. Entity   ::= Collect ;
 
-Struct. Struct ::= Var "{" [Proc] "}" ;
+Struct. Struct ::= Var "{" [Expr] "}" ;
 
 CString. Collect ::= String ;
 -- CArray.  Collect ::= Array ;
