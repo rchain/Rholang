@@ -28,7 +28,7 @@ coercions Expr 4 ;
 PatternMatch. PMBranch ::= Pattern "=>" "{" Expr "}" ;
 separator nonempty PMBranch "" ; 
 
--- Patterns used in pattern matching
+-- Patterns
 PtWild.   Pattern4 ::= "_" ;
 PtNil.    Pattern4 ::= "Nil" ;
 PtVar.    Pattern4 ::= Var ;
@@ -37,8 +37,8 @@ PtDrop.   Pattern3 ::= "*" Pattern3 ;
 PtInject. Pattern3 ::= "#" Pattern3 ;
 PtQuote.  Pattern3 ::= "@" Pattern3 ;
 PtOutput. Pattern2 ::= Pattern3 "!" "(" [Pattern] ")" ;
---PtInput.  Pattern1 ::= "for" "(" [PatternBind] ")" "{" Pattern "}" ;
---PtMatch.  Pattern1 ::= "match" Pattern "with" [PatternPatternMatch] ;
+PtInput.  Pattern1 ::= "for" "(" [PatternBind] ")" "{" Pattern "}" ;
+PtMatch.  Pattern1 ::= "match" Pattern "with" [PatternPatternMatch] ;
 PtConstr. Pattern1 ::= Name "(" [Pattern] ")" ;
 --PtString. Pattern ::=  ;
 --PtArray.  Pattern ::=  ;
@@ -46,6 +46,13 @@ PtConstr. Pattern1 ::= Name "(" [Pattern] ")" ;
 PtPar.    Pattern ::= Pattern "|" Pattern1 ;
 separator nonempty Pattern "," ;
 coercions Pattern 4 ;
+
+PtBind.   PatternBind ::= Pattern "<-" Pattern ;
+separator nonempty PatternBind ";" ;
+
+PtBranch. PatternPatternMatch ::= Pattern "=>" "{" Pattern "}" ;
+separator nonempty PatternPatternMatch "" ;
+
 
 VPtStruct. VPattern ::= Var "{" [Pattern] "}" ;
 
