@@ -89,3 +89,16 @@ VPtStruct. VPattern ::= Var "{" [PPattern] "}" ;
 --VPtString. VPattern ::=  ;
 --VPtArray.  VPattern ::=  ;
 --VPtList.   VPattern ::=  ;
+
+-- Behavioral types
+TTrue.   Type5 ::= "True" ;
+TVoid.   Type5 ::= "Void" ;
+TNeg.    Type4 ::= "~" Type4 ;
+TActiv.  Type3 ::= Chan "?" Type4 ;
+TElev.   Type3 ::= Chan "!" "(" [Type] ")" ;
+THiding. Type2 ::= "hidden" [Var] "." Type2 ;
+--TConstr. Type2 ::= Name "("  ")" ;
+TConj.   Type1 ::= Type1 "&" Type2 ;
+TSep.    Type ::= Type "|" Type1 ;
+separator Type "," ;
+coercions Type 5 ;
