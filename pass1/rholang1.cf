@@ -1,10 +1,3 @@
--- Names and variables
-token Name (upper (letter | digit | '_' | '\'')*) ;
-token Var (lower (letter | digit | '_' | '\'')*) ;
-
-separator nonempty Var "," ;
-separator nonempty Name "," ;
-
 -- Top level contract declaration
 DContr. Contr ::= "contract" Name "(" [Pattern] ")" "=" "{" Expr "}" ;
 
@@ -81,3 +74,10 @@ VPtStruct. VPattern ::= Var "{" [Pattern] "}" ;
 --VPtString. VPattern ::=  ;
 --VPtArray.  VPattern ::=  ;
 --VPtList.   VPattern ::=  ;
+
+-- Names and variables
+token Name (upper (letter | digit | '_' | '\'')*) ;
+token Var (lower (letter | digit | '_' | '\'')*) ;
+
+separator nonempty Var "," ;
+separator nonempty Name "," ;
