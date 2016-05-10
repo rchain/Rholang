@@ -1,10 +1,3 @@
--- Names and variables
-token Name (upper (letter | digit | '_' | '\'')*) ;
-token Var (lower (letter | digit | '_' | '\'')*) ;
-
-separator nonempty Var "," ;
-separator nonempty Name "," ;
-
 -- Top level contract declaration
 DContr. Contr ::= "contract" Name "(" [CPattern] ")" "=" "{" Proc "}" ;
 
@@ -55,24 +48,28 @@ CString. Collect ::= String ;
 -- CArray.  Collect ::= Array ;
 -- CList.   Collect ::= List ;
 
+-- Variable patterns
+VarPtVar.  VarPattern ::= Var ;
+VarPtWild. VarPattern ::= "_" ;
+separator VarPattern "," ;
+
 -- Process patterns
-PPtWild.   PPattern4 ::= "_" ;
+PPtVar.    PPattern4 ::= VarPattern ;
 PPtNil.    PPattern4 ::= "Nil" ;
-PPtVar.    PPattern4 ::= Var ;
-PPtVal.    PPattern4 ::= VPattern ;
+PPtVal.    PPattern4 ::= ValPattern ;
 PPtDrop.   PPattern3 ::= "*" CPattern ;
 PPtInject. PPattern3 ::= "#" CPattern ;
 PPtOutput. PPattern2 ::= CPattern "!" "(" [PPattern] ")" ;
 PPtInput.  PPattern1 ::= "for" "(" [PatternBind] ")" "{" PPattern "}" ;
 PPtMatch.  PPattern1 ::= "match" PPattern "with" [PatternPatternMatch] ;
+PPtNew.    PPattern1 ::= "new" [VarPattern] "in" PPattern1 ;
 PPtConstr. PPattern1 ::= Name "(" [PPattern] ")" ;
 PPtPar.    PPattern  ::= PPattern "|" PPattern1 ;
 separator PPattern "," ;
 coercions PPattern 4 ;
 
 -- Channel patterns
-CPtWild.   CPattern ::= "_" ;
-CPtVar.    CPattern ::= Var ;
+CPtVar.    CPattern ::= VarPattern ;
 CPtQuote.  CPattern ::= "@" PPattern3 ;
 separator CPattern "," ;
 
@@ -102,3 +99,10 @@ TConj.   Type1 ::= Type1 "&" Type2 ;
 TSep.    Type ::= Type "|" Type1 ;
 separator Type "," ;
 coercions Type 5 ;
+
+-- Names and variables
+token Name (upper (letter | digit | '_' | '\'')*) ;
+token Var (lower (letter | digit | '_' | '\'')*) ;
+
+separator nonempty Var "," ;
+separator nonempty Name "," ;
