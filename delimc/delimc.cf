@@ -1,0 +1,16 @@
+-- Will be used as an intermediate representation.
+-- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
+
+EVar.         Expr ::= Ident ;
+EAbs.         Expr ::= "\\" Ident "->" Expr ;
+EApp.         Expr ::= Expr Expr ;
+ENewPrompt.   Expr ::= "newPrompt" ;
+EPushPrompt.  Expr ::= "pushPrompt" Expr Expr ;
+EWithSubCont. Expr ::= "withSubCont" Expr Expr ;
+EPushSubCont. Expr ::= "pushSubCont" Expr Expr ;
+
+
+
+PInt. Prompt ::= Integer ;
+
+DCEmpty. DContext ::= "Empty"
