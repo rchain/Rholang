@@ -1,0 +1,24 @@
+contract TokenBank(supply : int, balances : address => int) = {
+  for( msg@(amount,receiver) <- transfer; if balances[msg.sender] >= amount ) {
+    TokenBank(supply, balances[msg.sender -> ])
+  }
+};
+
+contract TokenOwner(balance : int, receive : ch(int), send : ch(int,address)) = {
+  select {
+    case amount <- receive => {
+      TokenOwner(balance+amount, receive, send)
+    }
+    case (amount,receiver) <- send; if amount <= balance => {
+      receiver!(amount) | TokenOwner(balance-amount, receive, send)
+    }
+  }
+};
+
+contract TokenBank(balances : address => int) = {
+  for((owner,amount) <- balances.keys) {
+    new receive : ch(int), send : ch(int,address) in
+    TokenOwner(amount, receive, send) | owner!(send)
+  }
+}
+

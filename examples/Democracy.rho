@@ -1,0 +1,48 @@
+-- This is a file that will encode a democracy that can collect proposals
+-- let its members vote on them.
+
+-------
+
+-- Let's start with collecting proposals. We will collect proposals in a
+-- list. We don't know what the type of a proposal is, so let's call it a.
+
+-- The contract is parametric in the list it's building, a channel for
+-- receiving new proposals and a channel for requesting the current list.
+
+contract BuildList(list : List[a], add : ch(a), get : ch(ch(a))) = {
+  select {
+    case new <- add => { BuildList(new:list, add, get) }
+    case rtn <- get => { rtn!(list) | BuildList(list, add, get) }
+  }
+};
+
+
+-- Now let's model a proposal that we can vote on. A proposal is parametric
+-- in the number of votes it has received, a channel to receive a new vote
+-- and a channel for requesting the current amount of votes
+
+contract Proposal(votes : int, vote : ch(), result : ch(ch(int))) = {
+  select {
+    case vote => { Proposal(votes+1, vote, result) }
+    case rtn <- result => { rtn!(votes) | Proposal(votes, vote, result) }
+  }
+};
+
+-- It should be noticed that the two contracts above are very similar.
+-- Both of them adds new information to an increasing "total", and has a
+-- channel to request that total. This behavior can be generalized to a
+-- contract that builds an arbitrary monoid.
+-- Below is a suggestion for how this might look.
+
+contract BuildList = MonoidBuilder<List[a]>;
+contract Proposal = MonoidBuilder<Int>;
+
+-- Now let's use the list of proposals to create proposal contracts that
+-- can be voted on.
+-- (The code below is not working/correct)
+contract Vote(proposals, voters, result) = {
+  for(proposal <- proposals) {
+    new voteCh, resultCh in
+    Proposal(0, voteCh, resultCh)
+  }
+}
