@@ -28,7 +28,7 @@ contract Proposal(votes : int, vote : ch(), result : ch(ch(int))) = {
   }
 };
 
--- It should be noticed that the two contracts above are very similar.
+-- It should be noted that the two contracts above are very similar.
 -- Both of them adds new information to an increasing "total", and has a
 -- channel to request that total. This behavior can be generalized to a
 -- contract that builds an arbitrary monoid.
