@@ -1,0 +1,32 @@
+contract TokenHolder(balance, send, receive, checkBalance) = {
+  select {
+    case (amount,receiver) <- send; if amount <= balance => {
+      receiver!(amount) | TokenHolder(balance-amount, send, receive, checkBalance)
+    }
+    case amount <- receive => {
+      TokenHolder(balance+amount, send, receive, checkBalance)
+    }
+    case rtn <- checkBalance => {
+      rtn!(balance) | TokenHolder(balance, send, receive, checkBalance)
+    }
+  }
+}
+
+contract TokenBank( transfer, owners, recipients ) = {
+  select {
+    case (from,to,amount) <- transfer; if from `member` owners && to `member` recipients => {
+      owners[from]!(amount,owners[to]) | TokenBank( transfer, owners )
+    }
+    case (from,to,amount) <- transfer; if from `member` owners => {
+      new priv, pub, send, receive, checkBalance in
+
+      let owners'     = insert priv send owners in
+      let recipients' = insert pub receive recipients in
+
+      TokenHolder(0, send, receive, checkBalance)
+      | to!(pub,priv)
+      | owners[from]!(amount,receive)
+      | TokenBank( transfer, owners', recipients' )
+    }
+  }
+}
