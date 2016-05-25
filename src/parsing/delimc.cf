@@ -1,0 +1,28 @@
+-- Will be used as an intermediate representation.
+-- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
+-- The grammar is in postfix to simplify parsing.
+
+EIdent.       Expr ::= Ident ;
+EAbs.         Expr ::= "(" Ident Expr ")" ;
+EApp.         Expr ::= Expr Expr "apply" ;
+ENewPrompt.   Expr ::= "newPrompt" ;
+EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ;
+EWithSubCont. Expr ::= Expr Expr "withSubCont" ;
+EPushSubCont. Expr ::= Expr Expr "pushSubCont" ;
+
+PInt. Prompt ::= Integer ;
+
+VIdent.       Value ::= Ident ;
+VAbs.         Value ::= Ident Expr ;
+VPrompt.      Value ::= Prompt ;
+VSequence.    Value ::= Sequence ;
+
+DCEmpty.             DContext ::= "[]" ;
+DCPushPrompt.        DContext ::= DContext Expr "pushPrompt" ;
+DCPushSubCont.       DContext ::= DContext Expr "pushSubCont" ;
+DCWithSubCont.       DContext ::= DContext Expr "withSubCont" ;
+DCWithSubContPrompt. DContext ::= Prompt DContext "withSubCont" ;
+
+SEmpty.       Sequence ::= "[]" ;
+SConsPrompt.  Sequence ::= Prompt   Sequence ;
+SConsContext. Sequence ::= DContext Sequence ;

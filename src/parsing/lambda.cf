@@ -1,0 +1,3 @@
+EIdent. Expr ::= Ident ;
+EAbs.   Expr ::= "(" Ident Expr ")" ;
+EApp.   Expr ::= Expr Expr "apply" ;
