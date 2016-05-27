@@ -2,27 +2,30 @@
 -- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
 -- The grammar is in postfix to simplify parsing.
 
-EIdent.       Expr ::= Ident ;
-EAbs.         Expr ::= "(" Ident Expr ")" ;
+EValue.       Expr ::= Value ;
 EApp.         Expr ::= Expr Expr "apply" ;
 ENewPrompt.   Expr ::= "newPrompt" ;
 EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ;
 EWithSubCont. Expr ::= Expr Expr "withSubCont" ;
 EPushSubCont. Expr ::= Expr Expr "pushSubCont" ;
 
+VIdent.       Value ::= Ident ;
+VAbs.         Value ::= "(" Ident Expr ")" ;
+
 PInt. Prompt ::= Integer ;
 
-VIdent.       Value ::= Ident ;
-VAbs.         Value ::= Ident Expr ;
-VPrompt.      Value ::= Prompt ;
-VSequence.    Value ::= Sequence ;
+XVValue.      XValue ::= "v:" Value ;  -- kind of ugly workaround to solve r/r-conflicts
+XVPrompt.     XValue ::= "p:" Prompt ; -- kind of ugly workaround to solve s/r-conflicts
+XVSequence.   XValue ::= Sequence ;
 
-DCEmpty.             DContext ::= "[]" ;
+DCHole.              DContext ::= "Hole" ;
+DCArg.               DContext ::= DContext Expr "apply" ;
+DCFun.               DContext ::= XValue DContext "apply" ;
 DCPushPrompt.        DContext ::= DContext Expr "pushPrompt" ;
 DCPushSubCont.       DContext ::= DContext Expr "pushSubCont" ;
 DCWithSubCont.       DContext ::= DContext Expr "withSubCont" ;
 DCWithSubContPrompt. DContext ::= Prompt DContext "withSubCont" ;
 
 SEmpty.       Sequence ::= "[]" ;
-SConsPrompt.  Sequence ::= Prompt   Sequence ;
-SConsContext. Sequence ::= DContext Sequence ;
+SConsPrompt.  Sequence ::= Prompt Sequence "cons" ;
+SConsContext. Sequence ::= DContext Sequence "cons" ;
