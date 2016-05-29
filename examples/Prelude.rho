@@ -1,0 +1,42 @@
+contract True(l) = {
+  for( (t,_) <- l ) {
+    t | True(l)
+  }
+}
+
+contract False(l) = {
+  for( (_,f) <- l ) {
+    f | False(l)
+  }
+}
+
+contract Ifthenelse(cond, t, f) = {
+  cond!(t,f)
+}
+
+contract Nil(l) = {
+  for( (nil,_) <- l ) {
+    nil!() | Nil(l)
+  }
+}
+
+contract Node(l, head, tail) = {
+  for( (_,cons) <- l ) {
+    cons!(head,tail) | Node(l, head, tail)
+  }
+}
+
+contract Cons(l, val, list) = {
+  new head, tail in
+  (Node(l, head, tail) | val(head) | list(tail))
+}
+
+contract Listcases(l, p, q) = {
+  new nil, cons in
+  
+  l!(nil,cons)
+  | select {
+    case                nil  => { p }
+    case (head,tail) <- cons => { q(head,tail) } 
+  }
+}
