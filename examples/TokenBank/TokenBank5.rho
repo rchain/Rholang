@@ -1,0 +1,41 @@
+contract Cell(state : a, get : ch( ch(a) ), modify : ch( ch(a, ch(a)) )) = {
+  select {
+    case rtn <- get  => { rtn!(state) | Cell(state, get, modify) }
+
+    case modifier <- modify => {
+      new rtn in
+
+      modifier(rtn) |
+      for( state' <- rtn ) {
+        Cell(state', get, modify)
+      }
+    }
+  }
+};
+
+contract Transferrer( amount, sender, receiver ) = {
+  for( (senderBalance, sendrtn) <- sender; (receiverBalance, receivertn) <- receiver ) {
+    if senderBalance >= amount
+      then sendrtn!(senderBalance-amount) | receivertn!(receiverBalance+amount)
+      else sendrtn!(senderBalance)        | receivertn!(receiverBalance)
+  } 
+}
+
+
+contract TokenBank( owners ) = {
+  select {
+    case (priv,sender) <- owners; (amount,receiver) <- priv; if tokenHolders[receiver] exists => {
+      let (_,modifyS) = tokenHolders[sender] in
+      let (_,modifyR) = tokenHolders[receiver] in
+      new sendch, recch in
+
+      Transferrer(amount, sendch, recch)
+      | modifyS!(sendch)
+      | modifyR!(recch)
+    }
+
+    case (priv,sender) <- owners; (amount,receiver) <- priv => {
+
+    }
+  }
+}
