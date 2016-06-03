@@ -1,0 +1,4 @@
+contract Wallet(get, set, balance) = {
+  new current in
+  Cell(get, set, current) | current!(balance)
+}

@@ -5,7 +5,7 @@ contract Cell(state : a, get : ch( ch(a) ), modify : ch( ch(a, ch(a)) )) = {
     case modifier <- modify => {
       new rtn in
 
-      modifier(rtn) |
+      modifier(state, rtn) |
       for( state' <- rtn ) {
         Cell(state', get, modify)
       }

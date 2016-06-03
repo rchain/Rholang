@@ -19,7 +19,8 @@ contract TokenBank( owners, register, getBalance ) = {
         getR!(rtnR) |
         for( balanceS <- rtnS; balanceR <- rtnR; if balanceS >= amount ) {
           setS!(balanceS-amount) | setR!(balanceR+amount)
-        }
+        } |
+        TokenBank( owners, register, getBalance )
     }
 
     case (owner,rtn) <- getBalance;

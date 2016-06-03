@@ -1,0 +1,36 @@
+contract TokenBank( owners, register, getBalance ) = {
+  select {
+    case pub <- register;
+      if empty(owners[pub]) => {
+        new priv, get, set in
+  
+        pub!(priv) |
+        Wallet(get, set, 0) |
+        TokenBank(owners[pub] := (priv,get,set), register, getBalance)
+    }
+
+    case (sender,getS,setS) <- owners.values; (amount,receiver) <- sender {
+      TokenBank( owners, register, getBalance) |
+      match owners[receiver] with
+        Just (_,getR,setR) => {
+          new rtnS, rtnR in
+          
+          getS!(rtnS) |
+          getR!(rtnR) |
+          for( balanceS <- rtnS; balanceR <- rtnR; if balanceS >= amount ) {
+            setS!(balanceS-amount) | setR!(balanceR+amount)
+          }
+        }
+
+        Nothing => {
+          register!(receiver) | sender!(amount,receiver)
+        }
+    }
+
+    case (account,rtn) <- getBalance;
+      if !empty(owners[account]) => {
+        let (_,get,_) = owners[account] in
+        get!(rtn)
+    }
+  }
+}

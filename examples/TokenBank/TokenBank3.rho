@@ -1,0 +1,33 @@
+contract TokenBank( owners, register, getBalance ) = {
+  select {
+    case rtn <- register {
+      new pub, priv, get, set, balance in
+
+      TokenBank( register, owners[pub] := (priv,get,set) ) |
+      Cell( get, set, balance ) |
+      balance!(0) |
+      rtn!(pub,priv)
+    }
+
+    case (sender,getS,setS) <- owners.values; (amount,receiver) <- sender => {
+      match owners[receiver] with
+        Just (_,getR,setR) => {
+          new rtnS, rtnR in
+        
+          getS!(rtnS) |
+          getR!(rtnR) |
+          for( balanceS <- rtnS; balanceR <- rtnR; if balanceS >= amount ) {
+            setS!(balanceS-amount) | setR!(balanceR+amount)
+          } |
+          TokenBank( owners, register, getBalance )
+        }
+        Nothing => { register!(receiver) | sender!(amount,receiver) } // memory leak!
+    }
+
+    case (owner,rtn) <- getBalance;
+      if !empty(owners[owner]) => {
+        let (_,get,_) = owners[owner] in
+        get!(rtn)
+    }
+  }
+}
