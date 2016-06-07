@@ -1,31 +1,13 @@
 -- Will be used as an intermediate representation.
 -- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
--- The grammar is in postfix to simplify parsing.
+-- The syntax is postfix to simplify generating code in this language.
 
-EValue.       Expr ::= Value ;
+EVar.         Expr ::= Ident ;
+EAbs.         Expr ::= "(" Ident Expr ")" ;
 EApp.         Expr ::= Expr Expr "apply" ;
+EReturn.      Expr ::= Expr "return" ;
+EBind.        Expr ::= Expr Expr "bind" ;
 ENewPrompt.   Expr ::= "newPrompt" ;
 EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ;
 EWithSubCont. Expr ::= Expr Expr "withSubCont" ;
 EPushSubCont. Expr ::= Expr Expr "pushSubCont" ;
-
-VIdent.       Value ::= Ident ;
-VAbs.         Value ::= "(" Ident Expr ")" ;
-
-PInt. Prompt ::= Integer ;
-
-XVValue.      XValue ::= "v:" Value ;  -- kind of ugly workaround to solve r/r-conflicts
-XVPrompt.     XValue ::= "p:" Prompt ; -- kind of ugly workaround to solve s/r-conflicts
-XVSequence.   XValue ::= Sequence ;
-
-DCHole.              DContext ::= "Hole" ;
-DCArg.               DContext ::= DContext Expr "apply" ;
-DCFun.               DContext ::= XValue DContext "apply" ;
-DCPushPrompt.        DContext ::= DContext Expr "pushPrompt" ;
-DCPushSubCont.       DContext ::= DContext Expr "pushSubCont" ;
-DCWithSubCont.       DContext ::= DContext Expr "withSubCont" ;
-DCWithSubContPrompt. DContext ::= Prompt DContext "withSubCont" ;
-
-SEmpty.       Sequence ::= "[]" ;
-SConsPrompt.  Sequence ::= Prompt Sequence "cons" ;
-SConsContext. Sequence ::= DContext Sequence "cons" ;
