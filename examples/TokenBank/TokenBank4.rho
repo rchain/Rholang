@@ -27,10 +27,10 @@ contract TokenBank( owners, register, getBalance ) = {
         }
     }
 
-    case (account,rtn) <- getBalance;
-      if !empty(owners[account]) => {
-        let (_,get,_) = owners[account] in
-        get!(rtn)
+    case (account,rtn) <- getBalance {
+      match owners[account] with
+        Just (_,get,_) => get!(rtn)
+        Nothing        => rtn!(0)
     }
   }
 }
