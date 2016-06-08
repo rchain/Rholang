@@ -1,3 +1,8 @@
-EIdent. Expr ::= Ident ;
+EVar.   Expr ::= Ident ;
+EVal.   Expr ::= Value ;
 EAbs.   Expr ::= "(" Ident Expr ")" ;
 EApp.   Expr ::= Expr Expr "apply" ;
+ETuple. Expr ::= "(" [Expr] ")" ;
+separator nonempty Expr "," ;
+
+VInt.   Value ::= Integer ;
