@@ -3,6 +3,7 @@
 -- The syntax is postfix to simplify generating code in this language.
 
 EVar.         Expr ::= Ident ;
+EVal.         Expr ::= Value ;
 EAbs.         Expr ::= "(" Ident Expr ")" ;
 EApp.         Expr ::= Expr Expr "apply" ;
 EReturn.      Expr ::= Expr "return" ;
@@ -11,3 +12,7 @@ ENewPrompt.   Expr ::= "newPrompt" ;
 EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ;
 EWithSubCont. Expr ::= Expr Expr "withSubCont" ;
 EPushSubCont. Expr ::= Expr Expr "pushSubCont" ;
+ETuple.       Expr ::= "(" Expr "," Expr ")" ;
+
+VInt.         Value ::= Integer ;
+VString.      Value ::= String ;
