@@ -2,17 +2,32 @@
 -- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
 -- The syntax is postfix to simplify generating code in this language.
 
-EVar.         Expr ::= Ident ;
+EVar.         Expr ::= Var ":" Type ;
 EVal.         Expr ::= Value ;
-EAbs.         Expr ::= "(" Ident Expr ")" ;
-EApp.         Expr ::= Expr Expr "apply" ;
-EReturn.      Expr ::= Expr "return" ;
-EBind.        Expr ::= Expr Expr "bind" ;
+EAbs.         Expr ::= "(" Var ":" Type "." Expr ")" ":" FType ;
+EApp.         Expr ::= Expr Expr "apply" ":" Type ;
+EReturn.      Expr ::= Expr "return" ":" MType ;
+EBind.        Expr ::= Expr Expr "bind" ":" MType ;
 ENewPrompt.   Expr ::= "newPrompt" ;
-EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ;
-EWithSubCont. Expr ::= Expr Expr "withSubCont" ;
-EPushSubCont. Expr ::= Expr Expr "pushSubCont" ;
-ETuple.       Expr ::= "(" Expr "," Expr ")" ;
+EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ":" MType ;
+EWithSubCont. Expr ::= Expr Expr "withSubCont" ":" MType ;
+EPushSubCont. Expr ::= Expr Expr "pushSubCont" ":" MType ;
+ETuple.       Expr ::= "(" Expr "," Expr ")" ":" TType ;
 
 VInt.         Value ::= Integer ;
 VString.      Value ::= String ;
+
+TSimple.      Type2 ::= SimpleType ;
+TMonad.       Type1 ::= MType ;
+TTuple.       Type1 ::= TType ;
+TFun.         Type  ::= FType ;
+coercions Type 2 ;
+
+CCType.       MType ::= "CC" Type2 Type2 ;
+
+FunType.      FType ::= Type1 "->" Type ;
+
+TupleType.    TType ::= "(" Type "," Type ")" ;
+
+token SimpleType (upper (letter | digit | '_' | '\'')*) ;
+token Var (lower (letter | digit | '_' | '\'')*) ;

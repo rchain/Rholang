@@ -24,17 +24,23 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 %state STRING
 %state ESCAPED
 %%
-<YYINITIAL>\( { return new Symbol(sym._SYMB_0); }
-<YYINITIAL>\) { return new Symbol(sym._SYMB_1); }
-<YYINITIAL>, { return new Symbol(sym._SYMB_2); }
-<YYINITIAL>apply { return new Symbol(sym._SYMB_3); }
-<YYINITIAL>bind { return new Symbol(sym._SYMB_4); }
-<YYINITIAL>newPrompt { return new Symbol(sym._SYMB_5); }
-<YYINITIAL>pushPrompt { return new Symbol(sym._SYMB_6); }
-<YYINITIAL>pushSubCont { return new Symbol(sym._SYMB_7); }
-<YYINITIAL>return { return new Symbol(sym._SYMB_8); }
-<YYINITIAL>withSubCont { return new Symbol(sym._SYMB_9); }
+<YYINITIAL>: { return new Symbol(sym._SYMB_0); }
+<YYINITIAL>\( { return new Symbol(sym._SYMB_1); }
+<YYINITIAL>\. { return new Symbol(sym._SYMB_2); }
+<YYINITIAL>\) { return new Symbol(sym._SYMB_3); }
+<YYINITIAL>, { return new Symbol(sym._SYMB_4); }
+<YYINITIAL>-> { return new Symbol(sym._SYMB_5); }
+<YYINITIAL>CC { return new Symbol(sym._SYMB_6); }
+<YYINITIAL>apply { return new Symbol(sym._SYMB_7); }
+<YYINITIAL>bind { return new Symbol(sym._SYMB_8); }
+<YYINITIAL>newPrompt { return new Symbol(sym._SYMB_9); }
+<YYINITIAL>pushPrompt { return new Symbol(sym._SYMB_10); }
+<YYINITIAL>pushSubCont { return new Symbol(sym._SYMB_11); }
+<YYINITIAL>return { return new Symbol(sym._SYMB_12); }
+<YYINITIAL>withSubCont { return new Symbol(sym._SYMB_13); }
 
+<YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.SimpleType, yytext().intern()); }
+<YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Var, yytext().intern()); }
 
 <YYINITIAL>"\"" { yybegin(STRING); }
 <STRING>\\ { yybegin(ESCAPED); }
@@ -49,5 +55,5 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 
 
 <YYINITIAL>{DIGIT}+ { return new Symbol(sym._INTEGER_, new Integer(yytext())); }
-<YYINITIAL>{LETTER}{IDENT}* { return new Symbol(sym._IDENT_, yytext().intern()); }
+
 <YYINITIAL>[ \t\r\n\f] { /* ignore white space. */ }

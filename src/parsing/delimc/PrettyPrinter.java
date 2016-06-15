@@ -93,6 +93,66 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
+  public static String print(parsing.delimc.Absyn.Type foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(parsing.delimc.Absyn.Type foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String print(parsing.delimc.Absyn.MType foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(parsing.delimc.Absyn.MType foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String print(parsing.delimc.Absyn.FType foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(parsing.delimc.Absyn.FType foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String print(parsing.delimc.Absyn.TType foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(parsing.delimc.Absyn.TType foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
   /***   You shouldn't need to change anything beyond this point.   ***/
 
   private static void pp(parsing.delimc.Absyn.Expr foo, int _i_)
@@ -101,7 +161,9 @@ public class PrettyPrinter
     {
        parsing.delimc.Absyn.EVar _evar = (parsing.delimc.Absyn.EVar) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_evar.ident_, 0);
+       pp(_evar.var_, 0);
+       render(":");
+       pp(_evar.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EVal)
@@ -116,9 +178,14 @@ public class PrettyPrinter
        parsing.delimc.Absyn.EAbs _eabs = (parsing.delimc.Absyn.EAbs) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("(");
-       pp(_eabs.ident_, 0);
+       pp(_eabs.var_, 0);
+       render(":");
+       pp(_eabs.type_, 0);
+       render(".");
        pp(_eabs.expr_, 0);
        render(")");
+       render(":");
+       pp(_eabs.ftype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EApp)
@@ -128,6 +195,8 @@ public class PrettyPrinter
        pp(_eapp.expr_1, 0);
        pp(_eapp.expr_2, 0);
        render("apply");
+       render(":");
+       pp(_eapp.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EReturn)
@@ -136,6 +205,8 @@ public class PrettyPrinter
        if (_i_ > 0) render(_L_PAREN);
        pp(_ereturn.expr_, 0);
        render("return");
+       render(":");
+       pp(_ereturn.mtype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EBind)
@@ -145,6 +216,8 @@ public class PrettyPrinter
        pp(_ebind.expr_1, 0);
        pp(_ebind.expr_2, 0);
        render("bind");
+       render(":");
+       pp(_ebind.mtype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.ENewPrompt)
@@ -161,6 +234,8 @@ public class PrettyPrinter
        pp(_epushprompt.expr_1, 0);
        pp(_epushprompt.expr_2, 0);
        render("pushPrompt");
+       render(":");
+       pp(_epushprompt.mtype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EWithSubCont)
@@ -170,6 +245,8 @@ public class PrettyPrinter
        pp(_ewithsubcont.expr_1, 0);
        pp(_ewithsubcont.expr_2, 0);
        render("withSubCont");
+       render(":");
+       pp(_ewithsubcont.mtype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.EPushSubCont)
@@ -179,6 +256,8 @@ public class PrettyPrinter
        pp(_epushsubcont.expr_1, 0);
        pp(_epushsubcont.expr_2, 0);
        render("pushSubCont");
+       render(":");
+       pp(_epushsubcont.mtype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof parsing.delimc.Absyn.ETuple)
@@ -190,6 +269,8 @@ public class PrettyPrinter
        render(",");
        pp(_etuple.expr_2, 0);
        render(")");
+       render(":");
+       pp(_etuple.ttype_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
@@ -212,6 +293,79 @@ public class PrettyPrinter
     }
   }
 
+  private static void pp(parsing.delimc.Absyn.Type foo, int _i_)
+  {
+    if (foo instanceof parsing.delimc.Absyn.TSimple)
+    {
+       parsing.delimc.Absyn.TSimple _tsimple = (parsing.delimc.Absyn.TSimple) foo;
+       if (_i_ > 2) render(_L_PAREN);
+       pp(_tsimple.simpletype_, 0);
+       if (_i_ > 2) render(_R_PAREN);
+    }
+    else     if (foo instanceof parsing.delimc.Absyn.TMonad)
+    {
+       parsing.delimc.Absyn.TMonad _tmonad = (parsing.delimc.Absyn.TMonad) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       pp(_tmonad.mtype_, 0);
+       if (_i_ > 1) render(_R_PAREN);
+    }
+    else     if (foo instanceof parsing.delimc.Absyn.TTuple)
+    {
+       parsing.delimc.Absyn.TTuple _ttuple = (parsing.delimc.Absyn.TTuple) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       pp(_ttuple.ttype_, 0);
+       if (_i_ > 1) render(_R_PAREN);
+    }
+    else     if (foo instanceof parsing.delimc.Absyn.TFun)
+    {
+       parsing.delimc.Absyn.TFun _tfun = (parsing.delimc.Absyn.TFun) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_tfun.ftype_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
+  private static void pp(parsing.delimc.Absyn.MType foo, int _i_)
+  {
+    if (foo instanceof parsing.delimc.Absyn.CCType)
+    {
+       parsing.delimc.Absyn.CCType _cctype = (parsing.delimc.Absyn.CCType) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       render("CC");
+       pp(_cctype.type_1, 2);
+       pp(_cctype.type_2, 2);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
+  private static void pp(parsing.delimc.Absyn.FType foo, int _i_)
+  {
+    if (foo instanceof parsing.delimc.Absyn.FunType)
+    {
+       parsing.delimc.Absyn.FunType _funtype = (parsing.delimc.Absyn.FunType) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_funtype.type_1, 1);
+       render("->");
+       pp(_funtype.type_2, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
+  private static void pp(parsing.delimc.Absyn.TType foo, int _i_)
+  {
+    if (foo instanceof parsing.delimc.Absyn.TupleType)
+    {
+       parsing.delimc.Absyn.TupleType _tupletype = (parsing.delimc.Absyn.TupleType) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       render("(");
+       pp(_tupletype.type_1, 0);
+       render(",");
+       pp(_tupletype.type_2, 0);
+       render(")");
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
 
   private static void sh(parsing.delimc.Absyn.Expr foo)
   {
@@ -220,7 +374,8 @@ public class PrettyPrinter
        parsing.delimc.Absyn.EVar _evar = (parsing.delimc.Absyn.EVar) foo;
        render("(");
        render("EVar");
-       sh(_evar.ident_);
+       sh(_evar.var_);
+       sh(_evar.type_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EVal)
@@ -236,8 +391,10 @@ public class PrettyPrinter
        parsing.delimc.Absyn.EAbs _eabs = (parsing.delimc.Absyn.EAbs) foo;
        render("(");
        render("EAbs");
-       sh(_eabs.ident_);
+       sh(_eabs.var_);
+       sh(_eabs.type_);
        sh(_eabs.expr_);
+       sh(_eabs.ftype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EApp)
@@ -247,6 +404,7 @@ public class PrettyPrinter
        render("EApp");
        sh(_eapp.expr_1);
        sh(_eapp.expr_2);
+       sh(_eapp.type_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EReturn)
@@ -255,6 +413,7 @@ public class PrettyPrinter
        render("(");
        render("EReturn");
        sh(_ereturn.expr_);
+       sh(_ereturn.mtype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EBind)
@@ -264,6 +423,7 @@ public class PrettyPrinter
        render("EBind");
        sh(_ebind.expr_1);
        sh(_ebind.expr_2);
+       sh(_ebind.mtype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.ENewPrompt)
@@ -278,6 +438,7 @@ public class PrettyPrinter
        render("EPushPrompt");
        sh(_epushprompt.expr_1);
        sh(_epushprompt.expr_2);
+       sh(_epushprompt.mtype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EWithSubCont)
@@ -287,6 +448,7 @@ public class PrettyPrinter
        render("EWithSubCont");
        sh(_ewithsubcont.expr_1);
        sh(_ewithsubcont.expr_2);
+       sh(_ewithsubcont.mtype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.EPushSubCont)
@@ -296,6 +458,7 @@ public class PrettyPrinter
        render("EPushSubCont");
        sh(_epushsubcont.expr_1);
        sh(_epushsubcont.expr_2);
+       sh(_epushsubcont.mtype_);
        render(")");
     }
     if (foo instanceof parsing.delimc.Absyn.ETuple)
@@ -305,6 +468,7 @@ public class PrettyPrinter
        render("ETuple");
        sh(_etuple.expr_1);
        sh(_etuple.expr_2);
+       sh(_etuple.ttype_);
        render(")");
     }
   }
@@ -325,6 +489,81 @@ public class PrettyPrinter
        render("(");
        render("VString");
        sh(_vstring.string_);
+       render(")");
+    }
+  }
+
+  private static void sh(parsing.delimc.Absyn.Type foo)
+  {
+    if (foo instanceof parsing.delimc.Absyn.TSimple)
+    {
+       parsing.delimc.Absyn.TSimple _tsimple = (parsing.delimc.Absyn.TSimple) foo;
+       render("(");
+       render("TSimple");
+       sh(_tsimple.simpletype_);
+       render(")");
+    }
+    if (foo instanceof parsing.delimc.Absyn.TMonad)
+    {
+       parsing.delimc.Absyn.TMonad _tmonad = (parsing.delimc.Absyn.TMonad) foo;
+       render("(");
+       render("TMonad");
+       sh(_tmonad.mtype_);
+       render(")");
+    }
+    if (foo instanceof parsing.delimc.Absyn.TTuple)
+    {
+       parsing.delimc.Absyn.TTuple _ttuple = (parsing.delimc.Absyn.TTuple) foo;
+       render("(");
+       render("TTuple");
+       sh(_ttuple.ttype_);
+       render(")");
+    }
+    if (foo instanceof parsing.delimc.Absyn.TFun)
+    {
+       parsing.delimc.Absyn.TFun _tfun = (parsing.delimc.Absyn.TFun) foo;
+       render("(");
+       render("TFun");
+       sh(_tfun.ftype_);
+       render(")");
+    }
+  }
+
+  private static void sh(parsing.delimc.Absyn.MType foo)
+  {
+    if (foo instanceof parsing.delimc.Absyn.CCType)
+    {
+       parsing.delimc.Absyn.CCType _cctype = (parsing.delimc.Absyn.CCType) foo;
+       render("(");
+       render("CCType");
+       sh(_cctype.type_1);
+       sh(_cctype.type_2);
+       render(")");
+    }
+  }
+
+  private static void sh(parsing.delimc.Absyn.FType foo)
+  {
+    if (foo instanceof parsing.delimc.Absyn.FunType)
+    {
+       parsing.delimc.Absyn.FunType _funtype = (parsing.delimc.Absyn.FunType) foo;
+       render("(");
+       render("FunType");
+       sh(_funtype.type_1);
+       sh(_funtype.type_2);
+       render(")");
+    }
+  }
+
+  private static void sh(parsing.delimc.Absyn.TType foo)
+  {
+    if (foo instanceof parsing.delimc.Absyn.TupleType)
+    {
+       parsing.delimc.Absyn.TupleType _tupletype = (parsing.delimc.Absyn.TupleType) foo;
+       render("(");
+       render("TupleType");
+       sh(_tupletype.type_1);
+       sh(_tupletype.type_2);
        render(")");
     }
   }
