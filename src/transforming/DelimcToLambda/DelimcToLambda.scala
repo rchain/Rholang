@@ -4,7 +4,7 @@ package transforming.DelimcToLambda
 import parsing.delimc.Absyn.{EAbs => DCAbs, EApp => DCApp, EVar => DCVar, Expr => DCExpr, _}
 import parsing.lambda.Absyn.{EAbs => LAbs, EApp => LApp, EVar => LVar, Expr => LExpr, _}
 import transforming.NameGen._
-import transforming.DelimcToLambda.ConstructorHelpers
+import transforming.DelimcToLambda.ConstructorHelpers._
 
 import scalaz._
 import scalaz.Monad._
