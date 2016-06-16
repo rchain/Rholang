@@ -5,8 +5,7 @@ import parsing.delimc.{Absyn => Untyped}
 /**
   * Created by weeeeeew on 2016-06-09.
   */
-object TypedAbsyn {
-  case class Ident[A](ident : String)
+object TypedDelimc {
 
   sealed trait CC[A]
 
