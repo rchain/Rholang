@@ -1,18 +1,17 @@
 package transforming.DelimcToLambda
 
 import scalaz.Monad
-import transforming.DelimcToLambda.TypedAbsyn._
-import transforming.DelimcToLambda.ConstructorHelpers._
+import transforming.DelimcToLambda.TypedLambda._
 
 /**
   * Created by weeeeeew on 2016-06-07.
   */
 object Prompt {
   case class Prompt[Ans, A](p : Expr[Integer])
-  case class P[Ans, A](f : Integer => (Integer, A))
+  case class P[Ans, A](f : Expr[Integer => (Integer, A)])
 
-  def unP[Ans, A](p: P[Ans, A], i: Integer) : (Integer,A) = p match {
-    case P(f) => f(i)
+  def unP[Ans, A](p: P[Ans, A], i: Expr[Integer]) : Expr[(Integer,A)] = p match {
+    case P(f) => EApp[Integer, (Integer, A)](f, i, ???)
   }
 
   trait Equal[A,B]

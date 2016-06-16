@@ -1,6 +1,6 @@
 package transforming.DelimcToLambda
 
-import transforming.DelimcToLambda.TypedAbsyn._
+import transforming.DelimcToLambda.TypedLambda._
 import transforming.DelimcToLambda.Prompt._
 import transforming.DelimcToLambda.Seq._
 
@@ -10,7 +10,7 @@ import scalaz.Monad
   * Created by weeeeeew on 2016-06-09.
   */
 object DelimC {
-  case class Cont[Ans, A, B](k: A => MC[Ans, B])
+  case class Cont[Ans, A, B](k: Expr[A => MC[Ans, B]])
 
   def unCont[Ans, A, B](cont: Cont[Ans, A, B], a: A) : MC[Ans, B] = cont match {
     case Cont(k) => k(a)
