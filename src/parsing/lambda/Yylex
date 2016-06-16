@@ -24,15 +24,29 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 %state STRING
 %state ESCAPED
 %%
-<YYINITIAL>\( { return new Symbol(sym._SYMB_0); }
-<YYINITIAL>\) { return new Symbol(sym._SYMB_1); }
-<YYINITIAL>, { return new Symbol(sym._SYMB_2); }
-<YYINITIAL>apply { return new Symbol(sym._SYMB_3); }
+<YYINITIAL>: { return new Symbol(sym._SYMB_0); }
+<YYINITIAL>\( { return new Symbol(sym._SYMB_1); }
+<YYINITIAL>\. { return new Symbol(sym._SYMB_2); }
+<YYINITIAL>\) { return new Symbol(sym._SYMB_3); }
+<YYINITIAL>, { return new Symbol(sym._SYMB_4); }
+<YYINITIAL>-> { return new Symbol(sym._SYMB_5); }
+<YYINITIAL>apply { return new Symbol(sym._SYMB_6); }
 
+<YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.SimpleType, yytext().intern()); }
+<YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Var, yytext().intern()); }
 
+<YYINITIAL>"\"" { yybegin(STRING); }
+<STRING>\\ { yybegin(ESCAPED); }
+<STRING>\" { String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
+<STRING>.  { pstring += yytext(); }
+<ESCAPED>n { pstring +=  "\n"; yybegin(STRING); }
+<ESCAPED>\" { pstring += "\""; yybegin(STRING); }
+<ESCAPED>\\ { pstring += "\\"; yybegin(STRING); }
+<ESCAPED>t  { pstring += "\t"; yybegin(STRING); }
+<ESCAPED>.  { pstring += yytext(); yybegin(STRING); }
 
 
 
 <YYINITIAL>{DIGIT}+ { return new Symbol(sym._INTEGER_, new Integer(yytext())); }
-<YYINITIAL>{LETTER}{IDENT}* { return new Symbol(sym._IDENT_, yytext().intern()); }
+
 <YYINITIAL>[ \t\r\n\f] { /* ignore white space. */ }

@@ -1,20 +1,22 @@
-EVar.   Expr ::= Var ":" Type ;
-EVal.   Expr ::= Value ;
-EAbs.   Expr ::= "(" Var ":" Type "." Expr ")" ":" FType ;
-EApp.   Expr ::= Expr Expr "apply" ":" Type ;
-ETuple. Expr ::= "(" Expr "," Expr ")" ":" TType ;
+EVar.    Expr  ::= Var ":" Type ;
+EVal.    Expr  ::= Value ;
+EAbs.    Expr  ::= "(" Var ":" Type "." Expr ")" ":" Type ;
+EApp.    Expr  ::= Expr Expr "apply" ":" Type ;
+ETuple.  Expr  ::= Tuple ":" Type ;
 
-VInt.   Value ::= Integer ;
+Tuple2.  Tuple ::= "(" Expr "," Expr ")" ;
+Tuple3.  Tuple ::= "(" Expr "," Expr "," Expr ")" ;
+
+VInt.    Value ::= Integer ;
 VString. Value ::= String ;
 
-TSimple.      Type2 ::= SimpleType ;
-TTuple.       Type1 ::= TType ;
-TFun.         Type  ::= FType ;
+TSimple. Type2 ::= SimpleType ;
+TTuple.  Type1 ::= TType ;
+TFun.    Type  ::= Type1 "->" Type ;
 coercions Type 2 ;
 
-FunType.      FType ::= Type1 "->" Type ;
-
-TupleType.    TType ::= "(" Type "," Type ")" ;
+TType2.  TType ::= "(" Type "," Type ")" ;
+TType3.  TType ::= "(" Type "," Type "," Type ")" ;
 
 token SimpleType (upper (letter | digit | '_' | '\'')*) ;
 token Var (lower (letter | digit | '_' | '\'')*) ;

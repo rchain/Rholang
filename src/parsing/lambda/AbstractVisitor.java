@@ -11,9 +11,32 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     public R visitDefault(parsing.lambda.Absyn.Expr p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
+/* Tuple */
+    public R visit(parsing.lambda.Absyn.Tuple2 p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.lambda.Absyn.Tuple3 p, A arg) { return visitDefault(p, arg); }
+    public R visitDefault(parsing.lambda.Absyn.Tuple p, A arg) {
+      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
+    }
 /* Value */
     public R visit(parsing.lambda.Absyn.VInt p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.lambda.Absyn.VString p, A arg) { return visitDefault(p, arg); }
     public R visitDefault(parsing.lambda.Absyn.Value p, A arg) {
+      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
+    }
+/* Type */
+    public R visit(parsing.lambda.Absyn.TSimple p, A arg) { return visitDefault(p, arg); }
+
+    public R visit(parsing.lambda.Absyn.TTuple p, A arg) { return visitDefault(p, arg); }
+
+    public R visit(parsing.lambda.Absyn.TFun p, A arg) { return visitDefault(p, arg); }
+
+    public R visitDefault(parsing.lambda.Absyn.Type p, A arg) {
+      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
+    }
+/* TType */
+    public R visit(parsing.lambda.Absyn.TType2 p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.lambda.Absyn.TType3 p, A arg) { return visitDefault(p, arg); }
+    public R visitDefault(parsing.lambda.Absyn.TType p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
 

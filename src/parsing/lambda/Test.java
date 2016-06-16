@@ -23,7 +23,7 @@ public class Test
     p = new parser(l);
     /* The default parser is the first-defined entry point. */
     /* You may want to change this. Other options are: */
-    /* pListExpr, pValue */
+    /* pTuple, pValue, pType, pTType */
     try
     {
       parsing.lambda.Absyn.Expr parse_tree = p.pExpr();
