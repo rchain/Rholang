@@ -1,0 +1,54 @@
+type ID = Ch
+
+data Action = Withdraw ID
+					  | Send (Int, ID)
+
+struct User {
+	balance : Int,
+	action  : Ch Action
+}
+
+contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : Ch ID ) = {
+	select {
+		case (user, rtn) <- getBalance => {
+				match users[user] with
+					Just (balance, _) => { rtn!(balance) }
+					Nothing           => { rtn!(0) }
+				
+				| TokenBank( users, getBalance, deposit )
+		}
+
+		case user <- deposit => {
+				let users' = users.insertWith( (+) , user, _.balance, msg.value ) in
+				TokenBank( users', getBalance, deposit )
+		} 
+
+		case user <- users.keys; Withdraw to <- users[user].action;
+			if to.send(users[user].balance) => {
+				TokenBank( users.insert.(user, _.balance, 0), getBalance, deposit )
+		}
+
+		case user <- users.keys; Send (amount,receiver) <- users[user].action;
+			if amount <= users[user].balance => {
+				let users' = users.insertWith( (-) , user, _.balance, amount )
+													.insertWith( (+) , receiver, _.balance, amount ) in
+				TokenBank( users', getBalance, deposit )
+		}
+	}
+}
+
+struct TokenBank {
+	getBalance : Ch (ID, Ch Int),
+	deposit    : Ch ID
+	priv       : Ch Action
+}
+
+contract MaliciousOwner( tokenBank : TokenBank, id : ID ) = {
+	new id in
+	
+	tokenBank.priv!(Withdraw id) |
+
+	for( id.send() ) {
+		tokenBank.priv!(Withdraw id)
+	}
+}
