@@ -22,19 +22,22 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
     }
 
     case user <- deposit => {
-        let users' = users.insertWith( (+) , user, _.balance, msg.value ) in
-        TokenBank( users', getBalance, deposit )
+        users.insertsWith!( (+) , user, _.balance, msg.value ) |
+        TokenBank( users, getBalance, deposit )
     } 
 
     case user <- users.keys; Withdraw to <- users[user].action;
       if to.send(users[user].balance) => { // We want to make sure that we are able to send the tokens.
-        TokenBank( users.insert.(user, _.balance, 0), getBalance, deposit )
+        users.inserts!(user, _.balance, 0) |
+        TokenBank( users, getBalance, deposit )
     }
 
     case user <- users.keys; Send (amount,receiver) <- users[user].action;
       if amount <= users[user].balance => {
-        let users' = users.insertWith( (-) , user, _.balance, amount )
-                          .insertWith( (+) , receiver, _.balance, amount ) in
+        atomic {
+          users.insertsWith!( (-) , user, _.balance, amount ) |
+          users.insertsWith!( (+) , receiver, _.balance, amount ) |
+        } |
         TokenBank( users', getBalance, deposit )
     }
   }
