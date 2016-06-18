@@ -1,3 +1,6 @@
+// The "race to empty" bug implemented in Rholang. As described in
+// http://vessenes.com/more-ethereum-attacks-race-to-empty-is-the-real-deal/
+
 type ID = Ch
 
 data Action = Withdraw ID
