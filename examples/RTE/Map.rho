@@ -3,7 +3,7 @@ struct Map k v {
 	insert      : Ch (k, v),
 	inserts     : forsome a. Ch (k, Lens v a, a),
 	insertWith  : Ch ((v, v) -> v, k, v),
-	insertsWith : forsome a. Ch (a -> a, k, Lens v a, a)
+	insertsWith : forsome a. Ch ((a, a) -> a, k, Lens v a, a)
 }
 
 type (k => v) = Map k v
