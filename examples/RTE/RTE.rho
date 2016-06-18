@@ -27,7 +27,7 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
     } 
 
     case user <- users.keys; Withdraw to <- users[user].action;
-      if to.send(users[user].balance) => {
+      if to.send(users[user].balance) => { // We want to make sure that someone receives the tokens.
         TokenBank( users.insert.(user, _.balance, 0), getBalance, deposit )
     }
 
@@ -51,7 +51,9 @@ contract MaliciousOwner( tokenBank : TokenBank, id : ID ) = {
   
   tokenBank.priv!(Withdraw id) |
 
-  for( id.send() ) {
+  for( !id.receive ) { // Banged for stream semantics. id.receive will receive a message
+                       // every time someone sends the native token to the name id,
+                       // and the listening process receives the included tokens.
     tokenBank.priv!(Withdraw id)
   }
 }
