@@ -9,8 +9,9 @@ struct Map k v {
 type (k => v) = Map k v
 
 contract MapContr( self : Map k v ) {
-  for( (key,rtn) <- !self.get; value <- @hash(key) ) {
-  	rtn!(value)
+  select {
+  	case (key,rtn) <- !self.get; !value <- @hash(key) => { rtn!(Just value) }
+  	case (key,rtn) <- !self.get                       => { rtn!(Nothing) }
   } |
 
   for( (key,value) <- !self.insert ) {
