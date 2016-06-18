@@ -40,6 +40,8 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+
 struct TokenBank {
   getBalance : Ch (ID, Ch Int),
   deposit    : Ch ID
