@@ -27,7 +27,7 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
     } 
 
     case user <- users.keys; Withdraw to <- users[user].action;
-      if to.send(users[user].balance) => { // We want to make sure that someone receives the tokens.
+      if to.send(users[user].balance) => { // We want to make sure that we are able to send the tokens.
         TokenBank( users.insert.(user, _.balance, 0), getBalance, deposit )
     }
 
