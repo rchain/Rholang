@@ -19,7 +19,7 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
   } |
 
   for( user <- !deposit ) {
-      users.insertWith!( (+) , user, _.balance, msg.value )
+      users.insertsWith!( (+) , user, _.balance, msg.value )
   } |
 
   for( user <- users.keys; Withdraw to <- !users[user].action;
@@ -29,8 +29,10 @@ contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : 
 
   for( user <- users.keys; Send (amount,receiver) <- !users[user].action;
     if amount <= users[user].balance ) {
-      users.insertWith!( (-) , user, _.balance, amount ) |
-      users.insertWith!( (+) , receiver, _.balance, amount )
+      atomic {
+        users.insertsWith!( (-) , user, _.balance, amount ) |
+        users.insertsWith!( (+) , receiver, _.balance, amount )
+      }
     }
   }
 }
