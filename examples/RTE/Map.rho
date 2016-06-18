@@ -17,7 +17,7 @@ contract MapContr( self : Map k v ) {
   	@hash(key)!(value)
   } |
 
-  for (key, (_,setter), newValue) <- !self.inserts; value <- @hash(key) => {
+  for( (key, (_,setter), newValue) <- !self.inserts; value <- @hash(key) ) {
   	@hash(key)!( setter(value, newValue) )
   	
   } |
@@ -32,7 +32,7 @@ contract MapContr( self : Map k v ) {
   	}
   } |
 
-  for (f, key, (getter, setter), newValue) <- !insertWith; value <- @hash(key) ) => {
+  for( (f, key, (getter, setter), newValue) <- !insertWith; value <- @hash(key) ) {
   	@hash(key)!( setter( value, f( getter(value), newValue ) ) )
   }
 }

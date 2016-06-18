@@ -12,7 +12,7 @@ struct User {
 }
 
 contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : Ch ID ) = {
-  for( (user,rtn) <- !getBalance ) => {
+  for( (user,rtn) <- !getBalance ) {
       match users.get(user) with
         Just (balance, _) => { rtn!(balance) }
         Nothing           => { rtn!(0) }
