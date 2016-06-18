@@ -1,5 +1,5 @@
 struct Map k v {
-	get         : Ch (k, Ch v),
+	get         : Ch (k, Ch (Maybe v)),
 	insert      : Ch (k, v),
 	inserts     : forsome a. Ch (k, Lens v a, a),
 	insertWith  : Ch ((v, v) -> v, k, v),
