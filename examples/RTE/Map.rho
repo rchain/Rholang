@@ -1,0 +1,38 @@
+struct Map k v {
+	get         : Ch (k, Ch v),
+	insert      : Ch (k, v),
+	inserts     : forsome a. Ch (k, Lens v a, a),
+	insertWith  : Ch ((v, v) -> v, k, v)
+	insertsWith : forsome a. Ch (a -> a, k, Lens v a, a)
+}
+
+type (k => v) = Map k v
+
+contract MapContr( self : Map k v ) {
+  for( (key,rtn) <- !self.get; value <- @hash(key) ) {
+  	rtn!(value)
+  } |
+
+  for( (key,value) <- !self.insert ) {
+  	@hash(key)!(value)
+  } |
+
+  for (key, (_,setter), newValue) <- !self.inserts; value <- @hash(key) => {
+  	@hash(key)!( setter(value, newValue) )
+  	
+  } |
+
+  select {
+  	case (f, key, newValue) <- !insertWith; value <- @hash(key) => {
+  		@hash(key)!( f(value, newValue) )
+  	}
+
+  	case (_, key, newValue) <- !insertWith => {
+  		@hash(key)!(newValue)
+  	}
+  } |
+
+  for (f, key, (getter, setter), newValue) <- insertWith; value <- @hash(key) ) => {
+  	@hash(key)!( setter( value, f( getter(value), newValue ) ) )
+  }
+}
