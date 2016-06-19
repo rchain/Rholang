@@ -12,7 +12,7 @@ struct User {
 }
 
 contract TokenBankContr( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : Ch ID ) = {
-  for( (user,rtn) <- !getBalance ) {
+  for( (user,rtn) <- !getBalance ) { // Channel name banged, for stream semantics (i.e. persistent continuation, ephemeral data)
       match users.get(user) with
         Just (balance, _) => { rtn!(balance) }
         Nothing           => { rtn!(0) }
@@ -50,9 +50,9 @@ contract MaliciousOwner( tokenBank : TokenBank, id : ID ) = {
   
   tokenBank.priv!(Withdraw id) |
 
-  for( !id.receive ) { // Banged for stream semantics. id.receive will receive a message
-                       // every time someone sends the native token to the name id,
-                       // and the listening process receives the included tokens.
+  for( !id.receive ) { // id.receive will receive a message every time someone sends
+                       // the native token to the name id, and the listening process
+                       // receives the included tokens.
     tokenBank.priv!(Withdraw id)
   }
 }
