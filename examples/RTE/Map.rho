@@ -9,31 +9,32 @@ struct Map k v {
 type (k => v) = Map k v
 
 contract MapContr( self : Map k v ) {
+	new secret in
+
   select {
-  	case (key,rtn) <- !self.get; !value <- @hash(key) => { rtn!(Just value) }
-  	case (key,rtn) <- !self.get                       => { rtn!(Nothing) }
+  	case (key,rtn) <- !self.get; !value <- @hash(secret,key) => { rtn!(Just value) }
+  	case (key,rtn) <- !self.get                              => { rtn!(Nothing) }
   } |
 
   for( (key,value) <- !self.insert ) {
-  	@hash(key)!(value)
+  	@hash(secret,key)!(value)
   } |
 
-  for( (key, (_,setter), newValue) <- !self.inserts; value <- @hash(key) ) {
-  	@hash(key)!( setter(value, newValue) )
-  	
+  for( (key, (_,setter), newValue) <- !self.inserts; value <- @hash(secret,key) ) {
+  	@hash(secret,key)!( setter(value, newValue) )
   } |
 
   select {
-  	case (f, key, newValue) <- !insertWith; value <- @hash(key) => {
-  		@hash(key)!( f(value, newValue) )
+  	case (f, key, newValue) <- !self.insertWith; value <- @hash(secret,key) => {
+  		@hash(secret,key)!( f(value, newValue) )
   	}
 
-  	case (_, key, newValue) <- !insertWith => {
-  		@hash(key)!(newValue)
+  	case (_, key, newValue) <- !self.insertWith => {
+  		@hash(secret,key)!(newValue)
   	}
   } |
 
-  for( (f, key, (getter, setter), newValue) <- !insertWith; value <- @hash(key) ) {
-  	@hash(key)!( setter( value, f( getter(value), newValue ) ) )
+  for( (f, key, (getter, setter), newValue) <- !self.insertsWith; value <- @hash(secret,key) ) {
+  	@hash(secret,key)!( setter( value, f( getter(value), newValue ) ) )
   }
 }
