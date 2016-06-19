@@ -1,40 +1,40 @@
 struct Map k v {
-	get         : Ch (k, Ch (Maybe v)),
-	insert      : Ch (k, v),
-	inserts     : forsome a. Ch (k, Lens v a, a),
-	insertWith  : Ch ((v, v) -> v, k, v),
-	insertsWith : forsome a. Ch ((a, a) -> a, k, Lens v a, a)
+  get         : Ch (k, Ch (Maybe v)),
+  insert      : Ch (k, v),
+  inserts     : forsome a. Ch (k, Lens v a, a),
+  insertWith  : Ch ((v, v) -> v, k, v),
+  insertsWith : forsome a. Ch ((a, a) -> a, k, Lens v a, a)
 }
 
 type (k => v) = Map k v
 
 contract MapContr( self : Map k v ) {
-	new secret in
+  new secret in
 
   select {
-  	case (key,rtn) <- !self.get; !value <- @hash(secret,key) => { rtn!(Just value) }
-  	case (key,rtn) <- !self.get                              => { rtn!(Nothing) }
+    case (key,rtn) <- !self.get; !value <- @hash(secret,key) => { rtn!(Just value) }
+    case (key,rtn) <- !self.get                              => { rtn!(Nothing) }
   } |
 
   for( (key,value) <- !self.insert ) {
-  	@hash(secret,key)!(value)
+    @hash(secret,key)!(value)
   } |
 
   for( (key, (_,setter), newValue) <- !self.inserts; value <- @hash(secret,key) ) {
-  	@hash(secret,key)!( setter(value, newValue) )
+    @hash(secret,key)!( setter(value, newValue) )
   } |
 
   select {
-  	case (f, key, newValue) <- !self.insertWith; value <- @hash(secret,key) => {
-  		@hash(secret,key)!( f(value, newValue) )
-  	}
+    case (f, key, newValue) <- !self.insertWith; value <- @hash(secret,key) => {
+      @hash(secret,key)!( f(value, newValue) )
+    }
 
-  	case (_, key, newValue) <- !self.insertWith => {
-  		@hash(secret,key)!(newValue)
-  	}
+    case (_, key, newValue) <- !self.insertWith => {
+      @hash(secret,key)!(newValue)
+    }
   } |
 
   for( (f, key, (getter, setter), newValue) <- !self.insertsWith; value <- @hash(secret,key) ) {
-  	@hash(secret,key)!( setter( value, f( getter(value), newValue ) ) )
+    @hash(secret,key)!( setter( value, f( getter(value), newValue ) ) )
   }
 }
