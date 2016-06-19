@@ -11,7 +11,7 @@ struct User {
   action  : Ch Action
 }
 
-contract TokenBank( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : Ch ID ) = {
+contract TokenBankContr( users : ID => User, getBalance : Ch (ID, Ch Int), deposit : Ch ID ) = {
   select {
     case (user, rtn) <- getBalance => {
         match users[user] with
