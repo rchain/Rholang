@@ -29,10 +29,8 @@ contract TokenBankContr( users : ID => User, getBalance : Ch (ID, Ch Int), depos
 
   for( user <- users.keys; Send (amount,receiver) <- !users[user].action;
     if amount <= users[user].balance ) {
-      atomic {
-        users.insertsWith!( (-) , user, _.balance, amount ) |
-        users.insertsWith!( (+) , receiver, _.balance, amount )
-      }
+      users.insertsWith!( (-) , user, _.balance, amount ) |
+      users.insertsWith!( (+) , receiver, _.balance, amount )
     }
   }
 }
