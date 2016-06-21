@@ -43,7 +43,7 @@ struct TokenBank {
   priv       : Ch Action
 }
 
-contract MaliciousOwner( tokenBank : TokenBank, id : ID ) = {
+contract MaliciousOwner( tokenBank : TokenBank ) = {
   new id in
   
   tokenBank.priv!(Withdraw id) |
