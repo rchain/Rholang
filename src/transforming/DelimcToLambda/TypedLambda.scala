@@ -8,9 +8,9 @@ import parsing.lambda.{Absyn => Untyped}
   */
 object TypedLambda {
   //Type mappings
-  def typeName[Integer]() : String = "Integer"
-  def typeName[Char]()    : String = "Char"
-  def typeName[String]    : java.lang.String = "String"
+  def typeName[Integer] : String           = "Integer"
+  def typeName[Char]    : String           = "Char"
+  def typeName[String]  : java.lang.String = "String"
 
 
   //Typed expressions
