@@ -17,6 +17,12 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     public R visitDefault(parsing.delimc.Absyn.Expr p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
+/* Tuple */
+    public R visit(parsing.delimc.Absyn.Tuple2 p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.delimc.Absyn.Tuple3 p, A arg) { return visitDefault(p, arg); }
+    public R visitDefault(parsing.delimc.Absyn.Tuple p, A arg) {
+      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
+    }
 /* Value */
     public R visit(parsing.delimc.Absyn.VInt p, A arg) { return visitDefault(p, arg); }
     public R visit(parsing.delimc.Absyn.VString p, A arg) { return visitDefault(p, arg); }
@@ -26,26 +32,17 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
 /* Type */
     public R visit(parsing.delimc.Absyn.TSimple p, A arg) { return visitDefault(p, arg); }
 
-    public R visit(parsing.delimc.Absyn.TMonad p, A arg) { return visitDefault(p, arg); }
     public R visit(parsing.delimc.Absyn.TTuple p, A arg) { return visitDefault(p, arg); }
 
+    public R visit(parsing.delimc.Absyn.TMonad p, A arg) { return visitDefault(p, arg); }
     public R visit(parsing.delimc.Absyn.TFun p, A arg) { return visitDefault(p, arg); }
 
     public R visitDefault(parsing.delimc.Absyn.Type p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
-/* MType */
-    public R visit(parsing.delimc.Absyn.CCType p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(parsing.delimc.Absyn.MType p, A arg) {
-      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
-    }
-/* FType */
-    public R visit(parsing.delimc.Absyn.FunType p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(parsing.delimc.Absyn.FType p, A arg) {
-      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
-    }
 /* TType */
-    public R visit(parsing.delimc.Absyn.TupleType p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.delimc.Absyn.TType2 p, A arg) { return visitDefault(p, arg); }
+    public R visit(parsing.delimc.Absyn.TType3 p, A arg) { return visitDefault(p, arg); }
     public R visitDefault(parsing.delimc.Absyn.TType p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }

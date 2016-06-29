@@ -23,12 +23,11 @@ public void unrecovered_syntax_error(java_cup.runtime.Symbol cur_token) throws j
 :}
 
 nonterminal parsing.delimc.Absyn.Expr Expr;
+nonterminal parsing.delimc.Absyn.Tuple Tuple;
 nonterminal parsing.delimc.Absyn.Value Value;
 nonterminal parsing.delimc.Absyn.Type Type2;
 nonterminal parsing.delimc.Absyn.Type Type1;
 nonterminal parsing.delimc.Absyn.Type Type;
-nonterminal parsing.delimc.Absyn.MType MType;
-nonterminal parsing.delimc.Absyn.FType FType;
 nonterminal parsing.delimc.Absyn.TType TType;
 
 terminal _SYMB_0;    //   :
@@ -61,15 +60,18 @@ start with Expr;
 
 Expr ::= Var:p_1 _SYMB_0 Type:p_3  {: RESULT = new parsing.delimc.Absyn.EVar(p_1,p_3); :} 
   | Value:p_1  {: RESULT = new parsing.delimc.Absyn.EVal(p_1); :}
-  | _SYMB_1 Var:p_2 _SYMB_0 Type:p_4 _SYMB_2 Expr:p_6 _SYMB_3 _SYMB_0 FType:p_9  {: RESULT = new parsing.delimc.Absyn.EAbs(p_2,p_4,p_6,p_9); :}
+  | _SYMB_1 Var:p_2 _SYMB_0 Type:p_4 _SYMB_2 Expr:p_6 _SYMB_3 _SYMB_0 Type:p_9  {: RESULT = new parsing.delimc.Absyn.EAbs(p_2,p_4,p_6,p_9); :}
   | Expr:p_1 Expr:p_2 _SYMB_7 _SYMB_0 Type:p_5  {: RESULT = new parsing.delimc.Absyn.EApp(p_1,p_2,p_5); :}
-  | Expr:p_1 _SYMB_12 _SYMB_0 MType:p_4  {: RESULT = new parsing.delimc.Absyn.EReturn(p_1,p_4); :}
-  | Expr:p_1 Expr:p_2 _SYMB_8 _SYMB_0 MType:p_5  {: RESULT = new parsing.delimc.Absyn.EBind(p_1,p_2,p_5); :}
+  | Expr:p_1 _SYMB_12 _SYMB_0 Type:p_4  {: RESULT = new parsing.delimc.Absyn.EReturn(p_1,p_4); :}
+  | Expr:p_1 Expr:p_2 _SYMB_8 _SYMB_0 Type:p_5  {: RESULT = new parsing.delimc.Absyn.EBind(p_1,p_2,p_5); :}
   | _SYMB_9  {: RESULT = new parsing.delimc.Absyn.ENewPrompt(); :}
-  | Expr:p_1 Expr:p_2 _SYMB_10 _SYMB_0 MType:p_5  {: RESULT = new parsing.delimc.Absyn.EPushPrompt(p_1,p_2,p_5); :}
-  | Expr:p_1 Expr:p_2 _SYMB_13 _SYMB_0 MType:p_5  {: RESULT = new parsing.delimc.Absyn.EWithSubCont(p_1,p_2,p_5); :}
-  | Expr:p_1 Expr:p_2 _SYMB_11 _SYMB_0 MType:p_5  {: RESULT = new parsing.delimc.Absyn.EPushSubCont(p_1,p_2,p_5); :}
-  | _SYMB_1 Expr:p_2 _SYMB_4 Expr:p_4 _SYMB_3 _SYMB_0 TType:p_7  {: RESULT = new parsing.delimc.Absyn.ETuple(p_2,p_4,p_7); :}
+  | Expr:p_1 Expr:p_2 _SYMB_10 _SYMB_0 Type:p_5  {: RESULT = new parsing.delimc.Absyn.EPushPrompt(p_1,p_2,p_5); :}
+  | Expr:p_1 Expr:p_2 _SYMB_13 _SYMB_0 Type:p_5  {: RESULT = new parsing.delimc.Absyn.EWithSubCont(p_1,p_2,p_5); :}
+  | Expr:p_1 Expr:p_2 _SYMB_11 _SYMB_0 Type:p_5  {: RESULT = new parsing.delimc.Absyn.EPushSubCont(p_1,p_2,p_5); :}
+  | Tuple:p_1 _SYMB_0 Type:p_3  {: RESULT = new parsing.delimc.Absyn.ETuple(p_1,p_3); :}
+;
+Tuple ::= _SYMB_1 Expr:p_2 _SYMB_4 Expr:p_4 _SYMB_3  {: RESULT = new parsing.delimc.Absyn.Tuple2(p_2,p_4); :} 
+  | _SYMB_1 Expr:p_2 _SYMB_4 Expr:p_4 _SYMB_4 Expr:p_6 _SYMB_3  {: RESULT = new parsing.delimc.Absyn.Tuple3(p_2,p_4,p_6); :}
 ;
 Value ::= _INTEGER_:p_1  {: RESULT = new parsing.delimc.Absyn.VInt(p_1); :} 
   | _STRING_:p_1  {: RESULT = new parsing.delimc.Absyn.VString(p_1); :}
@@ -77,17 +79,14 @@ Value ::= _INTEGER_:p_1  {: RESULT = new parsing.delimc.Absyn.VInt(p_1); :}
 Type2 ::= SimpleType:p_1  {: RESULT = new parsing.delimc.Absyn.TSimple(p_1); :} 
   | _SYMB_1 Type:p_2 _SYMB_3  {: RESULT = p_2; :}
 ;
-Type1 ::= MType:p_1  {: RESULT = new parsing.delimc.Absyn.TMonad(p_1); :} 
-  | TType:p_1  {: RESULT = new parsing.delimc.Absyn.TTuple(p_1); :}
+Type1 ::= TType:p_1  {: RESULT = new parsing.delimc.Absyn.TTuple(p_1); :} 
   | Type2:p_1  {: RESULT = p_1; :}
 ;
-Type ::= FType:p_1  {: RESULT = new parsing.delimc.Absyn.TFun(p_1); :} 
+Type ::= _SYMB_6 Type1:p_2 Type1:p_3  {: RESULT = new parsing.delimc.Absyn.TMonad(p_2,p_3); :} 
+  | Type1:p_1 _SYMB_5 Type:p_3  {: RESULT = new parsing.delimc.Absyn.TFun(p_1,p_3); :}
   | Type1:p_1  {: RESULT = p_1; :}
 ;
-MType ::= _SYMB_6 Type2:p_2 Type2:p_3  {: RESULT = new parsing.delimc.Absyn.CCType(p_2,p_3); :} 
-;
-FType ::= Type1:p_1 _SYMB_5 Type:p_3  {: RESULT = new parsing.delimc.Absyn.FunType(p_1,p_3); :} 
-;
-TType ::= _SYMB_1 Type:p_2 _SYMB_4 Type:p_4 _SYMB_3  {: RESULT = new parsing.delimc.Absyn.TupleType(p_2,p_4); :} 
+TType ::= _SYMB_1 Type:p_2 _SYMB_4 Type:p_4 _SYMB_3  {: RESULT = new parsing.delimc.Absyn.TType2(p_2,p_4); :} 
+  | _SYMB_1 Type:p_2 _SYMB_4 Type:p_4 _SYMB_4 Type:p_6 _SYMB_3  {: RESULT = new parsing.delimc.Absyn.TType3(p_2,p_4,p_6); :}
 ;
 

@@ -23,9 +23,9 @@ public class VisitSkel
     }    public R visit(parsing.delimc.Absyn.EAbs p, A arg)
     { /* Code For EAbs Goes Here */
       //p.var_;
-      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      p.type_1.accept(new TypeVisitor<R,A>(), arg);
       p.expr_.accept(new ExprVisitor<R,A>(), arg);
-      p.ftype_.accept(new FTypeVisitor<R,A>(), arg);
+      p.type_2.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.EApp p, A arg)
     { /* Code For EApp Goes Here */
@@ -36,13 +36,13 @@ public class VisitSkel
     }    public R visit(parsing.delimc.Absyn.EReturn p, A arg)
     { /* Code For EReturn Goes Here */
       p.expr_.accept(new ExprVisitor<R,A>(), arg);
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.EBind p, A arg)
     { /* Code For EBind Goes Here */
       p.expr_1.accept(new ExprVisitor<R,A>(), arg);
       p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.ENewPrompt p, A arg)
     { /* Code For ENewPrompt Goes Here */
@@ -51,25 +51,39 @@ public class VisitSkel
     { /* Code For EPushPrompt Goes Here */
       p.expr_1.accept(new ExprVisitor<R,A>(), arg);
       p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.EWithSubCont p, A arg)
     { /* Code For EWithSubCont Goes Here */
       p.expr_1.accept(new ExprVisitor<R,A>(), arg);
       p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.EPushSubCont p, A arg)
     { /* Code For EPushSubCont Goes Here */
       p.expr_1.accept(new ExprVisitor<R,A>(), arg);
       p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(parsing.delimc.Absyn.ETuple p, A arg)
     { /* Code For ETuple Goes Here */
+      p.tuple_.accept(new TupleVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      return null;
+    }
+  }
+  public class TupleVisitor<R,A> implements Tuple.Visitor<R,A>
+  {
+    public R visit(parsing.delimc.Absyn.Tuple2 p, A arg)
+    { /* Code For Tuple2 Goes Here */
       p.expr_1.accept(new ExprVisitor<R,A>(), arg);
       p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.ttype_.accept(new TTypeVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(parsing.delimc.Absyn.Tuple3 p, A arg)
+    { /* Code For Tuple3 Goes Here */
+      p.expr_1.accept(new ExprVisitor<R,A>(), arg);
+      p.expr_2.accept(new ExprVisitor<R,A>(), arg);
+      p.expr_3.accept(new ExprVisitor<R,A>(), arg);
       return null;
     }
   }
@@ -91,44 +105,34 @@ public class VisitSkel
     { /* Code For TSimple Goes Here */
       //p.simpletype_;
       return null;
-    }        public R visit(parsing.delimc.Absyn.TMonad p, A arg)
-    { /* Code For TMonad Goes Here */
-      p.mtype_.accept(new MTypeVisitor<R,A>(), arg);
-      return null;
-    }    public R visit(parsing.delimc.Absyn.TTuple p, A arg)
+    }        public R visit(parsing.delimc.Absyn.TTuple p, A arg)
     { /* Code For TTuple Goes Here */
       p.ttype_.accept(new TTypeVisitor<R,A>(), arg);
       return null;
-    }        public R visit(parsing.delimc.Absyn.TFun p, A arg)
+    }        public R visit(parsing.delimc.Absyn.TMonad p, A arg)
+    { /* Code For TMonad Goes Here */
+      p.type_1.accept(new TypeVisitor<R,A>(), arg);
+      p.type_2.accept(new TypeVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(parsing.delimc.Absyn.TFun p, A arg)
     { /* Code For TFun Goes Here */
-      p.ftype_.accept(new FTypeVisitor<R,A>(), arg);
+      p.type_1.accept(new TypeVisitor<R,A>(), arg);
+      p.type_2.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    
   }
-  public class MTypeVisitor<R,A> implements MType.Visitor<R,A>
-  {
-    public R visit(parsing.delimc.Absyn.CCType p, A arg)
-    { /* Code For CCType Goes Here */
-      p.type_1.accept(new TypeVisitor<R,A>(), arg);
-      p.type_2.accept(new TypeVisitor<R,A>(), arg);
-      return null;
-    }
-  }
-  public class FTypeVisitor<R,A> implements FType.Visitor<R,A>
-  {
-    public R visit(parsing.delimc.Absyn.FunType p, A arg)
-    { /* Code For FunType Goes Here */
-      p.type_1.accept(new TypeVisitor<R,A>(), arg);
-      p.type_2.accept(new TypeVisitor<R,A>(), arg);
-      return null;
-    }
-  }
   public class TTypeVisitor<R,A> implements TType.Visitor<R,A>
   {
-    public R visit(parsing.delimc.Absyn.TupleType p, A arg)
-    { /* Code For TupleType Goes Here */
+    public R visit(parsing.delimc.Absyn.TType2 p, A arg)
+    { /* Code For TType2 Goes Here */
       p.type_1.accept(new TypeVisitor<R,A>(), arg);
       p.type_2.accept(new TypeVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(parsing.delimc.Absyn.TType3 p, A arg)
+    { /* Code For TType3 Goes Here */
+      p.type_1.accept(new TypeVisitor<R,A>(), arg);
+      p.type_2.accept(new TypeVisitor<R,A>(), arg);
+      p.type_3.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }
   }

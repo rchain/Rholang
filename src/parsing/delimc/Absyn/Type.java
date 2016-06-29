@@ -4,8 +4,8 @@ public abstract class Type implements java.io.Serializable {
   public abstract <R,A> R accept(Type.Visitor<R,A> v, A arg);
   public interface Visitor <R,A> {
     public R visit(parsing.delimc.Absyn.TSimple p, A arg);
-    public R visit(parsing.delimc.Absyn.TMonad p, A arg);
     public R visit(parsing.delimc.Absyn.TTuple p, A arg);
+    public R visit(parsing.delimc.Absyn.TMonad p, A arg);
     public R visit(parsing.delimc.Absyn.TFun p, A arg);
 
   }

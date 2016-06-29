@@ -2,32 +2,36 @@
 -- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
 -- The syntax is postfix to simplify generating code in this language.
 
-EVar.         Expr ::= Var ":" Type ;
-EVal.         Expr ::= Value ;
-EAbs.         Expr ::= "(" Var ":" Type "." Expr ")" ":" FType ;
-EApp.         Expr ::= Expr Expr "apply" ":" Type ;
-EReturn.      Expr ::= Expr "return" ":" MType ;
-EBind.        Expr ::= Expr Expr "bind" ":" MType ;
-ENewPrompt.   Expr ::= "newPrompt" ;
-EPushPrompt.  Expr ::= Expr Expr "pushPrompt" ":" MType ;
-EWithSubCont. Expr ::= Expr Expr "withSubCont" ":" MType ;
-EPushSubCont. Expr ::= Expr Expr "pushSubCont" ":" MType ;
-ETuple.       Expr ::= "(" Expr "," Expr ")" ":" TType ;
+
+-- It might make sense to refactor into TypedExpr ::= Expr ":" Type
+-- This would possibly make it easier to extract the type directly
+-- instead of passing it around.
+EVar.         Expr  ::= Var ":" Type ;
+EVal.         Expr  ::= Value ;
+EAbs.         Expr  ::= "(" Var ":" Type "." Expr ")" ":" Type ;
+EApp.         Expr  ::= Expr Expr "apply" ":" Type ;
+EReturn.      Expr  ::= Expr "return" ":" Type ;
+EBind.        Expr  ::= Expr Expr "bind" ":" Type ;
+ENewPrompt.   Expr  ::= "newPrompt" ;
+EPushPrompt.  Expr  ::= Expr Expr "pushPrompt" ":" Type ;
+EWithSubCont. Expr  ::= Expr Expr "withSubCont" ":" Type ;
+EPushSubCont. Expr  ::= Expr Expr "pushSubCont" ":" Type ;
+ETuple.       Expr  ::= Tuple ":" Type ;
+
+Tuple2.       Tuple ::= "(" Expr "," Expr ")" ;
+Tuple3.       Tuple ::= "(" Expr "," Expr "," Expr ")" ;
 
 VInt.         Value ::= Integer ;
 VString.      Value ::= String ;
 
 TSimple.      Type2 ::= SimpleType ;
-TMonad.       Type1 ::= MType ;
 TTuple.       Type1 ::= TType ;
-TFun.         Type  ::= FType ;
+TMonad.       Type  ::= "CC" Type1 Type1 ;
+TFun.         Type  ::= Type1 "->" Type ;
 coercions Type 2 ;
 
-CCType.       MType ::= "CC" Type2 Type2 ;
-
-FunType.      FType ::= Type1 "->" Type ;
-
-TupleType.    TType ::= "(" Type "," Type ")" ;
+TType2.       TType ::= "(" Type "," Type ")" ;
+TType3.       TType ::= "(" Type "," Type "," Type ")" ;
 
 token SimpleType (upper (letter | digit | '_' | '\'')*) ;
 token Var (lower (letter | digit | '_' | '\'')*) ;
