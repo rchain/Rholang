@@ -1,22 +1,22 @@
 package rholang.transforming.DelimcToLambda
 
-// import scalaz.Monad
+//import scalaz.Monad
 import rholang.transforming.DelimcToLambda.TypedLambda._
 
 /**
   * Created by weeeeeew on 2016-06-07.
   */
 object Prompt {
-  case class Prompt[Ans, A](p : Expr[Integer])
-  case class P[Ans, A](f : Expr[Integer => (Integer, A)])
+  case class Prompt[Ans, A](p : ETyped[Integer])
+  case class P[Ans, A](f : ETyped[Integer => (Integer, A)])
 
-  // def unP[Ans, A](p: P[Ans, A], i: Expr[Integer]) : Expr[(Integer,A)] = p match {
-  //   case P(f) => EApp[Integer, (Integer, A)](f, i, ???)
-  // }
+  def unP[Ans, A](p: P[Ans, A], i: ETyped[Integer]) : ETyped[(Integer,A)] = p match {
+    case P(f) => applyAbs(f,i)
+  }
 
-  trait Equal[A,B]
-  case class IsEqual[A](a1: A, a2: A) extends Equal[A,A]
-  case class IsNotEqual[A,B](a: A, b: B) extends Equal[A,B]
+  sealed trait Equal[A,B]
+  case class IsEqual[A,B](a: A, b: B)(implicit p: A =:= B) extends Equal[A,A]
+  case class IsNotEqual[A,B](a: A, b: B)                   extends Equal[A,B]
 
   /*
   class PMonad[Ans] extends Monad[({type l[A] = P[Ans, A]})#l] {
@@ -27,14 +27,15 @@ object Prompt {
 
     override def point[A](e: => A): P[Ans, _][A] = P[Ans, _][A]((s: Integer) => (s,e))
   }
+   */
 
-  def runP[Ans](pe: P[Ans, Ans]) : Ans = unP(pe,0)._2
+  def runP[Ans](pe: P[Ans, Ans]) = snd2(unP(pe, typedInt(0)))
 
-  def newPromptName[Ans, A] : P[Ans, Prompt[Ans, A]] = P(np => (np+1, Prompt(np)))
+  def newPromptName[Ans, A] : P[Ans, Prompt[Ans, A]] = for{np <- newName}
+    yield newAbs(np, TSimple[Integer], tuple2(add(newVar(np), typedInt(1)), Prompt(newVar(np)))
 
   def eqPrompt[Ans, A, B](pa : Prompt[Ans, A], pb : Prompt[Ans, B]) : Equal[A,B] = (pa, pb) match {
     case (Prompt(p1), Prompt(p2)) if p1 == p2 => IsEqual
     case (Prompt(p1), Prompt(p2))             => IsNotEqual
   }
-   */
 }
