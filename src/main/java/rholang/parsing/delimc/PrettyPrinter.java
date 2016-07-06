@@ -63,6 +63,21 @@ public class PrettyPrinter
 
 
   //  print and show methods are defined for each category.
+  public static String print(rholang.parsing.delimc.Absyn.TypedExpr foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(rholang.parsing.delimc.Absyn.TypedExpr foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
   public static String print(rholang.parsing.delimc.Absyn.Expr foo)
   {
     pp(foo, 0);
@@ -140,6 +155,19 @@ public class PrettyPrinter
   }
   /***   You shouldn't need to change anything beyond this point.   ***/
 
+  private static void pp(rholang.parsing.delimc.Absyn.TypedExpr foo, int _i_)
+  {
+    if (foo instanceof rholang.parsing.delimc.Absyn.ETyped)
+    {
+       rholang.parsing.delimc.Absyn.ETyped _etyped = (rholang.parsing.delimc.Absyn.ETyped) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_etyped.expr_, 0);
+       render(":");
+       pp(_etyped.type_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
   private static void pp(rholang.parsing.delimc.Absyn.Expr foo, int _i_)
   {
     if (foo instanceof rholang.parsing.delimc.Absyn.EVar)
@@ -147,8 +175,6 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EVar _evar = (rholang.parsing.delimc.Absyn.EVar) foo;
        if (_i_ > 0) render(_L_PAREN);
        pp(_evar.var_, 0);
-       render(":");
-       pp(_evar.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EVal)
@@ -162,47 +188,37 @@ public class PrettyPrinter
     {
        rholang.parsing.delimc.Absyn.EAbs _eabs = (rholang.parsing.delimc.Absyn.EAbs) foo;
        if (_i_ > 0) render(_L_PAREN);
-       render("(");
+       render("\\");
        pp(_eabs.var_, 0);
        render(":");
-       pp(_eabs.type_1, 0);
+       pp(_eabs.type_, 0);
        render(".");
-       pp(_eabs.expr_, 0);
-       render(")");
-       render(":");
-       pp(_eabs.type_2, 0);
+       pp(_eabs.typedexpr_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EApp)
     {
        rholang.parsing.delimc.Absyn.EApp _eapp = (rholang.parsing.delimc.Absyn.EApp) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_eapp.expr_1, 0);
-       pp(_eapp.expr_2, 0);
-       render("apply");
-       render(":");
-       pp(_eapp.type_, 0);
+       pp(_eapp.typedexpr_1, 0);
+       pp(_eapp.typedexpr_2, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EReturn)
     {
        rholang.parsing.delimc.Absyn.EReturn _ereturn = (rholang.parsing.delimc.Absyn.EReturn) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_ereturn.expr_, 0);
        render("return");
-       render(":");
-       pp(_ereturn.type_, 0);
+       pp(_ereturn.typedexpr_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EBind)
     {
        rholang.parsing.delimc.Absyn.EBind _ebind = (rholang.parsing.delimc.Absyn.EBind) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_ebind.expr_1, 0);
-       pp(_ebind.expr_2, 0);
-       render("bind");
-       render(":");
-       pp(_ebind.type_, 0);
+       pp(_ebind.typedexpr_1, 0);
+       render(">>=");
+       pp(_ebind.typedexpr_2, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.ENewPrompt)
@@ -216,33 +232,27 @@ public class PrettyPrinter
     {
        rholang.parsing.delimc.Absyn.EPushPrompt _epushprompt = (rholang.parsing.delimc.Absyn.EPushPrompt) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_epushprompt.expr_1, 0);
-       pp(_epushprompt.expr_2, 0);
+       pp(_epushprompt.typedexpr_1, 0);
+       pp(_epushprompt.typedexpr_2, 0);
        render("pushPrompt");
-       render(":");
-       pp(_epushprompt.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EWithSubCont)
     {
        rholang.parsing.delimc.Absyn.EWithSubCont _ewithsubcont = (rholang.parsing.delimc.Absyn.EWithSubCont) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_ewithsubcont.expr_1, 0);
-       pp(_ewithsubcont.expr_2, 0);
+       pp(_ewithsubcont.typedexpr_1, 0);
+       pp(_ewithsubcont.typedexpr_2, 0);
        render("withSubCont");
-       render(":");
-       pp(_ewithsubcont.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.EPushSubCont)
     {
        rholang.parsing.delimc.Absyn.EPushSubCont _epushsubcont = (rholang.parsing.delimc.Absyn.EPushSubCont) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_epushsubcont.expr_1, 0);
-       pp(_epushsubcont.expr_2, 0);
+       pp(_epushsubcont.typedexpr_1, 0);
+       pp(_epushsubcont.typedexpr_2, 0);
        render("pushSubCont");
-       render(":");
-       pp(_epushsubcont.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.delimc.Absyn.ETuple)
@@ -250,8 +260,6 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.ETuple _etuple = (rholang.parsing.delimc.Absyn.ETuple) foo;
        if (_i_ > 0) render(_L_PAREN);
        pp(_etuple.tuple_, 0);
-       render(":");
-       pp(_etuple.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
@@ -263,9 +271,9 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.Tuple2 _tuple2 = (rholang.parsing.delimc.Absyn.Tuple2) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("(");
-       pp(_tuple2.expr_1, 0);
+       pp(_tuple2.typedexpr_1, 0);
        render(",");
-       pp(_tuple2.expr_2, 0);
+       pp(_tuple2.typedexpr_2, 0);
        render(")");
        if (_i_ > 0) render(_R_PAREN);
     }
@@ -274,11 +282,11 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.Tuple3 _tuple3 = (rholang.parsing.delimc.Absyn.Tuple3) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("(");
-       pp(_tuple3.expr_1, 0);
+       pp(_tuple3.typedexpr_1, 0);
        render(",");
-       pp(_tuple3.expr_2, 0);
+       pp(_tuple3.typedexpr_2, 0);
        render(",");
-       pp(_tuple3.expr_3, 0);
+       pp(_tuple3.typedexpr_3, 0);
        render(")");
        if (_i_ > 0) render(_R_PAREN);
     }
@@ -367,6 +375,19 @@ public class PrettyPrinter
   }
 
 
+  private static void sh(rholang.parsing.delimc.Absyn.TypedExpr foo)
+  {
+    if (foo instanceof rholang.parsing.delimc.Absyn.ETyped)
+    {
+       rholang.parsing.delimc.Absyn.ETyped _etyped = (rholang.parsing.delimc.Absyn.ETyped) foo;
+       render("(");
+       render("ETyped");
+       sh(_etyped.expr_);
+       sh(_etyped.type_);
+       render(")");
+    }
+  }
+
   private static void sh(rholang.parsing.delimc.Absyn.Expr foo)
   {
     if (foo instanceof rholang.parsing.delimc.Absyn.EVar)
@@ -375,7 +396,6 @@ public class PrettyPrinter
        render("(");
        render("EVar");
        sh(_evar.var_);
-       sh(_evar.type_);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EVal)
@@ -392,9 +412,8 @@ public class PrettyPrinter
        render("(");
        render("EAbs");
        sh(_eabs.var_);
-       sh(_eabs.type_1);
-       sh(_eabs.expr_);
-       sh(_eabs.type_2);
+       sh(_eabs.type_);
+       sh(_eabs.typedexpr_);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EApp)
@@ -402,9 +421,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EApp _eapp = (rholang.parsing.delimc.Absyn.EApp) foo;
        render("(");
        render("EApp");
-       sh(_eapp.expr_1);
-       sh(_eapp.expr_2);
-       sh(_eapp.type_);
+       sh(_eapp.typedexpr_1);
+       sh(_eapp.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EReturn)
@@ -412,8 +430,7 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EReturn _ereturn = (rholang.parsing.delimc.Absyn.EReturn) foo;
        render("(");
        render("EReturn");
-       sh(_ereturn.expr_);
-       sh(_ereturn.type_);
+       sh(_ereturn.typedexpr_);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EBind)
@@ -421,9 +438,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EBind _ebind = (rholang.parsing.delimc.Absyn.EBind) foo;
        render("(");
        render("EBind");
-       sh(_ebind.expr_1);
-       sh(_ebind.expr_2);
-       sh(_ebind.type_);
+       sh(_ebind.typedexpr_1);
+       sh(_ebind.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.ENewPrompt)
@@ -436,9 +452,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EPushPrompt _epushprompt = (rholang.parsing.delimc.Absyn.EPushPrompt) foo;
        render("(");
        render("EPushPrompt");
-       sh(_epushprompt.expr_1);
-       sh(_epushprompt.expr_2);
-       sh(_epushprompt.type_);
+       sh(_epushprompt.typedexpr_1);
+       sh(_epushprompt.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EWithSubCont)
@@ -446,9 +461,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EWithSubCont _ewithsubcont = (rholang.parsing.delimc.Absyn.EWithSubCont) foo;
        render("(");
        render("EWithSubCont");
-       sh(_ewithsubcont.expr_1);
-       sh(_ewithsubcont.expr_2);
-       sh(_ewithsubcont.type_);
+       sh(_ewithsubcont.typedexpr_1);
+       sh(_ewithsubcont.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.EPushSubCont)
@@ -456,9 +470,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.EPushSubCont _epushsubcont = (rholang.parsing.delimc.Absyn.EPushSubCont) foo;
        render("(");
        render("EPushSubCont");
-       sh(_epushsubcont.expr_1);
-       sh(_epushsubcont.expr_2);
-       sh(_epushsubcont.type_);
+       sh(_epushsubcont.typedexpr_1);
+       sh(_epushsubcont.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.ETuple)
@@ -467,7 +480,6 @@ public class PrettyPrinter
        render("(");
        render("ETuple");
        sh(_etuple.tuple_);
-       sh(_etuple.type_);
        render(")");
     }
   }
@@ -479,8 +491,8 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.Tuple2 _tuple2 = (rholang.parsing.delimc.Absyn.Tuple2) foo;
        render("(");
        render("Tuple2");
-       sh(_tuple2.expr_1);
-       sh(_tuple2.expr_2);
+       sh(_tuple2.typedexpr_1);
+       sh(_tuple2.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.delimc.Absyn.Tuple3)
@@ -488,9 +500,9 @@ public class PrettyPrinter
        rholang.parsing.delimc.Absyn.Tuple3 _tuple3 = (rholang.parsing.delimc.Absyn.Tuple3) foo;
        render("(");
        render("Tuple3");
-       sh(_tuple3.expr_1);
-       sh(_tuple3.expr_2);
-       sh(_tuple3.expr_3);
+       sh(_tuple3.typedexpr_1);
+       sh(_tuple3.typedexpr_2);
+       sh(_tuple3.typedexpr_3);
        render(")");
     }
   }

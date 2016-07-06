@@ -25,12 +25,15 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 %state ESCAPED
 %%
 <YYINITIAL>: { return new Symbol(sym._SYMB_0); }
-<YYINITIAL>\( { return new Symbol(sym._SYMB_1); }
+<YYINITIAL>\\ { return new Symbol(sym._SYMB_1); }
 <YYINITIAL>\. { return new Symbol(sym._SYMB_2); }
-<YYINITIAL>\) { return new Symbol(sym._SYMB_3); }
+<YYINITIAL>\( { return new Symbol(sym._SYMB_3); }
 <YYINITIAL>, { return new Symbol(sym._SYMB_4); }
-<YYINITIAL>-> { return new Symbol(sym._SYMB_5); }
-<YYINITIAL>apply { return new Symbol(sym._SYMB_6); }
+<YYINITIAL>\) { return new Symbol(sym._SYMB_5); }
+<YYINITIAL>-> { return new Symbol(sym._SYMB_6); }
+<YYINITIAL>fst { return new Symbol(sym._SYMB_7); }
+<YYINITIAL>snd { return new Symbol(sym._SYMB_8); }
+<YYINITIAL>thd { return new Symbol(sym._SYMB_9); }
 
 <YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.SimpleType, yytext().intern()); }
 <YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Var, yytext().intern()); }

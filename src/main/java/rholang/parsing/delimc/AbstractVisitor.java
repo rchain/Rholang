@@ -2,6 +2,11 @@ package rholang.parsing.delimc;
 import rholang.parsing.delimc.Absyn.*;
 /** BNFC-Generated Abstract Visitor */
 public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
+/* TypedExpr */
+    public R visit(rholang.parsing.delimc.Absyn.ETyped p, A arg) { return visitDefault(p, arg); }
+    public R visitDefault(rholang.parsing.delimc.Absyn.TypedExpr p, A arg) {
+      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
+    }
 /* Expr */
     public R visit(rholang.parsing.delimc.Absyn.EVar p, A arg) { return visitDefault(p, arg); }
     public R visit(rholang.parsing.delimc.Absyn.EVal p, A arg) { return visitDefault(p, arg); }

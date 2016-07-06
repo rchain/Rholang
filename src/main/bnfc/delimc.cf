@@ -1,25 +1,24 @@
 -- Will be used as an intermediate representation.
 -- See https://www.cs.indiana.edu/~sabry/papers/monadicDC.pdf
--- The syntax is postfix to simplify generating code in this language.
+-- The syntax is partly postfix for simplicity.
 
 
--- It might make sense to refactor into TypedExpr ::= Expr ":" Type
--- This would possibly make it easier to extract the type directly
--- instead of passing it around.
-EVar.         Expr  ::= Var ":" Type ;
+ETyped.  TypedExpr  ::= Expr ":" Type ;
+
+EVar.         Expr  ::= Var ;
 EVal.         Expr  ::= Value ;
-EAbs.         Expr  ::= "(" Var ":" Type "." Expr ")" ":" Type ;
-EApp.         Expr  ::= Expr Expr "apply" ":" Type ;
-EReturn.      Expr  ::= Expr "return" ":" Type ;
-EBind.        Expr  ::= Expr Expr "bind" ":" Type ;
+EAbs.         Expr  ::= "\\" Var ":" Type "." TypedExpr ;
+EApp.         Expr  ::= TypedExpr TypedExpr ;
+EReturn.      Expr  ::= "return" TypedExpr ;
+EBind.        Expr  ::= TypedExpr ">>=" TypedExpr ;
 ENewPrompt.   Expr  ::= "newPrompt" ;
-EPushPrompt.  Expr  ::= Expr Expr "pushPrompt" ":" Type ;
-EWithSubCont. Expr  ::= Expr Expr "withSubCont" ":" Type ;
-EPushSubCont. Expr  ::= Expr Expr "pushSubCont" ":" Type ;
-ETuple.       Expr  ::= Tuple ":" Type ;
+EPushPrompt.  Expr  ::= TypedExpr TypedExpr "pushPrompt" ;
+EWithSubCont. Expr  ::= TypedExpr TypedExpr "withSubCont" ;
+EPushSubCont. Expr  ::= TypedExpr TypedExpr "pushSubCont" ;
+ETuple.       Expr  ::= Tuple ;
 
-Tuple2.       Tuple ::= "(" Expr "," Expr ")" ;
-Tuple3.       Tuple ::= "(" Expr "," Expr "," Expr ")" ;
+Tuple2.       Tuple ::= "(" TypedExpr "," TypedExpr ")" ;
+Tuple3.       Tuple ::= "(" TypedExpr "," TypedExpr "," TypedExpr ")" ;
 
 VInt.         Value ::= Integer ;
 VString.      Value ::= String ;

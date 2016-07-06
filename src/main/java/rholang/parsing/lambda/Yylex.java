@@ -64,12 +64,12 @@ public class Yylex implements java_cup.runtime.Scanner {
 	private final int CHAR = 2;
 	private final int yy_state_dtrans[] = {
 		0,
-		24,
-		24,
-		24,
-		24,
-		25,
-		26
+		27,
+		27,
+		27,
+		27,
+		29,
+		31
 	};
 	private void yybegin (int state) {
 		yy_lexical_state = state;
@@ -242,30 +242,35 @@ public class Yylex implements java_cup.runtime.Scanner {
 		/* 19 */ YY_NO_ANCHOR,
 		/* 20 */ YY_NO_ANCHOR,
 		/* 21 */ YY_NO_ANCHOR,
-		/* 22 */ YY_NOT_ACCEPT,
+		/* 22 */ YY_NO_ANCHOR,
 		/* 23 */ YY_NO_ANCHOR,
-		/* 24 */ YY_NOT_ACCEPT,
+		/* 24 */ YY_NO_ANCHOR,
 		/* 25 */ YY_NOT_ACCEPT,
-		/* 26 */ YY_NOT_ACCEPT,
-		/* 27 */ YY_NO_ANCHOR,
+		/* 26 */ YY_NO_ANCHOR,
+		/* 27 */ YY_NOT_ACCEPT,
 		/* 28 */ YY_NO_ANCHOR,
-		/* 29 */ YY_NO_ANCHOR,
-		/* 30 */ YY_NO_ANCHOR
+		/* 29 */ YY_NOT_ACCEPT,
+		/* 30 */ YY_NO_ANCHOR,
+		/* 31 */ YY_NOT_ACCEPT,
+		/* 32 */ YY_NO_ANCHOR,
+		/* 33 */ YY_NO_ANCHOR,
+		/* 34 */ YY_NO_ANCHOR,
+		/* 35 */ YY_NO_ANCHOR
 	};
 	private int yy_cmap[] = unpackFromString(1,65538,
-"18:9,21,22,18,21,22,18:18,21,18,16,18:4,15,2,4,18:2,5,6,3,18,14:10,1,18:3,7" +
-",18:2,12:26,18,17,18:2,15,18,8,13:10,10,13,19,13,9,13:3,20,13:4,11,13,18:69" +
-",12:23,18,12:7,13:24,18,13:8,18:65280,0:2")[0];
+"20:9,21,22,20,21,22,20:18,21,20,19,20:4,18,4,6,20:2,5,7,3,20,17:10,1,20:3,8" +
+",20:2,15:26,20,2,20:2,18,20,16:3,13,16,9,16,14,16:5,12,16:4,10,11,16:6,20:6" +
+"9,15:23,20,15:7,16:24,20,16:8,20:65280,0:2")[0];
 
-	private int yy_rmap[] = unpackFromString(1,31,
-"0,1:6,2,3,4,1:3,5,1:8,6,7,8,9,10,11,12,5:2")[0];
+	private int yy_rmap[] = unpackFromString(1,36,
+"0,1:7,2,3,4,1:3,5:3,1:8,6,7,8,5,9,10,11,12,13,14,5")[0];
 
-	private int yy_nxt[][] = unpackFromString(13,23,
-"1,2,3,4,5,6,22,-1,7,30:3,8,30,9,-1,10,-1:2,30:2,11:2,-1:31,30,28,30:2,29,30" +
-",29:2,-1:3,30:2,-1:10,8:8,-1:3,8:2,-1:16,9,-1:16,30:4,29,30,29:2,-1:3,30:2," +
-"-1:9,12,-1:23,30:3,13,29,30,29:2,-1:3,30:2,-1:2,1,-1:22,1,14:15,15,16,14:4," +
-"-1,1,17:15,18,19,17,20,21,17,-1:9,30:2,23,30,29,30,29:2,-1:3,30:2,-1:10,30," +
-"27,30:2,29,30,29:2,-1:3,30:2,-1:2");
+	private int yy_nxt[][] = unpackFromString(15,23,
+"1,2,3,4,5,6,7,25,-1,8,33,34,35:3,9,35,10,-1,11,-1,12:2,-1:32,35,26,35:4,28," +
+"35,28:2,-1:13,9:10,-1:21,10,-1:14,35:6,28,35,28:2,-1:12,13,-1:23,35:2,14,35" +
+":3,28,35,28:2,-1:4,1,-1:22,1,17,18,17:16,19,17:2,-1:10,35:4,15,35,28,35,28:" +
+"2,-1:4,1,20,21,20:8,22,23,20:6,24,20:2,-1:10,35:4,16,35,28,35,28:2,-1:13,35" +
+":3,30,35:2,28,35,28:2,-1:13,35:5,32,28,35,28:2,-1:4");
 
 	public java_cup.runtime.Symbol next_token ()
 		throws java.io.IOException {
@@ -336,27 +341,27 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case -7:
 						break;
 					case 7:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+						{ return new Symbol(sym._SYMB_5); }
 					case -8:
 						break;
 					case 8:
-						{ return new Symbol(sym.SimpleType, yytext().intern()); }
+						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -9:
 						break;
 					case 9:
-						{ return new Symbol(sym._INTEGER_, new Integer(yytext())); }
+						{ return new Symbol(sym.SimpleType, yytext().intern()); }
 					case -10:
 						break;
 					case 10:
-						{ yybegin(STRING); }
+						{ return new Symbol(sym._INTEGER_, new Integer(yytext())); }
 					case -11:
 						break;
 					case 11:
-						{ /* ignore white space. */ }
+						{ yybegin(STRING); }
 					case -12:
 						break;
 					case 12:
-						{ return new Symbol(sym._SYMB_5); }
+						{ /* ignore white space. */ }
 					case -13:
 						break;
 					case 13:
@@ -364,56 +369,76 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case -14:
 						break;
 					case 14:
-						{ pstring += yytext(); }
+						{ return new Symbol(sym._SYMB_7); }
 					case -15:
 						break;
 					case 15:
-						{ String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
+						{ return new Symbol(sym._SYMB_8); }
 					case -16:
 						break;
 					case 16:
-						{ yybegin(ESCAPED); }
+						{ return new Symbol(sym._SYMB_9); }
 					case -17:
 						break;
 					case 17:
-						{ pstring += yytext(); yybegin(STRING); }
+						{ pstring += yytext(); }
 					case -18:
 						break;
 					case 18:
-						{ pstring += "\""; yybegin(STRING); }
+						{ yybegin(ESCAPED); }
 					case -19:
 						break;
 					case 19:
-						{ pstring += "\\"; yybegin(STRING); }
+						{ String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
 					case -20:
 						break;
 					case 20:
-						{ pstring +=  "\n"; yybegin(STRING); }
+						{ pstring += yytext(); yybegin(STRING); }
 					case -21:
 						break;
 					case 21:
-						{ pstring += "\t"; yybegin(STRING); }
+						{ pstring += "\\"; yybegin(STRING); }
 					case -22:
 						break;
-					case 23:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 22:
+						{ pstring += "\t"; yybegin(STRING); }
 					case -23:
 						break;
-					case 27:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 23:
+						{ pstring +=  "\n"; yybegin(STRING); }
 					case -24:
 						break;
-					case 28:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 24:
+						{ pstring += "\""; yybegin(STRING); }
 					case -25:
 						break;
-					case 29:
+					case 26:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -26:
 						break;
-					case 30:
+					case 28:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -27:
+						break;
+					case 30:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -28:
+						break;
+					case 32:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -29:
+						break;
+					case 33:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -30:
+						break;
+					case 34:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -31:
+						break;
+					case 35:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -32:
 						break;
 					default:
 						yy_error(YY_E_INTERNAL,false);

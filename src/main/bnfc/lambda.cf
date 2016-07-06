@@ -1,11 +1,16 @@
-EVar.    Expr  ::= Var ":" Type ;
-EVal.    Expr  ::= Value ;
-EAbs.    Expr  ::= "(" Var ":" Type "." Expr ")" ":" Type ;
-EApp.    Expr  ::= Expr Expr "apply" ":" Type ;
-ETuple.  Expr  ::= Tuple ":" Type ;
+ETyped.  TypedExpr  ::= Expr ":" Type ;
 
-Tuple2.  Tuple ::= "(" Expr "," Expr ")" ;
-Tuple3.  Tuple ::= "(" Expr "," Expr "," Expr ")" ;
+EVar.    Expr  ::= Var ;
+EVal.    Expr  ::= Value ;
+EAbs.    Expr  ::= "\\" Var ":" Type "." TypedExpr ;
+EApp.    Expr  ::= TypedExpr TypedExpr ;
+ETuple.  Expr  ::= Tuple ;
+EFirst.  Expr  ::= "fst" TypedExpr ;
+ESecond. Expr  ::= "snd" TypedExpr ;
+EThird.  Expr  ::= "thd" TypedExpr ;
+
+Tuple2.  Tuple ::= "(" TypedExpr "," TypedExpr ")" ;
+Tuple3.  Tuple ::= "(" TypedExpr "," TypedExpr "," TypedExpr ")" ;
 
 VInt.    Value ::= Integer ;
 VString. Value ::= String ;

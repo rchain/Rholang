@@ -23,10 +23,10 @@ public class Test
     p = new parser(l);
     /* The default parser is the first-defined entry point. */
     /* You may want to change this. Other options are: */
-    /* pTuple, pValue, pType, pTType */
+    /* pExpr, pTuple, pValue, pType, pTType */
     try
     {
-      rholang.parsing.delimc.Absyn.Expr parse_tree = p.pExpr();
+      rholang.parsing.delimc.Absyn.TypedExpr parse_tree = p.pTypedExpr();
       System.out.println();
       System.out.println("Parse Succesful!");
       System.out.println();

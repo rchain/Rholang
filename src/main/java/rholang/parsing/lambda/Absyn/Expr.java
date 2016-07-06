@@ -8,6 +8,9 @@ public abstract class Expr implements java.io.Serializable {
     public R visit(rholang.parsing.lambda.Absyn.EAbs p, A arg);
     public R visit(rholang.parsing.lambda.Absyn.EApp p, A arg);
     public R visit(rholang.parsing.lambda.Absyn.ETuple p, A arg);
+    public R visit(rholang.parsing.lambda.Absyn.EFirst p, A arg);
+    public R visit(rholang.parsing.lambda.Absyn.ESecond p, A arg);
+    public R visit(rholang.parsing.lambda.Absyn.EThird p, A arg);
 
   }
 

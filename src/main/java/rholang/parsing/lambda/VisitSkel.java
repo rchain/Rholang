@@ -9,12 +9,20 @@ import rholang.parsing.lambda.Absyn.*;
 
 public class VisitSkel
 {
+  public class TypedExprVisitor<R,A> implements TypedExpr.Visitor<R,A>
+  {
+    public R visit(rholang.parsing.lambda.Absyn.ETyped p, A arg)
+    { /* Code For ETyped Goes Here */
+      p.expr_.accept(new ExprVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      return null;
+    }
+  }
   public class ExprVisitor<R,A> implements Expr.Visitor<R,A>
   {
     public R visit(rholang.parsing.lambda.Absyn.EVar p, A arg)
     { /* Code For EVar Goes Here */
       //p.var_;
-      p.type_.accept(new TypeVisitor<R,A>(), arg);
       return null;
     }    public R visit(rholang.parsing.lambda.Absyn.EVal p, A arg)
     { /* Code For EVal Goes Here */
@@ -23,20 +31,29 @@ public class VisitSkel
     }    public R visit(rholang.parsing.lambda.Absyn.EAbs p, A arg)
     { /* Code For EAbs Goes Here */
       //p.var_;
-      p.type_1.accept(new TypeVisitor<R,A>(), arg);
-      p.expr_.accept(new ExprVisitor<R,A>(), arg);
-      p.type_2.accept(new TypeVisitor<R,A>(), arg);
+      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      p.typedexpr_.accept(new TypedExprVisitor<R,A>(), arg);
       return null;
     }    public R visit(rholang.parsing.lambda.Absyn.EApp p, A arg)
     { /* Code For EApp Goes Here */
-      p.expr_1.accept(new ExprVisitor<R,A>(), arg);
-      p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      p.typedexpr_1.accept(new TypedExprVisitor<R,A>(), arg);
+      p.typedexpr_2.accept(new TypedExprVisitor<R,A>(), arg);
       return null;
     }    public R visit(rholang.parsing.lambda.Absyn.ETuple p, A arg)
     { /* Code For ETuple Goes Here */
       p.tuple_.accept(new TupleVisitor<R,A>(), arg);
-      p.type_.accept(new TypeVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(rholang.parsing.lambda.Absyn.EFirst p, A arg)
+    { /* Code For EFirst Goes Here */
+      p.typedexpr_.accept(new TypedExprVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(rholang.parsing.lambda.Absyn.ESecond p, A arg)
+    { /* Code For ESecond Goes Here */
+      p.typedexpr_.accept(new TypedExprVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(rholang.parsing.lambda.Absyn.EThird p, A arg)
+    { /* Code For EThird Goes Here */
+      p.typedexpr_.accept(new TypedExprVisitor<R,A>(), arg);
       return null;
     }
   }
@@ -44,14 +61,14 @@ public class VisitSkel
   {
     public R visit(rholang.parsing.lambda.Absyn.Tuple2 p, A arg)
     { /* Code For Tuple2 Goes Here */
-      p.expr_1.accept(new ExprVisitor<R,A>(), arg);
-      p.expr_2.accept(new ExprVisitor<R,A>(), arg);
+      p.typedexpr_1.accept(new TypedExprVisitor<R,A>(), arg);
+      p.typedexpr_2.accept(new TypedExprVisitor<R,A>(), arg);
       return null;
     }    public R visit(rholang.parsing.lambda.Absyn.Tuple3 p, A arg)
     { /* Code For Tuple3 Goes Here */
-      p.expr_1.accept(new ExprVisitor<R,A>(), arg);
-      p.expr_2.accept(new ExprVisitor<R,A>(), arg);
-      p.expr_3.accept(new ExprVisitor<R,A>(), arg);
+      p.typedexpr_1.accept(new TypedExprVisitor<R,A>(), arg);
+      p.typedexpr_2.accept(new TypedExprVisitor<R,A>(), arg);
+      p.typedexpr_3.accept(new TypedExprVisitor<R,A>(), arg);
       return null;
     }
   }

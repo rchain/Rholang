@@ -25,14 +25,14 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 %state ESCAPED
 %%
 <YYINITIAL>: { return new Symbol(sym._SYMB_0); }
-<YYINITIAL>\( { return new Symbol(sym._SYMB_1); }
+<YYINITIAL>\\ { return new Symbol(sym._SYMB_1); }
 <YYINITIAL>\. { return new Symbol(sym._SYMB_2); }
-<YYINITIAL>\) { return new Symbol(sym._SYMB_3); }
-<YYINITIAL>, { return new Symbol(sym._SYMB_4); }
-<YYINITIAL>-> { return new Symbol(sym._SYMB_5); }
-<YYINITIAL>CC { return new Symbol(sym._SYMB_6); }
-<YYINITIAL>apply { return new Symbol(sym._SYMB_7); }
-<YYINITIAL>bind { return new Symbol(sym._SYMB_8); }
+<YYINITIAL>>>= { return new Symbol(sym._SYMB_3); }
+<YYINITIAL>\( { return new Symbol(sym._SYMB_4); }
+<YYINITIAL>, { return new Symbol(sym._SYMB_5); }
+<YYINITIAL>\) { return new Symbol(sym._SYMB_6); }
+<YYINITIAL>-> { return new Symbol(sym._SYMB_7); }
+<YYINITIAL>CC { return new Symbol(sym._SYMB_8); }
 <YYINITIAL>newPrompt { return new Symbol(sym._SYMB_9); }
 <YYINITIAL>pushPrompt { return new Symbol(sym._SYMB_10); }
 <YYINITIAL>pushSubCont { return new Symbol(sym._SYMB_11); }

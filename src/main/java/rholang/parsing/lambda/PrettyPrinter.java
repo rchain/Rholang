@@ -63,6 +63,21 @@ public class PrettyPrinter
 
 
   //  print and show methods are defined for each category.
+  public static String print(rholang.parsing.lambda.Absyn.TypedExpr foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(rholang.parsing.lambda.Absyn.TypedExpr foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
   public static String print(rholang.parsing.lambda.Absyn.Expr foo)
   {
     pp(foo, 0);
@@ -140,6 +155,19 @@ public class PrettyPrinter
   }
   /***   You shouldn't need to change anything beyond this point.   ***/
 
+  private static void pp(rholang.parsing.lambda.Absyn.TypedExpr foo, int _i_)
+  {
+    if (foo instanceof rholang.parsing.lambda.Absyn.ETyped)
+    {
+       rholang.parsing.lambda.Absyn.ETyped _etyped = (rholang.parsing.lambda.Absyn.ETyped) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_etyped.expr_, 0);
+       render(":");
+       pp(_etyped.type_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
   private static void pp(rholang.parsing.lambda.Absyn.Expr foo, int _i_)
   {
     if (foo instanceof rholang.parsing.lambda.Absyn.EVar)
@@ -147,8 +175,6 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.EVar _evar = (rholang.parsing.lambda.Absyn.EVar) foo;
        if (_i_ > 0) render(_L_PAREN);
        pp(_evar.var_, 0);
-       render(":");
-       pp(_evar.type_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.lambda.Absyn.EVal)
@@ -162,26 +188,20 @@ public class PrettyPrinter
     {
        rholang.parsing.lambda.Absyn.EAbs _eabs = (rholang.parsing.lambda.Absyn.EAbs) foo;
        if (_i_ > 0) render(_L_PAREN);
-       render("(");
+       render("\\");
        pp(_eabs.var_, 0);
        render(":");
-       pp(_eabs.type_1, 0);
+       pp(_eabs.type_, 0);
        render(".");
-       pp(_eabs.expr_, 0);
-       render(")");
-       render(":");
-       pp(_eabs.type_2, 0);
+       pp(_eabs.typedexpr_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.lambda.Absyn.EApp)
     {
        rholang.parsing.lambda.Absyn.EApp _eapp = (rholang.parsing.lambda.Absyn.EApp) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_eapp.expr_1, 0);
-       pp(_eapp.expr_2, 0);
-       render("apply");
-       render(":");
-       pp(_eapp.type_, 0);
+       pp(_eapp.typedexpr_1, 0);
+       pp(_eapp.typedexpr_2, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
     else     if (foo instanceof rholang.parsing.lambda.Absyn.ETuple)
@@ -189,8 +209,30 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.ETuple _etuple = (rholang.parsing.lambda.Absyn.ETuple) foo;
        if (_i_ > 0) render(_L_PAREN);
        pp(_etuple.tuple_, 0);
-       render(":");
-       pp(_etuple.type_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof rholang.parsing.lambda.Absyn.EFirst)
+    {
+       rholang.parsing.lambda.Absyn.EFirst _efirst = (rholang.parsing.lambda.Absyn.EFirst) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       render("fst");
+       pp(_efirst.typedexpr_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof rholang.parsing.lambda.Absyn.ESecond)
+    {
+       rholang.parsing.lambda.Absyn.ESecond _esecond = (rholang.parsing.lambda.Absyn.ESecond) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       render("snd");
+       pp(_esecond.typedexpr_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof rholang.parsing.lambda.Absyn.EThird)
+    {
+       rholang.parsing.lambda.Absyn.EThird _ethird = (rholang.parsing.lambda.Absyn.EThird) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       render("thd");
+       pp(_ethird.typedexpr_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
@@ -202,9 +244,9 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.Tuple2 _tuple2 = (rholang.parsing.lambda.Absyn.Tuple2) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("(");
-       pp(_tuple2.expr_1, 0);
+       pp(_tuple2.typedexpr_1, 0);
        render(",");
-       pp(_tuple2.expr_2, 0);
+       pp(_tuple2.typedexpr_2, 0);
        render(")");
        if (_i_ > 0) render(_R_PAREN);
     }
@@ -213,11 +255,11 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.Tuple3 _tuple3 = (rholang.parsing.lambda.Absyn.Tuple3) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("(");
-       pp(_tuple3.expr_1, 0);
+       pp(_tuple3.typedexpr_1, 0);
        render(",");
-       pp(_tuple3.expr_2, 0);
+       pp(_tuple3.typedexpr_2, 0);
        render(",");
-       pp(_tuple3.expr_3, 0);
+       pp(_tuple3.typedexpr_3, 0);
        render(")");
        if (_i_ > 0) render(_R_PAREN);
     }
@@ -297,6 +339,19 @@ public class PrettyPrinter
   }
 
 
+  private static void sh(rholang.parsing.lambda.Absyn.TypedExpr foo)
+  {
+    if (foo instanceof rholang.parsing.lambda.Absyn.ETyped)
+    {
+       rholang.parsing.lambda.Absyn.ETyped _etyped = (rholang.parsing.lambda.Absyn.ETyped) foo;
+       render("(");
+       render("ETyped");
+       sh(_etyped.expr_);
+       sh(_etyped.type_);
+       render(")");
+    }
+  }
+
   private static void sh(rholang.parsing.lambda.Absyn.Expr foo)
   {
     if (foo instanceof rholang.parsing.lambda.Absyn.EVar)
@@ -305,7 +360,6 @@ public class PrettyPrinter
        render("(");
        render("EVar");
        sh(_evar.var_);
-       sh(_evar.type_);
        render(")");
     }
     if (foo instanceof rholang.parsing.lambda.Absyn.EVal)
@@ -322,9 +376,8 @@ public class PrettyPrinter
        render("(");
        render("EAbs");
        sh(_eabs.var_);
-       sh(_eabs.type_1);
-       sh(_eabs.expr_);
-       sh(_eabs.type_2);
+       sh(_eabs.type_);
+       sh(_eabs.typedexpr_);
        render(")");
     }
     if (foo instanceof rholang.parsing.lambda.Absyn.EApp)
@@ -332,9 +385,8 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.EApp _eapp = (rholang.parsing.lambda.Absyn.EApp) foo;
        render("(");
        render("EApp");
-       sh(_eapp.expr_1);
-       sh(_eapp.expr_2);
-       sh(_eapp.type_);
+       sh(_eapp.typedexpr_1);
+       sh(_eapp.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.lambda.Absyn.ETuple)
@@ -343,7 +395,30 @@ public class PrettyPrinter
        render("(");
        render("ETuple");
        sh(_etuple.tuple_);
-       sh(_etuple.type_);
+       render(")");
+    }
+    if (foo instanceof rholang.parsing.lambda.Absyn.EFirst)
+    {
+       rholang.parsing.lambda.Absyn.EFirst _efirst = (rholang.parsing.lambda.Absyn.EFirst) foo;
+       render("(");
+       render("EFirst");
+       sh(_efirst.typedexpr_);
+       render(")");
+    }
+    if (foo instanceof rholang.parsing.lambda.Absyn.ESecond)
+    {
+       rholang.parsing.lambda.Absyn.ESecond _esecond = (rholang.parsing.lambda.Absyn.ESecond) foo;
+       render("(");
+       render("ESecond");
+       sh(_esecond.typedexpr_);
+       render(")");
+    }
+    if (foo instanceof rholang.parsing.lambda.Absyn.EThird)
+    {
+       rholang.parsing.lambda.Absyn.EThird _ethird = (rholang.parsing.lambda.Absyn.EThird) foo;
+       render("(");
+       render("EThird");
+       sh(_ethird.typedexpr_);
        render(")");
     }
   }
@@ -355,8 +430,8 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.Tuple2 _tuple2 = (rholang.parsing.lambda.Absyn.Tuple2) foo;
        render("(");
        render("Tuple2");
-       sh(_tuple2.expr_1);
-       sh(_tuple2.expr_2);
+       sh(_tuple2.typedexpr_1);
+       sh(_tuple2.typedexpr_2);
        render(")");
     }
     if (foo instanceof rholang.parsing.lambda.Absyn.Tuple3)
@@ -364,9 +439,9 @@ public class PrettyPrinter
        rholang.parsing.lambda.Absyn.Tuple3 _tuple3 = (rholang.parsing.lambda.Absyn.Tuple3) foo;
        render("(");
        render("Tuple3");
-       sh(_tuple3.expr_1);
-       sh(_tuple3.expr_2);
-       sh(_tuple3.expr_3);
+       sh(_tuple3.typedexpr_1);
+       sh(_tuple3.typedexpr_2);
+       sh(_tuple3.typedexpr_3);
        render(")");
     }
   }
