@@ -1,6 +1,6 @@
 package rholang.transforming.DelimcToLambda
 
-//import scalaz.Monad
+import scalaz.Monad
 import rholang.transforming.DelimcToLambda.TypedLambda._
 
 /**
