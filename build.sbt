@@ -33,6 +33,9 @@ lazy val root = (project in file("."))
 
 // Scalaz
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.4"
+// Flex & Cup
+libraryDependencies += "cup" % "java-cup-11a" % "local"
+libraryDependencies += "jlex" % "JLex-local" % "local"
 
 // Kind projector
 resolvers += Resolver.sonatypeRepo("releases")
