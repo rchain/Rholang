@@ -3,7 +3,7 @@ import BNFC._
 lazy val commonOptions = Seq(
   "-language:existentials",
   "-language:higherKinds",
-  "-Xfatal-warnings",
+//  "-Xfatal-warnings",
   "-Xfuture",
   "-Xlint",
   "-Yno-adapted-args",
