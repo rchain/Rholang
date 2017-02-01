@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
-// Filename:    huet.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 03:00:21 2010 
-// Copyright:   Not supplied 
+// Filename:    navigation.scala 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:12:11 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

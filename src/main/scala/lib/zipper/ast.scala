@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    ast.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 04:19:13 2010 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:10:22 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

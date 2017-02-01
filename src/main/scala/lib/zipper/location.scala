@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    location.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 03:04:44 2010 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:11:33 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

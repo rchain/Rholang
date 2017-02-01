@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    mutation.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 12:59:14 2010 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:11:50 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

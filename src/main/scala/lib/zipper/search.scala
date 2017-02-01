@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    search.scala 
-// Authors:     lgm                                                    
-// Creation:    Thu Apr 14 04:34:22 2011 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:12:45 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

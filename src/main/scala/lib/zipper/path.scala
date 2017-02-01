@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
-// Filename:    Path.scala 
-// Authors:     lgm                                                    
-// Creation:    Thu Apr 14 04:52:12 2011 
-// Copyright:   Not supplied 
+// Filename:    path.scala 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:12:27 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

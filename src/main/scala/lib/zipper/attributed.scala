@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    attributed.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue Jun 28 05:30:08 2011 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:10:45 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

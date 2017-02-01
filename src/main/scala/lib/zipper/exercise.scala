@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    exercise.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 17:09:06 2010 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:11:17 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 

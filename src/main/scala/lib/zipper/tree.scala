@@ -1,8 +1,8 @@
 // -*- mode: Scala;-*- 
 // Filename:    tree.scala 
-// Authors:     lgm                                                    
-// Creation:    Tue May 25 03:02:51 2010 
-// Copyright:   Not supplied 
+// Authors:     luciusmeredith                                                    
+// Creation:    Wed Feb  1 09:13:01 2017 
+// Copyright:   See site license 
 // Description: 
 // ------------------------------------------------------------------------
 
