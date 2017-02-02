@@ -11,8 +11,6 @@ package coop.rchain.lib.term
 import coop.rchain.lib.zipper._
 import coop.rchain.lib.navigation.{ Right => NRight, Left => NLeft,_ }
 
-import scala.collection.mutable.HashMap
-
 trait TermNavigation[L,V,T] extends ZipperNavigation[Either[T,V]] {
   override def left [A1 >: Either[T,V]] ( location : Location[A1] ) : Location[A1] = {
     location match {
