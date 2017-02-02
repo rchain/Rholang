@@ -80,7 +80,7 @@ object TermBranch extends Serializable {
   }
 }
 
-trait TermCtxtLabel[Namespace,Var,/*+*/Tag]
+trait TermCtxt[Namespace,Var,/*+*/Tag]
 extends Term[Either[Namespace,Var],Either[Tag,Var]] {
   type U/*[Tag1]*/ =
     Either[
@@ -131,7 +131,7 @@ extends Term[Either[Namespace,Var],Either[Tag,Var]] {
 
 class TermCtxtLeaf[Namespace,Var,Tag]( val tag : Either[Tag,Var] )
 extends TreeItem[Either[Tag,Var]]( tag )
-with TermCtxtLabel[Namespace,Var,Tag]
+with TermCtxt[Namespace,Var,Tag]
 with Factual {
   def this() = { this( null.asInstanceOf[Either[Tag,Var]] ) }
   override def self = List( Left( tag ) )
@@ -160,10 +160,10 @@ object TermCtxtLeaf extends Serializable {
 }
 
 trait AbstractTermCtxtBranch[Namespace,Var,Tag]
-extends TermCtxtLabel[Namespace,Var,Tag] {  
+extends TermCtxt[Namespace,Var,Tag] {  
   override def self = labels.map( Right( _ ) )
   def nameSpace : Namespace
-  def labels : List[TermCtxtLabel[Namespace,Var,Tag]]
+  def labels : List[TermCtxt[Namespace,Var,Tag]]
   override def toString = {
     val lblStr =
       labels match {
@@ -200,12 +200,12 @@ extends TermCtxtLabel[Namespace,Var,Tag] {
 
 class TermCtxtBranch[Namespace,Var,Tag](
   override val nameSpace : Namespace,
-  val factuals : List[TermCtxtLabel[Namespace,Var,Tag] with Factual]
+  val factuals : List[TermCtxt[Namespace,Var,Tag] with Factual]
 ) extends TreeSection[Either[Tag,Var]]( factuals )
 with AbstractTermCtxtBranch[Namespace,Var,Tag]
 with Factual {
   def this() = { this( null.asInstanceOf[Namespace], Nil ) }
-  override def labels : List[TermCtxtLabel[Namespace,Var,Tag]] = {
+  override def labels : List[TermCtxt[Namespace,Var,Tag]] = {
     factuals
   }
   override def equals( o : Any ) : Boolean = {
@@ -233,7 +233,7 @@ object TermCtxtBranch extends Serializable {
   ) : Option[
 	(
 	  Namespace,
-	  List[TermCtxtLabel[Namespace,Var,Tag] with Factual]
+	  List[TermCtxt[Namespace,Var,Tag] with Factual]
 	)
       ] = {
     Some( ( cnxnCtxtBranch.nameSpace, cnxnCtxtBranch.factuals
@@ -243,7 +243,7 @@ object TermCtxtBranch extends Serializable {
 
 trait TermCtxtInjector[Namespace,Var,Tag] {
   def injectLabel( cLabel : Term[Namespace,Tag] )
-  : TermCtxtLabel[Namespace,Var,Tag] with Factual = {
+  : TermCtxt[Namespace,Var,Tag] with Factual = {
     cLabel match {
       case cLeaf : TermLeaf[Namespace,Tag] =>
 	inject( cLeaf )
@@ -252,11 +252,11 @@ trait TermCtxtInjector[Namespace,Var,Tag] {
     }
   }
   def inject( cLabel : TermLeaf[Namespace,Tag] )
-  : TermCtxtLabel[Namespace,Var,Tag] with Factual = {
+  : TermCtxt[Namespace,Var,Tag] with Factual = {
     new TermCtxtLeaf( Left( cLabel.tag ) )
   }
   def inject( cLabel : TermBranch[Namespace,Tag] )
-  : TermCtxtLabel[Namespace,Var,Tag] with Factual = {
+  : TermCtxt[Namespace,Var,Tag] with Factual = {
     new TermCtxtBranch(
       cLabel.nameSpace,
       cLabel.factuals.map( injectLabel( _ ) )
@@ -288,11 +288,19 @@ object CTwoCell extends Serializable {
   }  
 }
 
-case class StringTermLeaf( override val tag : String )
-     extends TermLeaf[String,String]( tag )
+case class StrTermLf( override val tag : String )
+     extends TermLeaf[String,String]( tag ) with Factual
 
-case class StringTermBranch(
+case class StrTermBr(
   override val nameSpace : String,
   override val labels : List[Term[String,String] with Factual]
-) extends TermBranch[String,String]( nameSpace, labels )
+) extends TermBranch[String,String]( nameSpace, labels ) with Factual
+
+case class StrTermCtxtLf( override val tag : Either[String,String] )
+     extends TermCtxtLeaf[String,String,String]( tag ) with Factual
+
+case class StrTermCtxtBr(
+  override val nameSpace : String,
+  override val labels : List[TermCtxt[String,String,String] with Factual]
+) extends TermCtxtBranch[String,String,String]( nameSpace, labels ) with Factual
 

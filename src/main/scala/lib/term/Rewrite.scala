@@ -45,10 +45,10 @@ trait TermNavigation[L,V,T] extends ZipperNavigation[Either[T,V]] {
       case Location( _, Top( ) ) => {
         throw new Exception( "up of top" )
       }   
-      case Location( t : TermCtxtLabel[L, V, T] with Factual, LabeledTreeContext(lbl: L @unchecked, left, up, right)) => {
+      case Location( t : TermCtxt[L, V, T] with Factual, LabeledTreeContext(lbl: L @unchecked, left, up, right)) => {
 	( left, right ) match {
-	  case (lTerms: List[TermCtxtLabel[L, V, T] with Factual] @unchecked, rTerms: List[TermCtxtLabel[L, V, T] with Factual] @unchecked) => {
-	    val rvrsLTerms : List[TermCtxtLabel[L,V,T] with Factual] = lTerms.reverse
+	  case (lTerms: List[TermCtxt[L, V, T] with Factual] @unchecked, rTerms: List[TermCtxt[L, V, T] with Factual] @unchecked) => {
+	    val rvrsLTerms : List[TermCtxt[L,V,T] with Factual] = lTerms.reverse
             Location[A1]( new TermCtxtBranch[L,V,T]( lbl, rvrsLTerms ::: ( t :: rTerms ) ), up )
 	  }
 	  case _ => throw new Exception( "unexpected location shape: " + location )
@@ -80,7 +80,7 @@ trait TermNavigation[L,V,T] extends ZipperNavigation[Either[T,V]] {
         throw new Exception( "down of empty" )
       }
       case Location(TermCtxtBranch(lbl: L @unchecked, u :: trees), ctxt) => {
-        Location( u, LabeledTreeContext[L, A1]( lbl, List[TermCtxtLabel[L,V,T] with Factual](), ctxt, trees ) )
+        Location( u, LabeledTreeContext[L, A1]( lbl, List[TermCtxt[L,V,T] with Factual](), ctxt, trees ) )
       }
     }
   }
@@ -89,7 +89,7 @@ trait TermNavigation[L,V,T] extends ZipperNavigation[Either[T,V]] {
 trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
   def update(
     location : Location[Either[T,V]],
-    tree : TermCtxtLabel[L,V,T]
+    tree : TermCtxt[L,V,T]
   ) : Location[Either[T,V]] = {
     location match {
       case Location( _, ctxt ) =>
@@ -98,7 +98,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
   }
   def insertRight(
     location : Location[Either[T,V]],
-    tree : TermCtxtLabel[L,V,T]
+    tree : TermCtxt[L,V,T]
   ) : Location[Either[T,V]] = {
     location match {
       case Location( _, Top( ) ) => {
@@ -116,7 +116,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
     }    
   }
   def insertLeft(
-    location : Location[Either[T,V]], tree : TermCtxtLabel[L,V,T]
+    location : Location[Either[T,V]], tree : TermCtxt[L,V,T]
   ) : Location[Either[T,V]] = {
     location match {
       case Location( _, Top( ) ) => {
@@ -134,7 +134,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
     }    
   }
   def insertDown(
-    location : Location[Either[T,V]], tree : TermCtxtLabel[L,V,T]
+    location : Location[Either[T,V]], tree : TermCtxt[L,V,T]
   ) : Location[Either[T,V]] = {
     location match {
       case Location( TreeItem( _ ), _ ) => {
@@ -146,7 +146,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
       ) => {
 	Location(
 	  tree,
-	  LabeledTreeContext[L,Either[T,V]]( lbl, List[TermCtxtLabel[L,V,T] with Factual](), ctxt, progeny )
+	  LabeledTreeContext[L,Either[T,V]]( lbl, List[TermCtxt[L,V,T] with Factual](), ctxt, progeny )
 	)
       }
       case Location(
@@ -155,7 +155,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
       ) => {
 	Location(
 	  tree,
-	  LabeledTreeContext[L,Either[T,V]]( lbl, List[TermCtxtLabel[L,V,T] with Factual](), ctxt, progeny )
+	  LabeledTreeContext[L,Either[T,V]]( lbl, List[TermCtxt[L,V,T] with Factual](), ctxt, progeny )
 	)
       }
       case Location(
@@ -180,7 +180,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
     }
   }
   def delete(
-    location : Location[Either[T,V]], tree : TermCtxtLabel[L,V,T]
+    location : Location[Either[T,V]], tree : TermCtxt[L,V,T]
   ) : Location[Either[T,V]] = {
     location match {
       case Location( _, Top( ) ) => {
@@ -208,7 +208,7 @@ trait TermMutation[L,V,T] extends ZipperMutation[Either[T,V]] {
 	_,
 	LabeledTreeContext(lbl : L @unchecked, Nil, up, Nil)
       ) => {
-	Location( new TermCtxtBranch[L,V,T]( lbl, List[TermCtxtLabel[L,V,T] with Factual]() ), up )
+	Location( new TermCtxtBranch[L,V,T]( lbl, List[TermCtxt[L,V,T] with Factual]() ), up )
       }
     }
   }
@@ -221,7 +221,7 @@ trait TermZipperComposition[L,V,T] {
   ) : Context[Either[T,V]] = {
     ctxtL match {
       case Top() => ctxtR
-      case LabeledTreeContext(lbl: L @unchecked, left: List[TermCtxtLabel[L, V, T] with Factual] @unchecked, ctxt: LabeledTreeContext[L, Either[T, V]] @unchecked, right: List[TermCtxtLabel[L, V, T] with Factual] @unchecked) => {
+      case LabeledTreeContext(lbl: L @unchecked, left: List[TermCtxt[L, V, T] with Factual] @unchecked, ctxt: LabeledTreeContext[L, Either[T, V]] @unchecked, right: List[TermCtxt[L, V, T] with Factual] @unchecked) => {
 	LabeledTreeContext[L,Either[T,V]](
 	  lbl, left, compose( ctxt, ctxtR ), right 
 	)
@@ -230,11 +230,11 @@ trait TermZipperComposition[L,V,T] {
   }
   def compose(
     ctxt : Context[Either[T,V]],
-    tree : TermCtxtLabel[L,V,T] with Factual
-  ) : TermCtxtLabel[L,V,T] with Factual = {
+    tree : TermCtxt[L,V,T] with Factual
+  ) : TermCtxt[L,V,T] with Factual = {
     ctxt match {
       case Top() => tree
-      case LabeledTreeContext(lbl: L @unchecked, left: List[TermCtxtLabel[L, V, T] with Factual] @unchecked, ctxt: LabeledTreeContext[L, Either[T, V]] @unchecked, right: List[TermCtxtLabel[L, V, T] with Factual] @unchecked) => {
+      case LabeledTreeContext(lbl: L @unchecked, left: List[TermCtxt[L, V, T] with Factual] @unchecked, ctxt: LabeledTreeContext[L, Either[T, V]] @unchecked, right: List[TermCtxt[L, V, T] with Factual] @unchecked) => {
 	new TermCtxtBranch[L,V,T](
 	  lbl, 
 	  left ++ ( compose( ctxt, tree ) :: right )
@@ -242,9 +242,9 @@ trait TermZipperComposition[L,V,T] {
       }
     }
   }
-  def decontextualize( location : Location[Either[T,V]] ) : TermCtxtLabel[L,V,T] with Factual = {
+  def decontextualize( location : Location[Either[T,V]] ) : TermCtxt[L,V,T] with Factual = {
     location match {
-      case Location( tree : TermCtxtLabel[L,V,T] with Factual, ctxt ) => {
+      case Location( tree : TermCtxt[L,V,T] with Factual, ctxt ) => {
 	compose( ctxt, tree )
       }
       case _ => throw new Exception( "unexpected location shape: " + location )
@@ -254,9 +254,9 @@ trait TermZipperComposition[L,V,T] {
 }
 
 trait TermSubstitution[L,V,T] {
-  def substitute( term : TermCtxtLabel[L,V,T] )(
-    bindings : scala.collection.Map[V,TermCtxtLabel[L,V,T] with Factual]
-  ) : TermCtxtLabel[L,V,T] with Factual = {
+  def substitute( term : TermCtxt[L,V,T] )(
+    bindings : scala.collection.Map[V,TermCtxt[L,V,T] with Factual]
+  ) : TermCtxt[L,V,T] with Factual = {
     term match {
       case tLeaf@TermCtxtLeaf( Left( _ ) ) => {
         tLeaf
@@ -264,7 +264,7 @@ trait TermSubstitution[L,V,T] {
       case vLeaf@TermCtxtLeaf(Right(v: V @unchecked)) => {
         bindings.get( v ).getOrElse( vLeaf )
       }
-      case TermCtxtBranch(fnctr: L @unchecked, actls: List[TermCtxtLabel[L, V, T] with Factual]) => {
+      case TermCtxtBranch(fnctr: L @unchecked, actls: List[TermCtxt[L, V, T] with Factual]) => {
         new TermCtxtBranch( fnctr, actls.map( substitute( _ )( bindings ) ) )
       }
     }
