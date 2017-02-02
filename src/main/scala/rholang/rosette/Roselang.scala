@@ -18,13 +18,160 @@ trait StrTermMutation extends TermMutation [String,String,String]
 trait StrTermZipperComposition extends TermZipperComposition[String,String,String]
 trait StrTermSubstitution extends TermSubstitution[String,String,String]
 
-trait RholangASTToTerm 
-extends FoldVisitor[Option[Location[Either[String,String]]], Option[Location[Either[String,String]]]] {
+object VisitorTypes {
+  type A = Option[Location[Either[String,String]]]
+  type R = Option[Location[Either[String,String]]]  
+  type StrTermCtxt = TermCtxt[String,String,String]
+}
+
+trait StrFoldCtxtVisitor
+extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
   def zipr : StrTermNavigation with StrTermMutation with StrTermZipperComposition
   def theCtxtVar : String
 
-  type A = Option[Location[Either[String,String]]]
-  type R = Option[Location[Either[String,String]]]
+  def wrap( context : VisitorTypes.R ) : VisitorTypes.R = {
+    context
+  }
+  def leaf( context : VisitorTypes.R ) : VisitorTypes.R = {
+    wrap( context )
+  }    
+  override def combine(
+    x : VisitorTypes.R, 
+    y : VisitorTypes.R, 
+    context : VisitorTypes.R
+  ) : VisitorTypes.R = {
+    /*
+     println(
+      (
+	"/* ------------------------------------------------------- */\n"
+	+ "/* method: " + "combine" + " */\n"
+	+ "/* x: " + x + " */\n"
+	+ "/* y: " + y + " */\n"
+	+ "/* context: " + context + " */\n"
+	+ "/* ------------------------------------------------------- */\n"
+      )
+    )
+    */
+    
+    val rslt =
+      for( 
+	xLoc@Location( xTerm : VisitorTypes.StrTermCtxt, xCtxt ) <- x;
+	yLoc@Location( yTerm : VisitorTypes.StrTermCtxt, yCtxt ) <- y
+      ) yield {
+	/*
+	 println(
+	  (
+	    "/* ------------------------------------------------------- */\n"
+	    + "/* method: " + "combine" + " continued" + " */\n"
+	    + "/* xLoc: " + xLoc + " */\n"
+	    + "/* yLoc: " + yLoc + " */\n"
+	    + "/* ------------------------------------------------------- */\n"
+	  )
+	)
+	*/
+	yLoc match {
+	  case Location( StrTermCtxtLf( Right( v ) ), Top( ) ) => xLoc
+	  case Location( _, Top( ) ) => {
+	    xCtxt match {
+	      case Top() => {
+		val loc = zipr.up( zipr.insertDown( yLoc, xTerm ) )
+		/*
+		 * println(
+		  (
+		    "/* ------------------------------------------------------- */\n"
+		    + "/* method: " + "combine" + " continued" + " */\n"
+		    + "/* loc: " + loc + " */\n"
+		    + "/* ------------------------------------------------------- */\n"
+		  )
+		)
+		*/
+		    
+		loc
+	      }
+	      case _ => {
+		val loc = zipr.update( yLoc, xTerm )
+		/*
+		 println(
+		  (
+		    "/* ------------------------------------------------------- */\n"
+		    + "/* method: " + "combine" + " continued" + " */\n"
+		    + "/* loc: " + loc + " */\n"
+		    + "/* ------------------------------------------------------- */\n"
+		  )
+		)
+		*/
+		
+		loc
+	      }
+	    }	    
+	  }
+	  case _ => {
+	    xLoc match {	      
+	      case Location( StrTermCtxtLf( Right( v ) ), Top() ) => {
+		val loc = zipr.update( yLoc, xTerm )
+		/*
+		 println(
+		  (
+		    "/* ------------------------------------------------------- */\n"
+		    + "/* method: " + "combine" + " continued" + " */\n"
+		    + "/* loc: " + loc + " */\n"
+		    + "/* ------------------------------------------------------- */\n"
+		  )
+		)
+		*/
+		  		
+		if ( ( v ).equals( theCtxtVar ) ) {		
+		  loc
+		}
+		else {
+		  zipr.up( loc )
+		}		
+	      }
+	      case Location( _, Top() ) => {
+		val loc = zipr.up( zipr.update( yLoc, xTerm ) )
+		/*
+		 println(
+		  (
+		    "/* ------------------------------------------------------- */\n"
+		    + "/* method: " + "combine" + " continued" + " */\n"
+		    + "/* loc: " + loc + " */\n"
+		    + "/* ------------------------------------------------------- */\n"
+		  )
+		)
+		*/
+		
+		loc
+	      }
+	      case Location(_, LabeledTreeContext(lbl: String, left, nrCtxt, right)) => {
+		Location[Either[String,String]](
+		  xTerm,
+		  zipr.compose( yCtxt, xCtxt )
+		)
+	      }
+	    }
+	  }
+	}
+			
+      }
+
+    /*
+     println(
+      (
+	"/* ------------------------------------------------------- */\n"
+	+ "/* method: " + "combine" + " continued" + " */\n"
+	+ "/* rslt: " + rslt + " */\n"
+	+ "/* ------------------------------------------------------- */\n"
+      )
+    )
+    */
+
+    rslt
+  }
+}
+
+trait RholangASTToTerm 
+extends StrFoldCtxtVisitor {
+  import VisitorTypes._  
 
   /* Contr */
   override def visit( p : DContr, arg : A ) : R
