@@ -20,8 +20,20 @@ trait StrTermSubstitution extends TermSubstitution[String,String,String]
 
 object VisitorTypes {
   type A = Option[Location[Either[String,String]]]
-  type R = Option[Location[Either[String,String]]]  
-  type StrTermCtxt = TermCtxt[String,String,String]
+  type R = Option[Location[Either[String,String]]]    
+}
+
+object StrTermCtorAbbrevs {
+  type StrTermCtxt = TermCtxt[String,String,String] with Factual
+  def V( v : String ) : StrTermCtxt = StrTermCtxtLf( Right( v ) )
+  def G( v : String ) : StrTermCtxt = StrTermCtxtLf( Left( v ) )
+  def B( v : String )( terms : StrTermCtxt* ) = StrTermCtxtBr( v, terms.toList )
+}
+
+object StrZipAbbrevs {  
+  def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[Either[String,String]] ) : Location[Either[String,String]] = Location( term, ctxt )   
+  def HV( cv : String ) : Location[Either[String,String]] = 
+    L( StrTermCtorAbbrevs.V( cv ), Top[Either[String,String]]() )
 }
 
 trait StrFoldCtxtVisitor
@@ -55,8 +67,8 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
     
     val rslt =
       for( 
-	xLoc@Location( xTerm : VisitorTypes.StrTermCtxt, xCtxt ) <- x;
-	yLoc@Location( yTerm : VisitorTypes.StrTermCtxt, yCtxt ) <- y
+	xLoc@Location( xTerm : StrTermCtorAbbrevs.StrTermCtxt, xCtxt ) <- x;
+	yLoc@Location( yTerm : StrTermCtorAbbrevs.StrTermCtxt, yCtxt ) <- y
       ) yield {
 	/*
 	 println(
@@ -171,12 +183,18 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 
 trait RholangASTToTerm 
 extends StrFoldCtxtVisitor {
-  import VisitorTypes._  
+  import VisitorTypes._
+  import StrZipAbbrevs._
+  import StrTermCtorAbbrevs._
+
+  def H() = HV( theCtxtVar )
 
   /* Contr */
   override def visit( p : DContr, arg : A ) : R
-/* Proc */
-  override def visit(  p : PNil, arg : A ) : R
+  /* Proc */
+  override def visit(  p : PNil, arg : A ) : R = {
+    combine( arg, Some( L( G( "#niv" ), Top() ) ), Some( H() ) )
+  }
   override def visit(  p : PValue, arg : A ) : R
   override def visit(  p : PVar, arg : A ) : R
   override def visit(  p : PDrop, arg : A ) : R
@@ -189,34 +207,34 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PConstr, arg : A ) : R
   override def visit(  p : PPar, arg : A ) : R
 
-/* Chan */
+  /* Chan */
   override def visit(  p : CVar, arg : A ) : R
   override def visit(  p : CQuote, arg : A ) : R
-/* Bind */
+  /* Bind */
   override def visit(  p : InputBind, arg : A ) : R
-/* PMBranch */
+  /* PMBranch */
   override def visit(  p : PatternMatch, arg : A
  ) : R
-/* CBranch */
+  /* CBranch */
   override def visit(  p : Choice, arg : A ) : R
-/* Value */
+  /* Value */
   override def visit(  p : VQuant, arg : A ) : R
   override def visit(  p : VEnt, arg : A ) : R
-/* Quantity */
+  /* Quantity */
   override def visit(  p : QInt, arg : A ) : R
   override def visit(  p : QDouble, arg : A ) : R
-/* Entity */
+  /* Entity */
   override def visit(  p : EChar, arg : A ) : R
   override def visit(  p : EStruct, arg : A ) : R
   override def visit(  p : ECollect, arg : A ) : R
-/* Struct */
+  /* Struct */
   override def visit(  p : StructConstr, arg : A ) : R
-/* Collect */
+  /* Collect */
   override def visit(  p : CString, arg : A ) : R
-/* VarPattern */
+  /* VarPattern */
   override def visit(  p : VarPtVar, arg : A ) : R
   override def visit(  p : VarPtWild, arg : A ) : R
-/* PPattern */
+  /* PPattern */
   override def visit(  p : PPtVar, arg : A ) : R
   override def visit(  p : PPtNil, arg : A ) : R
   override def visit(  p : PPtVal, arg : A ) : R
@@ -232,13 +250,13 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PPtConstr, arg : A ) : R
   override def visit(  p : PPtPar, arg : A ) : R
 
-/* CPattern */
+  /* CPattern */
   override def visit(  p : CPtVar, arg : A ) : R
   override def visit(  p : CPtQuote, arg : A ) : R
-/* PatternBind */
+  /* PatternBind */
   override def visit(  p : PtBind, arg : A ) : R
-/* PatternPatternMatch */
+  /* PatternPatternMatch */
   override def visit(  p : PtBranch, arg : A ) : R
-/* ValPattern */
+  /* ValPattern */
   override def visit(  p : VPtStruct, arg : A ) : R
 }
