@@ -306,11 +306,9 @@ extends StrFoldCtxtVisitor {
     combine( 
       arg, 
       (for(
-        Location( chanTerm : StrTermCtxt, chanCtxt ) <- visit( p.chan_, Some( H() ) );
-        Location( ptrnTerm : StrTermCtxt, ptrnCtxt ) <- visit( p.cpattern_, Some( H() ) )
-      ) yield {
-        L( B( "consume" )( TS(), chanTerm, ptrnTerm ), Top() )
-      }),
+        Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Some( H() ) );
+        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Some( H() ) )
+      ) yield { L( B( "consume" )( TS(), chanTerm, ptrnTerm ), Top() ) }),
       Some( H() )
     )
   }
