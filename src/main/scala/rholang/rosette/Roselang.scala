@@ -187,6 +187,8 @@ extends StrFoldCtxtVisitor {
   import StrZipAbbrevs._
   import StrTermCtorAbbrevs._
 
+  def theTupleSpaceVar : String
+  def TS() = V( theTupleSpaceVar )
   def H() = HV( theCtxtVar )
 
   /* The signature of the basic compilation action is 
@@ -266,16 +268,11 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PInput, arg : A ) : R = {
     import scala.collection.JavaConverters._
 
-    val bindings =
-      for( binding <- p.listbind_.asScala ) yield {
-        visit( binding, Some( L( V( theCtxtVar ), T() ) ) )
-      }
-
     val optLetLoc : Option[Location[Either[String,String]]] =
       Some( L( B( "let" )( V( theCtxtVar ) ), T() ) )
 
     val letBindings =
-      ( optLetLoc /: bindings )(
+      ( optLetLoc /: p.listbind_.asScala.map( visit( _, Some( H() ) ) ) )(
         {
           ( acc, e ) => {
             for( nLoc <- combine( acc, e, Some( H() ) ) ) yield {
@@ -300,11 +297,23 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PPar, arg : A ) : R
 
   /* Chan */
+  def visit(  p : Chan, arg : A ) : R
   override def visit(  p : CVar, arg : A ) : R
   override def visit(  p : CQuote, arg : A ) : R
   /* Bind */
   def visit( b : Bind, arg : A ) : R
-  override def visit(  p : InputBind, arg : A ) : R
+  override def visit(  p : InputBind, arg : A ) : R = {
+    combine( 
+      arg, 
+      (for(
+        Location( chanTerm : StrTermCtxt, chanCtxt ) <- visit( p.chan_, Some( H() ) );
+        Location( ptrnTerm : StrTermCtxt, ptrnCtxt ) <- visit( p.cpattern_, Some( H() ) )
+      ) yield {
+        L( B( "consume" )( TS(), chanTerm, ptrnTerm ), Top() )
+      }),
+      Some( H() )
+    )
+  }
   /* PMBranch */
   override def visit(  p : PatternMatch, arg : A
  ) : R
@@ -324,6 +333,8 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : StructConstr, arg : A ) : R
   /* Collect */
   override def visit(  p : CString, arg : A ) : R
+  /* Pattern */
+  def visit( p : CPattern, arg : A ) : R
   /* VarPattern */
   override def visit(  p : VarPtVar, arg : A ) : R
   override def visit(  p : VarPtWild, arg : A ) : R
