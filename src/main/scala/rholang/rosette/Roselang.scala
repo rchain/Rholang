@@ -251,7 +251,10 @@ extends StrFoldCtxtVisitor {
 
   /* Contr */
   override def visit( p : DContr, arg : A ) : R
+
   /* Proc */
+  def visit( p : Proc, arg : A ) : R
+
   override def visit(  p : PNil, arg : A ) : R = {    
     combine( arg, Some( L( G( "#niv" ), T() ) ), Some( H() ) )
   }
@@ -260,7 +263,36 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PDrop, arg : A ) : R
   override def visit(  p : PInject, arg : A ) : R
   override def visit(  p : PLift, arg : A ) : R
-  override def visit(  p : PInput, arg : A ) : R
+  override def visit(  p : PInput, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+
+    val bindings =
+      for( binding <- p.listbind_.asScala ) yield {
+        visit( binding, Some( L( V( theCtxtVar ), T() ) ) )
+      }
+
+    val optLetLoc : Option[Location[Either[String,String]]] =
+      Some( L( B( "let" )( V( theCtxtVar ) ), T() ) )
+
+    val letBindings =
+      ( optLetLoc /: bindings )(
+        {
+          ( acc, e ) => {
+            for( nLoc <- combine( acc, e, Some( H() ) ) ) yield {
+              val Location( StrTermCtxtBr( op, subterms ), ctxt ) = nLoc
+              L( B( op )( ( subterms ++ List( V( theCtxtVar ) ) ):_* ), ctxt )
+            }
+          }
+        }
+      )
+
+    val proc = visit( p.proc_, Some( L( V( theCtxtVar ), T() ) ) )
+
+    combine(
+      arg, 
+      combine( letBindings, proc, Some( H() ) ), Some( H() ) 
+    )
+  }
   override def visit(  p : PChoice, arg : A ) : R
   override def visit(  p : PMatch, arg : A ) : R
   override def visit(  p : PNew, arg : A ) : R
@@ -271,6 +303,7 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : CVar, arg : A ) : R
   override def visit(  p : CQuote, arg : A ) : R
   /* Bind */
+  def visit( b : Bind, arg : A ) : R
   override def visit(  p : InputBind, arg : A ) : R
   /* PMBranch */
   override def visit(  p : PatternMatch, arg : A
