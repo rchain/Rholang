@@ -8,7 +8,6 @@
 
 import coop.rchain.lib.term._
 import coop.rchain.lib.zipper._
-import coop.rchain.lib.navigation.{ Right => NRight, Left => NLeft,_ }
 
 import rholang.parsing.rholang2._
 import rholang.parsing.rholang2.Absyn._
@@ -34,6 +33,7 @@ object StrZipAbbrevs {
   def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[Either[String,String]] ) : Location[Either[String,String]] = Location( term, ctxt )   
   def HV( cv : String ) : Location[Either[String,String]] = 
     L( StrTermCtorAbbrevs.V( cv ), Top[Either[String,String]]() )
+  def T() : Context[Either[String,String]] = Top()
 }
 
 trait StrFoldCtxtVisitor
@@ -189,11 +189,71 @@ extends StrFoldCtxtVisitor {
 
   def H() = HV( theCtxtVar )
 
+  /* The signature of the basic compilation action is 
+   * 
+   *      def visit[T]( p : T, arg : A ) : R
+   * 
+   * Where T is the type of expression being compiled and arg is the
+   * context into which the result of the compilation will be placed.
+   * For example, the compilation of the Nil process is the rosette
+   * expression #niv (no intrinsic value). This expression will be
+   * placed into the context represented by arg.
+   * 
+   * The compilation process is made completely regular
+   * by certain embeddings. This means we have a single data type for
+   * both the context, A and the result R. This regularity ends up
+   * being forced by how the visitor pattern works together with
+   * certain coherence requirements on all the bodies of the visit
+   * method definitions. The embeddings are as follows: 
+   * 
+   *   1. every expression e lifts to a tree, * t = unit( e ),
+   *      which is just e regarded as a tree; 
+   *   2. every tree t lifts to a location, l = L( t, T() );
+   *   3. every context c can be lifted to a location l = L( V( "*H*" ), c )
+   *   4. the composition of context with tree can be uniquely lifted
+   *      to a composition of locations of the form
+   *      l1 = L( V( "*H*" ), c )
+   *      l2 = L( t, T() )
+   *      (See the combine method above.)
+   * 
+   *  So every visit body will be of the form:
+   * 
+   *     combine( 
+   *       arg,
+   *       ( context( p ) /: p.parts )( 
+   *          { 
+   *             ( acc, e ) => {
+   *                combine( acc, visit( e, L( V( "*H*" ), T() ) ) ) 
+   *             }
+   *          }
+   *       )
+   *     )
+   * 
+   *  where p.parts stands in for accessing the components of the
+   *  expression p. 
+   * 
+   *  This folds over the parts accumulating the results of compiling
+   *  the sub-expressions of p, and then placing them into the right
+   *  piece of the compilation p, and then finally places the result
+   *  of the fold into the context supplied by arg. Of course, p is
+   *  not generally a collection of its parts and so the access of
+   *  of the parts of p will be specific to the structure of the
+   *  expression, p. Likewise, the combination of the results of the
+   *  compilation of the components of p will be more specific than a
+   *  fold. However, this gives the general intuition behind how this
+   *  algorithm works. Furthermore, it works generally for any CFL.
+   * 
+   *  This method favors regularity and ease of reasoning over
+   *  efficiency. However, it is vastly more efficient than the
+   *  parser combinators method provided out of the box by Scala as
+   *  testing on a parser for prolog revealed in production.
+   */
+
   /* Contr */
   override def visit( p : DContr, arg : A ) : R
   /* Proc */
-  override def visit(  p : PNil, arg : A ) : R = {
-    combine( arg, Some( L( G( "#niv" ), Top() ) ), Some( H() ) )
+  override def visit(  p : PNil, arg : A ) : R = {    
+    combine( arg, Some( L( G( "#niv" ), T() ) ), Some( H() ) )
   }
   override def visit(  p : PValue, arg : A ) : R
   override def visit(  p : PVar, arg : A ) : R
