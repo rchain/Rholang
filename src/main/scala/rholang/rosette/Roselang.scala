@@ -17,11 +17,6 @@ trait StrTermMutation extends TermMutation [String,String,String]
 trait StrTermZipperComposition extends TermZipperComposition[String,String,String]
 trait StrTermSubstitution extends TermSubstitution[String,String,String]
 
-object VisitorTypes {
-  type A = Option[Location[Either[String,String]]]
-  type R = Option[Location[Either[String,String]]]    
-}
-
 object StrTermCtorAbbrevs {
   type StrTermCtxt = TermCtxt[String,String,String] with Factual
   def V( v : String ) : StrTermCtxt = StrTermCtxtLf( Right( v ) )
@@ -29,11 +24,56 @@ object StrTermCtorAbbrevs {
   def B( v : String )( terms : StrTermCtxt* ) = StrTermCtxtBr( v, terms.toList )
 }
 
-object StrZipAbbrevs {  
-  def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[Either[String,String]] ) : Location[Either[String,String]] = Location( term, ctxt )   
-  def HV( cv : String ) : Location[Either[String,String]] = 
-    L( StrTermCtorAbbrevs.V( cv ), Top[Either[String,String]]() )
-  def T() : Context[Either[String,String]] = Top()
+object StrZipAbbrevs {
+  type ValOrVar = Either[String,String]
+  type LocVorV = Location[ValOrVar]
+  def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[ValOrVar] ) : LocVorV = Location( term, ctxt )   
+  def HV( cv : String ) : LocVorV = 
+    Location( StrTermCtorAbbrevs.V( cv ), Top[ValOrVar]() )
+  def T() : Context[ValOrVar] = Top()
+}
+
+object VisitorTypes {
+  type A = Option[StrZipAbbrevs.LocVorV]
+  type R = Option[StrZipAbbrevs.LocVorV]    
+}
+
+object S2SImplicits {
+  implicit def asLoc( 
+    term : StrTermCtorAbbrevs.StrTermCtxt
+  ) : StrZipAbbrevs.LocVorV = StrZipAbbrevs.L( term, StrZipAbbrevs.T() )
+  implicit def asR( 
+    loc : StrZipAbbrevs.LocVorV
+  ) : VisitorTypes.R = Some( loc )
+  implicit def asR(
+    term : StrTermCtorAbbrevs.StrTermCtxt
+  ) : VisitorTypes.R = asR( asLoc( term ) )
+}
+
+object CompilerExceptions {
+  trait CompilerException
+  trait SyntaxException
+  trait SemanticsException
+
+  case class NoComprehensionBindings(
+    p : PInput 
+  ) extends Exception( s"$p has no bindings" )
+      with CompilerException with SyntaxException
+  case class UnexpectedBindingType(
+    b : Bind
+  ) extends Exception( s"$b found in unexpected context" )
+      with CompilerException with SyntaxException
+}
+
+object ComprehensionOps {
+  val _map = "map"
+  val _unit = "unit"
+  val _mult = "mult"
+  val _join = "flatMap"
+}
+
+object RosetteOps {
+  val _abs = "proc"
 }
 
 trait StrFoldCtxtVisitor
@@ -41,12 +81,9 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
   def zipr : StrTermNavigation with StrTermMutation with StrTermZipperComposition
   def theCtxtVar : String
 
-  def wrap( context : VisitorTypes.R ) : VisitorTypes.R = {
-    context
-  }
-  def leaf( context : VisitorTypes.R ) : VisitorTypes.R = {
-    wrap( context )
-  }    
+  def wrap( context : VisitorTypes.R ) : VisitorTypes.R = context
+  def leaf( context : VisitorTypes.R ) : VisitorTypes.R = wrap( context )    
+
   override def combine(
     x : VisitorTypes.R, 
     y : VisitorTypes.R, 
@@ -155,7 +192,7 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 		loc
 	      }
 	      case Location(_, LabeledTreeContext(lbl: String, left, nrCtxt, right)) => {
-		Location[Either[String,String]](
+		Location[StrZipAbbrevs.ValOrVar](
 		  xTerm,
 		  zipr.compose( yCtxt, xCtxt )
 		)
@@ -186,10 +223,19 @@ extends StrFoldCtxtVisitor {
   import VisitorTypes._
   import StrZipAbbrevs._
   import StrTermCtorAbbrevs._
+  import S2SImplicits._
+  import CompilerExceptions._
+  import ComprehensionOps._
+  import RosetteOps._
 
   def theTupleSpaceVar : String
   def TS() = V( theTupleSpaceVar )
+  def CH() = V( theCtxtVar )
   def H() = HV( theCtxtVar )
+  def Here() = Some( HV( theCtxtVar ) )
+
+  def combine( ctxt1 : A, ctxt2 : R ) : R =
+    combine( ctxt1, ctxt2, Here() )
 
   /* The signature of the basic compilation action is 
    * 
@@ -258,7 +304,7 @@ extends StrFoldCtxtVisitor {
   def visit( p : Proc, arg : A ) : R
 
   override def visit(  p : PNil, arg : A ) : R = {    
-    combine( arg, Some( L( G( "#niv" ), T() ) ), Some( H() ) )
+    combine( arg, Some( L( G( "#niv" ), T() ) ) )
   }
   override def visit(  p : PValue, arg : A ) : R
   override def visit(  p : PVar, arg : A ) : R
@@ -268,26 +314,82 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PInput, arg : A ) : R = {
     import scala.collection.JavaConverters._
 
-    val optLetLoc : Option[Location[Either[String,String]]] =
-      Some( L( B( "let" )( V( theCtxtVar ) ), T() ) )
-
-    val letBindings =
-      ( optLetLoc /: p.listbind_.asScala.map( visit( _, Some( H() ) ) ) )(
-        {
-          ( acc, e ) => {
-            for( nLoc <- combine( acc, e, Some( H() ) ) ) yield {
-              val Location( StrTermCtxtBr( op, subterms ), ctxt ) = nLoc
-              L( B( op )( ( subterms ++ List( V( theCtxtVar ) ) ):_* ), ctxt )
-            }
+    def forToMap( binding : Bind, proc : Proc ) : R = {
+      binding match {
+        case inBind : InputBind => {
+          for(
+            // [[ chan ]] is chanTerm
+            Location( chanTerm : StrTermCtxt, _ ) <- visit( inBind.chan_, Here() );
+            // [[ ptrn ]] is ptrnTerm
+            Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
+            // [[ P ]] is bodyTerm
+            Location( bodyTerm : StrTermCtxt, _ ) <- visit( proc, Here() )
+          ) yield {
+            // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+            L( B( _map )( chanTerm, B( _abs )( ptrnTerm, bodyTerm ) ), T() )
           }
         }
-      )
+        case _ => {
+          throw new UnexpectedBindingType( binding )
+        }
+      }
+    }
 
-    val proc = visit( p.proc_, Some( L( V( theCtxtVar ), T() ) ) )
+    combine( 
+      arg,
+      p.listbind_.asScala.toList match {
+        case Nil => {
+          throw new NoComprehensionBindings( p )
+        }
+        case binding :: Nil => {
+          /*
+           *  [[ for( ptrn <- chan )P ]]
+           *  =
+           *  ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+           */
+          forToMap( binding, p.proc_ )
+        }
+        case bindings => {
+          /*
+           *  [[ for( ptrn <- chan; bindings )P ]]
+           *  =
+           *  ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
+           */
 
-    combine(
-      arg, 
-      combine( letBindings, proc, Some( H() ) ), Some( H() ) 
+          // Reversing the bindings allows for a tail recursion that
+          // can be optimized by hand to a fold. This means the
+          // compiler doesn't blow the stack on a deep set of bindings
+          // in exchange for performing the reverse operation.
+          val lastBinding :: rbindings = bindings.reverse
+
+          ( forToMap( lastBinding, p.proc_ ) /: rbindings )(
+            {
+              ( acc, e ) => {
+                e match {
+                  case inBind : InputBind => {
+                    combine(
+                      acc,
+                      for(
+                        // [[ chan ]] is chanTerm
+                        Location( chanTerm : StrTermCtxt, _ ) <- visit( inBind.chan_, Here() );
+                        // [[ ptrn ]] is ptrnTerm
+                        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
+                        Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
+                      ) yield {
+                        // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
+                        L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
+                      }
+                    )
+                  }
+                  case _ => {
+                    throw new UnexpectedBindingType( e )
+                  }
+                }
+              }
+            }
+          )
+        }
+      }
     )
   }
   override def visit(  p : PChoice, arg : A ) : R
@@ -298,7 +400,9 @@ extends StrFoldCtxtVisitor {
 
   /* Chan */
   def visit(  p : Chan, arg : A ) : R
-  override def visit(  p : CVar, arg : A ) : R
+  override def visit(  p : CVar, arg : A ) : R = {
+    combine( arg, Some( L( V( p.var_ ), T() ) ) )
+  }
   override def visit(  p : CQuote, arg : A ) : R
   /* Bind */
   def visit( b : Bind, arg : A ) : R
@@ -306,10 +410,9 @@ extends StrFoldCtxtVisitor {
     combine( 
       arg, 
       (for(
-        Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Some( H() ) );
-        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Some( H() ) )
-      ) yield { L( B( "consume" )( TS(), chanTerm, ptrnTerm ), Top() ) }),
-      Some( H() )
+        Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
+        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() )
+      ) yield { L( B( "consume" )( TS(), chanTerm, ptrnTerm ), T() ) })
     )
   }
   /* PMBranch */
