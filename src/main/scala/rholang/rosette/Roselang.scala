@@ -407,13 +407,33 @@ extends StrFoldCtxtVisitor {
   /* Bind */
   def visit( b : Bind, arg : A ) : R
   override def visit(  p : InputBind, arg : A ) : R = {
-    combine( 
-      arg, 
-      (for(
-        Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
-        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() )
-      ) yield { L( B( "consume" )( TS(), chanTerm, ptrnTerm ), T() ) })
-    )
+    arg match {
+      // [[ P ]] is proc
+      case Location( proc : StrTermCtxt, Top() ) => {
+        for(
+          // [[ chan ]] is chanTerm
+          Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
+          // [[ ptrn ]] is ptrnTerm
+          Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() )
+        ) yield {
+          // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+          L( B( _map )( chanTerm, B( _abs )( ptrnTerm, proc ) ), T() )
+        }
+      }
+      case _ => { // this is a little too optimistic or forgiving
+        // should ensure that arg is a reasonable context to be really safe
+        for(
+          // [[ chan ]] is chanTerm
+          Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
+          // [[ ptrn ]] is ptrnTerm
+          Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() );
+          Location( rbindingsTerm : StrTermCtxt, _ ) <- arg
+        ) yield {
+          // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
+          L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
+        }
+      }
+    }
   }
   /* PMBranch */
   override def visit(  p : PatternMatch, arg : A
