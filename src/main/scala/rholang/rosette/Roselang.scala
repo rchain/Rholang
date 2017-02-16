@@ -9,8 +9,10 @@
 import coop.rchain.lib.term._
 import coop.rchain.lib.zipper._
 
-import rholang.parsing.rholang2._
-import rholang.parsing.rholang2.Absyn._
+//import rholang.parsing.rholang2._
+import coop.rchain.syntax.rholang._
+//import rholang.parsing.rholang2.Absyn._
+import coop.rchain.syntax.rholang.Absyn._
 
 trait StrTermNavigation extends TermNavigation[String,String,String]
 trait StrTermMutation extends TermMutation [String,String,String]
