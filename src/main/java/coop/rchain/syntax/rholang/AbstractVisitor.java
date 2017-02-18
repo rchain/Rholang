@@ -17,6 +17,8 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
 
     public R visit(coop.rchain.syntax.rholang.Absyn.PLift p, A arg) { return visitDefault(p, arg); }
 
+    public R visit(coop.rchain.syntax.rholang.Absyn.PFoldL p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.PFoldR p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.PInput p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.PChoice p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.PMatch p, A arg) { return visitDefault(p, arg); }

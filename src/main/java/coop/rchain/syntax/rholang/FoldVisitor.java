@@ -54,6 +54,20 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       }
       return r;
     }
+    public R visit(coop.rchain.syntax.rholang.Absyn.PFoldL p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.bind_1.accept(this, arg), r, arg);
+      r = combine(p.bind_2.accept(this, arg), r, arg);
+      r = combine(p.proc_.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.PFoldR p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.bind_1.accept(this, arg), r, arg);
+      r = combine(p.bind_2.accept(this, arg), r, arg);
+      r = combine(p.proc_.accept(this, arg), r, arg);
+      return r;
+    }
     public R visit(coop.rchain.syntax.rholang.Absyn.PInput p, A arg) {
       R r = leaf(arg);
       for (Bind x : p.listbind_)

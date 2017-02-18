@@ -47,7 +47,19 @@ public class VisitSkel
       for (Proc x: p.listproc_)
       { /* ... */ }
       return null;
-    }        public R visit(coop.rchain.syntax.rholang.Absyn.PInput p, A arg)
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.PFoldL p, A arg)
+    { /* Code For PFoldL Goes Here */
+      p.bind_1.accept(new BindVisitor<R,A>(), arg);
+      p.bind_2.accept(new BindVisitor<R,A>(), arg);
+      p.proc_.accept(new ProcVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.PFoldR p, A arg)
+    { /* Code For PFoldR Goes Here */
+      p.bind_1.accept(new BindVisitor<R,A>(), arg);
+      p.bind_2.accept(new BindVisitor<R,A>(), arg);
+      p.proc_.accept(new ProcVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.PInput p, A arg)
     { /* Code For PInput Goes Here */
       for (Bind x: p.listbind_)
       { /* ... */ }

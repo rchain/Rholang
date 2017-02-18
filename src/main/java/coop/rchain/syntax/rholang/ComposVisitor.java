@@ -63,6 +63,18 @@ public class ComposVisitor<A> implements
         listproc_.add(x.accept(this,arg));
       }
       return new coop.rchain.syntax.rholang.Absyn.PLift(chan_, listproc_);
+    }    public Proc visit(coop.rchain.syntax.rholang.Absyn.PFoldL p, A arg)
+    {
+      Bind bind_1 = p.bind_1.accept(this, arg);
+      Bind bind_2 = p.bind_2.accept(this, arg);
+      Proc proc_ = p.proc_.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.PFoldL(bind_1, bind_2, proc_);
+    }    public Proc visit(coop.rchain.syntax.rholang.Absyn.PFoldR p, A arg)
+    {
+      Bind bind_1 = p.bind_1.accept(this, arg);
+      Bind bind_2 = p.bind_2.accept(this, arg);
+      Proc proc_ = p.proc_.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.PFoldR(bind_1, bind_2, proc_);
     }    public Proc visit(coop.rchain.syntax.rholang.Absyn.PInput p, A arg)
     {
       ListBind listbind_ = new ListBind();

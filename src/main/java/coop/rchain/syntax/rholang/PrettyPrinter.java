@@ -554,6 +554,34 @@ public class PrettyPrinter
        render(")");
        if (_i_ > 2) render(_R_PAREN);
     }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.PFoldL)
+    {
+       coop.rchain.syntax.rholang.Absyn.PFoldL _pfoldl = (coop.rchain.syntax.rholang.Absyn.PFoldL) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       render("sum(");
+       pp(_pfoldl.bind_1, 0);
+       render("/:");
+       pp(_pfoldl.bind_2, 0);
+       render(")");
+       render("{");
+       pp(_pfoldl.proc_, 0);
+       render("}");
+       if (_i_ > 1) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.PFoldR)
+    {
+       coop.rchain.syntax.rholang.Absyn.PFoldR _pfoldr = (coop.rchain.syntax.rholang.Absyn.PFoldR) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       render("total(");
+       pp(_pfoldr.bind_1, 0);
+       render(":\\");
+       pp(_pfoldr.bind_2, 0);
+       render(")");
+       render("{");
+       pp(_pfoldr.proc_, 0);
+       render("}");
+       if (_i_ > 1) render(_R_PAREN);
+    }
     else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.PInput)
     {
        coop.rchain.syntax.rholang.Absyn.PInput _pinput = (coop.rchain.syntax.rholang.Absyn.PInput) foo;
@@ -1158,6 +1186,26 @@ public class PrettyPrinter
        render("[");
        sh(_plift.listproc_);
        render("]");
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.PFoldL)
+    {
+       coop.rchain.syntax.rholang.Absyn.PFoldL _pfoldl = (coop.rchain.syntax.rholang.Absyn.PFoldL) foo;
+       render("(");
+       render("PFoldL");
+       sh(_pfoldl.bind_1);
+       sh(_pfoldl.bind_2);
+       sh(_pfoldl.proc_);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.PFoldR)
+    {
+       coop.rchain.syntax.rholang.Absyn.PFoldR _pfoldr = (coop.rchain.syntax.rholang.Absyn.PFoldR) foo;
+       render("(");
+       render("PFoldR");
+       sh(_pfoldr.bind_1);
+       sh(_pfoldr.bind_2);
+       sh(_pfoldr.proc_);
        render(")");
     }
     if (foo instanceof coop.rchain.syntax.rholang.Absyn.PInput)
