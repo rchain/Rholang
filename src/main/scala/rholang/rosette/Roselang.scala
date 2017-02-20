@@ -72,6 +72,7 @@ object ComprehensionOps {
   val _unit = "unit"
   val _mult = "mult"
   val _join = "flatMap"
+  val _filter = "filter"
 }
 
 object RosetteOps {
@@ -331,6 +332,26 @@ extends StrFoldCtxtVisitor {
             L( B( _map )( chanTerm, B( _abs )( ptrnTerm, bodyTerm ) ), T() )
           }
         }
+        case cndInBind : CondInputBind => {
+          for(
+            // [[ chan ]] is chanTerm
+            Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
+            // [[ ptrn ]] is ptrnTerm
+            Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
+            Location( filterTerm : StrTermCtxt, _ ) <- visit( cndInBind.proc_, Here() );
+            // [[ P ]] is bodyTerm
+            Location( bodyTerm : StrTermCtxt, _ ) <- visit( proc, Here() )
+          ) yield {
+            // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+            L( 
+              B( _filter )(
+                B( _map )( chanTerm, B( _abs )( ptrnTerm, bodyTerm ) ),
+                filterTerm
+              ), 
+              T()
+            )
+          }
+        }
         case _ => {
           throw new UnexpectedBindingType( binding )
         }
@@ -382,6 +403,25 @@ extends StrFoldCtxtVisitor {
                         L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
                       }
                     )
+                  }
+                  case cndInBind : CondInputBind => {
+                    for(
+                      // [[ chan ]] is chanTerm
+                      Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
+                      // [[ ptrn ]] is ptrnTerm
+                      Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
+                      Location( filterTerm : StrTermCtxt, _ ) <- visit( cndInBind.proc_, Here() );
+                      Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
+                    ) yield {
+                      // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+                      L(
+                        B( _filter )(
+                          B( _map )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ),
+                          filterTerm
+                        ),
+                        T()
+                      )
+                    }
                   }
                   case _ => {
                     throw new UnexpectedBindingType( e )
