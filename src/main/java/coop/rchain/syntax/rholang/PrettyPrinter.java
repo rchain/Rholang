@@ -588,7 +588,8 @@ public class PrettyPrinter
     {
        coop.rchain.syntax.rholang.Absyn.PFoldL _pfoldl = (coop.rchain.syntax.rholang.Absyn.PFoldL) foo;
        if (_i_ > 1) render(_L_PAREN);
-       render("sum(");
+       render("sum");
+       render("(");
        pp(_pfoldl.bind_1, 0);
        render("/:");
        pp(_pfoldl.bind_2, 0);
@@ -602,7 +603,8 @@ public class PrettyPrinter
     {
        coop.rchain.syntax.rholang.Absyn.PFoldR _pfoldr = (coop.rchain.syntax.rholang.Absyn.PFoldR) foo;
        if (_i_ > 1) render(_L_PAREN);
-       render("total(");
+       render("total");
+       render("(");
        pp(_pfoldr.bind_1, 0);
        render(":\\");
        pp(_pfoldr.bind_2, 0);
