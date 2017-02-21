@@ -444,7 +444,16 @@ extends StrFoldCtxtVisitor {
   }
 
   override def visit(  p : PNew, arg : A ) : R = {
-    throw new Exception( "TBD" )
+    import scala.collection.JavaConverters._
+    val newVars = p.listvar_.asScala.toList
+    combine( 
+      arg,
+      (for( Location( pTerm : StrTermCtxt, _ ) <- visit( p.proc_, Here() ) )
+      yield {
+        val newBindings = newVars.map( { ( v ) => { B( v )( V( Fresh() ) ) } } )
+        L( B( "let" )( (newBindings ++ List( pTerm )):_* ), Top() )
+      })
+    )
   }
   override def visit(  p : PChoice, arg : A ) : R = {
     import scala.collection.JavaConverters._
