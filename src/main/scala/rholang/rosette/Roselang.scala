@@ -466,8 +466,9 @@ extends StrFoldCtxtVisitor {
           val bbind = new InputBind( bmsg, bchan )
 
           // lmsg <- lchan
+          val lmsgVStr = Fresh()
           val ( lmsg, lchan ) = 
-            ( new CPtVar( new VarPtVar( Fresh() ) ), new CVar( Fresh() ) )
+            ( new CPtVar( new VarPtVar( lmsgVStr ) ), new CVar( Fresh() ) )
           val lbind = new InputBind( lmsg, lchan )
 
           // case 1 => P_i
@@ -495,14 +496,14 @@ extends StrFoldCtxtVisitor {
           blocks.add( bbind )
           blocks.add( lbind )
 
-          val bmatch = new PMatch( new PVar( bmsgVStr ), bcases )
+          val bmatch = new PMatch( new PVar( lmsgVStr ), bcases )
 
           val bpair = 
             new PPar(
               // for( binding_i ){ bchan!( 1 ) }
               new PInput( branch.listbind_, new PLift( bchan, bsatActls ) ),
               // for( bmsg <- bchan; lmsg <- lchan ){
-              //   match bmsg with
+              //   match lmsg with
               //    case 1 => P_i
               //    case 0 => lchan!( 0 )
               // }          
