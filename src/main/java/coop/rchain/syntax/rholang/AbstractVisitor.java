@@ -125,6 +125,9 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     }
 /* ValPattern */
     public R visit(coop.rchain.syntax.rholang.Absyn.VPtStruct p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtDbl p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtStr p, A arg) { return visitDefault(p, arg); }
     public R visitDefault(coop.rchain.syntax.rholang.Absyn.ValPattern p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }

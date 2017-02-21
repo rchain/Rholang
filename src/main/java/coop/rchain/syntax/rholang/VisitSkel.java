@@ -306,6 +306,18 @@ public class VisitSkel
       for (PPattern x: p.listppattern_)
       { /* ... */ }
       return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg)
+    { /* Code For VPtInt Goes Here */
+      //p.integer_;
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtDbl p, A arg)
+    { /* Code For VPtDbl Goes Here */
+      //p.double_;
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtStr p, A arg)
+    { /* Code For VPtStr Goes Here */
+      //p.string_;
+      return null;
     }
   }
 }

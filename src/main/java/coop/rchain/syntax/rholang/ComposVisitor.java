@@ -327,5 +327,17 @@ public class ComposVisitor<A> implements
         listppattern_.add(x.accept(this,arg));
       }
       return new coop.rchain.syntax.rholang.Absyn.VPtStruct(var_, listppattern_);
+    }    public ValPattern visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg)
+    {
+      Integer integer_ = p.integer_;
+      return new coop.rchain.syntax.rholang.Absyn.VPtInt(integer_);
+    }    public ValPattern visit(coop.rchain.syntax.rholang.Absyn.VPtDbl p, A arg)
+    {
+      Double double_ = p.double_;
+      return new coop.rchain.syntax.rholang.Absyn.VPtDbl(double_);
+    }    public ValPattern visit(coop.rchain.syntax.rholang.Absyn.VPtStr p, A arg)
+    {
+      String string_ = p.string_;
+      return new coop.rchain.syntax.rholang.Absyn.VPtStr(string_);
     }
 }

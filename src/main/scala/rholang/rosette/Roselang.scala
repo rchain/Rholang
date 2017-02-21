@@ -65,6 +65,10 @@ object CompilerExceptions {
     b : Bind
   ) extends Exception( s"$b found in unexpected context" )
       with CompilerException with SyntaxException
+  case class UnexpectedBranchType(
+    b : CBranch
+  ) extends Exception( s"$b found in unexpected context" )
+      with CompilerException with SyntaxException
 }
 
 object ComprehensionOps {
@@ -434,7 +438,78 @@ extends StrFoldCtxtVisitor {
       }
     )
   }
-  override def visit(  p : PChoice, arg : A ) : R
+
+  /*
+   * [| select { case bindings1 => P1; ...; case bindingsN => PN } |]( t )
+   * =
+   * [| new b1, ..., bN, lock in 
+   *     lock!( true )
+   *     | for( bindings1 ){ b1!( true ) } 
+   *     | for( b <- b1; l <- lock ){ 
+   *        match l with 
+   *         case true => P1; 
+   *         case false => lock!( false )
+   *       }
+   *      ...
+   *     | for( bindingsN ){ bN!( true ) } 
+   *     | for( b <- b1; l <- lock ){ 
+   *        match l with 
+   *         case true => P1; 
+   *         case false => lock!( false )
+   *       } |]( t )
+   */
+  override def visit(  p : PChoice, arg : A ) : R = {
+    import scala.collection.JavaConverters._    
+
+    p.listcbranch_.asScala.toList match {
+      case Nil => {
+        combine( arg, Some( L( G( "#niv" ), T() ) ) )
+      }
+      case ( branch : Choice ) :: Nil => {
+        visit(
+          new PInput( branch.listbind_, branch.proc_ ),
+          arg
+        )
+      }
+      case branches => {
+        throw new Exception( "TBD" )
+        // val bvarsNpars =
+        //   branches.map(
+        //     { 
+        //       ( b ) => {
+        //         val ( bverity, babsurdity ) = ( new QInt( 1 ), new QInt( 0 ) )
+
+        //         val ( bmsg, bchan ) = ( new VarPtVar( Fresh() ), new CVar( Fresh() ) )
+        //         val bbind = new InputBind( bmsg, bchan )
+
+        //         val ( lmsg, lchan ) = ( new VarPtVar( Fresh() ), new CVar( Fresh() ) )
+        //         val lbind = new InputBind( lmsg, lchan )
+
+        //         val bsend = new ListProc( List( new QInt( 0 ) ).asJava )
+        //         val balert = new PInput( b.listbind_, new PLift( bchan, bsend ) )       
+
+        //         val blocks = new ListBind( List( bbind, lbind ).asJava )
+        //         val bvericase = new PatternMatch( new PPtVal() )
+        //         val babsucase = new PatternMatch( new PPtVal() )
+        //         val bcases =
+        //           new ListPMBranch( List( bvericase, babsucase ).asJava )
+
+        //         val bmatch = new PMatch( new PVar( bmsg.var_ ), bcases )
+        //         val bindproc = new PInput( blocks, bindmatch )
+
+        //         val bpair = new PPar( balert, bindmatch )
+
+        //         ( bchan, bpair )
+        //       }
+        //     }
+        //   )
+
+        
+      }
+    }
+
+    
+  }
   override def visit(  p : PMatch, arg : A ) : R
   override def visit(  p : PNew, arg : A ) : R
   override def visit(  p : PConstr, arg : A ) : R
@@ -482,6 +557,7 @@ extends StrFoldCtxtVisitor {
  ) : R
   /* CBranch */
   override def visit(  p : Choice, arg : A ) : R
+
   /* Value */
   override def visit(  p : VQuant, arg : A ) : R
   override def visit(  p : VEnt, arg : A ) : R

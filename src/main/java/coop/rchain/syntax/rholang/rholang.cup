@@ -214,6 +214,9 @@ ListPatternPatternMatch ::= PatternPatternMatch:p_1  {: RESULT = new coop.rchain
   | PatternPatternMatch:p_1 ListPatternPatternMatch:p_2  {: RESULT = p_2; p_2.addFirst(p_1); :}
 ;
 ValPattern ::= Var:p_1 _SYMB_3 ListPPattern:p_3 _SYMB_4  {: RESULT = new coop.rchain.syntax.rholang.Absyn.VPtStruct(p_1,p_3); :} 
+  | _INTEGER_:p_1  {: RESULT = new coop.rchain.syntax.rholang.Absyn.VPtInt(p_1); :}
+  | _DOUBLE_:p_1  {: RESULT = new coop.rchain.syntax.rholang.Absyn.VPtDbl(p_1); :}
+  | _STRING_:p_1  {: RESULT = new coop.rchain.syntax.rholang.Absyn.VPtStr(p_1); :}
 ;
 ListVar ::= Var:p_1  {: RESULT = new coop.rchain.syntax.rholang.Absyn.ListVar(); RESULT.addLast(p_1); :} 
   | Var:p_1 _SYMB_13 ListVar:p_3  {: RESULT = p_3; p_3.addFirst(p_1); :}

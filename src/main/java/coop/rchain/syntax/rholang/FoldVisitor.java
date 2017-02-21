@@ -336,6 +336,18 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       }
       return r;
     }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg) {
+      R r = leaf(arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtDbl p, A arg) {
+      R r = leaf(arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtStr p, A arg) {
+      R r = leaf(arg);
+      return r;
+    }
 
 
 }

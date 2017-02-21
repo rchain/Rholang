@@ -4,6 +4,9 @@ public abstract class ValPattern implements java.io.Serializable {
   public abstract <R,A> R accept(ValPattern.Visitor<R,A> v, A arg);
   public interface Visitor <R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.VPtStruct p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtDbl p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.VPtStr p, A arg);
 
   }
 

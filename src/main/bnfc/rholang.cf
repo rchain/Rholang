@@ -86,6 +86,9 @@ separator nonempty PatternPatternMatch "" ;
 
 -- Value patterns
 VPtStruct. ValPattern ::= Var "{" [PPattern] "}" ;
+VPtInt. ValPattern ::= Integer ;
+VPtDbl. ValPattern ::= Double ;
+VPtStr. ValPattern ::= String ;
 --VPtString. ValPattern ::=  ;
 --VPtArray.  ValPattern ::=  ;
 --VPtList.   ValPattern ::=  ;

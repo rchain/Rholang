@@ -1095,6 +1095,27 @@ public class PrettyPrinter
        render("}");
        if (_i_ > 0) render(_R_PAREN);
     }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtInt)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtInt _vptint = (coop.rchain.syntax.rholang.Absyn.VPtInt) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_vptint.integer_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtDbl)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtDbl _vptdbl = (coop.rchain.syntax.rholang.Absyn.VPtDbl) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_vptdbl.double_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtStr)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtStr _vptstr = (coop.rchain.syntax.rholang.Absyn.VPtStr) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_vptstr.string_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
   }
 
   private static void pp(coop.rchain.syntax.rholang.Absyn.ListVar foo, int _i_)
@@ -1708,6 +1729,30 @@ public class PrettyPrinter
        render("[");
        sh(_vptstruct.listppattern_);
        render("]");
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtInt)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtInt _vptint = (coop.rchain.syntax.rholang.Absyn.VPtInt) foo;
+       render("(");
+       render("VPtInt");
+       sh(_vptint.integer_);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtDbl)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtDbl _vptdbl = (coop.rchain.syntax.rholang.Absyn.VPtDbl) foo;
+       render("(");
+       render("VPtDbl");
+       sh(_vptdbl.double_);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VPtStr)
+    {
+       coop.rchain.syntax.rholang.Absyn.VPtStr _vptstr = (coop.rchain.syntax.rholang.Absyn.VPtStr) foo;
+       render("(");
+       render("VPtStr");
+       sh(_vptstr.string_);
        render(")");
     }
   }
