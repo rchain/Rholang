@@ -6,6 +6,7 @@ public abstract class Entity implements java.io.Serializable {
     public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.EStruct p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg);
 
   }
 

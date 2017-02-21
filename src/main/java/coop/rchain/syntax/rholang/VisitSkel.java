@@ -155,13 +155,27 @@ public class VisitSkel
   }
   public class QuantityVisitor<R,A> implements Quantity.Visitor<R,A>
   {
-    public R visit(coop.rchain.syntax.rholang.Absyn.QInt p, A arg)
+    public R visit(coop.rchain.syntax.rholang.Absyn.QBool p, A arg)
+    { /* Code For QBool Goes Here */
+      p.rhobool_.accept(new RhoBoolVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QInt p, A arg)
     { /* Code For QInt Goes Here */
       //p.integer_;
       return null;
     }    public R visit(coop.rchain.syntax.rholang.Absyn.QDouble p, A arg)
     { /* Code For QDouble Goes Here */
       //p.double_;
+      return null;
+    }
+  }
+  public class RhoBoolVisitor<R,A> implements RhoBool.Visitor<R,A>
+  {
+    public R visit(coop.rchain.syntax.rholang.Absyn.QTrue p, A arg)
+    { /* Code For QTrue Goes Here */
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QFalse p, A arg)
+    { /* Code For QFalse Goes Here */
       return null;
     }
   }
@@ -178,6 +192,11 @@ public class VisitSkel
     }    public R visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg)
     { /* Code For ECollect Goes Here */
       p.collect_.accept(new CollectVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg)
+    { /* Code For ETuple Goes Here */
+      for (Proc x: p.listproc_)
+      { /* ... */ }
       return null;
     }
   }
@@ -278,6 +297,10 @@ public class VisitSkel
     { /* Code For CPtQuote Goes Here */
       p.ppattern_.accept(new PPatternVisitor<R,A>(), arg);
       return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg)
+    { /* Code For CValPtrn Goes Here */
+      p.valpattern_.accept(new ValPatternVisitor<R,A>(), arg);
+      return null;
     }
   }
   public class PatternBindVisitor<R,A> implements PatternBind.Visitor<R,A>
@@ -305,6 +328,17 @@ public class VisitSkel
       //p.var_;
       for (PPattern x: p.listppattern_)
       { /* ... */ }
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtTuple p, A arg)
+    { /* Code For VPtTuple Goes Here */
+      for (PPattern x: p.listppattern_)
+      { /* ... */ }
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtTrue p, A arg)
+    { /* Code For VPtTrue Goes Here */
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtFalse p, A arg)
+    { /* Code For VPtFalse Goes Here */
       return null;
     }    public R visit(coop.rchain.syntax.rholang.Absyn.VPtInt p, A arg)
     { /* Code For VPtInt Goes Here */

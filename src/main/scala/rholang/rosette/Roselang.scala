@@ -470,12 +470,14 @@ extends StrFoldCtxtVisitor {
             ( new CPtVar( new VarPtVar( Fresh() ) ), new CVar( Fresh() ) )
           val lbind = new InputBind( lmsg, lchan )
 
+          // case 1 => P_i
           val bvericase =
             new PatternMatch( new PPtVal( new VPtInt( 1 ) ), branch.proc_ )
 
           val balertActls = new ListProc()
           balertActls.add( babsurdity )
 
+          // case 0 => lchan!( 0 )
           val babsucase =
             new PatternMatch( 
               new PPtVal( new VPtInt( 0 ) ), 
@@ -551,10 +553,9 @@ extends StrFoldCtxtVisitor {
 
         visit( new PNew( bnewVars, bigbpar ), arg )
       }
-    }
-
-    
+    }    
   }
+
   override def visit(  p : PMatch, arg : A ) : R
   //override def visit(  p : PNew, arg : A ) : R
   override def visit(  p : PConstr, arg : A ) : R

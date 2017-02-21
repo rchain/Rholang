@@ -24,11 +24,11 @@ public class Test
     /* The default parser is the first-defined entry point. */
     /* You may want to change this. Other options are: */
     /* pProc, pListProc, pChan, pBind, pListBind, pPMBranch,
-       pListPMBranch, pCBranch, pListCBranch, pValue, pQuantity, pEntity,
-       pStruct, pCollect, pVarPattern, pListVarPattern, pPPattern,
-       pListPPattern, pCPattern, pListCPattern, pPatternBind,
+       pListPMBranch, pCBranch, pListCBranch, pValue, pQuantity, pRhoBool,
+       pEntity, pStruct, pCollect, pVarPattern, pListVarPattern,
+       pPPattern, pListPPattern, pCPattern, pListCPattern, pPatternBind,
        pListPatternBind, pPatternPatternMatch, pListPatternPatternMatch,
-       pValPattern, pListVar, pListName */
+       pValPattern, pListValPattern, pListVar, pListName */
     try
     {
       coop.rchain.syntax.rholang.Absyn.Contr parse_tree = p.pContr();

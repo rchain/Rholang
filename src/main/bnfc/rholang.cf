@@ -39,13 +39,16 @@ separator nonempty CBranch "" ;
 -- Values
 VQuant.   Value    ::= Quantity ;
 VEnt.     Value    ::= Entity ;
--- QBool.    Quantity ::= Boolean ;
+QBool.    Quantity ::= RhoBool ;
 QInt.     Quantity ::= Integer ;
 QDouble.  Quantity ::= Double ;
+QTrue.    RhoBool  ::= "true" ;
+QFalse.   RhoBool  ::= "false" ;
 EChar.    Entity   ::= Char ;
 -- EDate.    Entity   ::= Datetime ;
 EStruct.  Entity   ::= Struct ;
 ECollect. Entity   ::= Collect ;
+ETuple.   Entity   ::= "<" [Proc] ">" ;
 StructConstr. Struct ::= Var "{" [Proc] "}" ;
 CString. Collect ::= String ;
 -- CArray.  Collect ::= Array ;
@@ -74,6 +77,7 @@ coercions PPattern 4 ;
 -- Channel patterns
 CPtVar.    CPattern ::= VarPattern ;
 CPtQuote.  CPattern ::= "@" PPattern3 ;
+CValPtrn.  CPattern ::= ValPattern ;
 separator CPattern "," ;
 
 -- Bind pattern
@@ -86,12 +90,16 @@ separator nonempty PatternPatternMatch "" ;
 
 -- Value patterns
 VPtStruct. ValPattern ::= Var "{" [PPattern] "}" ;
+VPtTuple. ValPattern ::= "<" [PPattern] ">" ;
+VPtTrue. ValPattern ::= "true" ;
+VPtFalse. ValPattern ::= "false" ;
 VPtInt. ValPattern ::= Integer ;
 VPtDbl. ValPattern ::= Double ;
 VPtStr. ValPattern ::= String ;
 --VPtString. ValPattern ::=  ;
 --VPtArray.  ValPattern ::=  ;
 --VPtList.   ValPattern ::=  ;
+separator nonempty ValPattern "," ;
 
 -- Names and variables
 token Name (upper (letter | digit | '_' | '\'')*) ;

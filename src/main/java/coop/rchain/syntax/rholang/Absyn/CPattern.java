@@ -5,6 +5,7 @@ public abstract class CPattern implements java.io.Serializable {
   public interface Visitor <R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.CPtVar p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg);
 
   }
 

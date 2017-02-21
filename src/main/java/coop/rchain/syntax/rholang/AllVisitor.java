@@ -12,6 +12,7 @@ public interface AllVisitor<R,A> extends
   coop.rchain.syntax.rholang.Absyn.CBranch.Visitor<R,A>,
   coop.rchain.syntax.rholang.Absyn.Value.Visitor<R,A>,
   coop.rchain.syntax.rholang.Absyn.Quantity.Visitor<R,A>,
+  coop.rchain.syntax.rholang.Absyn.RhoBool.Visitor<R,A>,
   coop.rchain.syntax.rholang.Absyn.Entity.Visitor<R,A>,
   coop.rchain.syntax.rholang.Absyn.Struct.Visitor<R,A>,
   coop.rchain.syntax.rholang.Absyn.Collect.Visitor<R,A>,
