@@ -240,6 +240,10 @@ extends StrFoldCtxtVisitor {
   def CH() = V( theCtxtVar )
   def H() = HV( theCtxtVar )
   def Here() = Some( HV( theCtxtVar ) )
+  def Fresh() = {
+    val uuidComponents = java.util.UUID.randomUUID.toString.split( "-" )
+    uuidComponents( uuidComponents.length - 1 )
+  }
 
   def combine( ctxt1 : A, ctxt2 : R ) : R =
     combine( ctxt1, ctxt2, Here() )
@@ -439,79 +443,120 @@ extends StrFoldCtxtVisitor {
     )
   }
 
-  /*
-   * [| select { case bindings1 => P1; ...; case bindingsN => PN } |]( t )
-   * =
-   * [| new b1, ..., bN, lock in 
-   *     lock!( true )
-   *     | for( bindings1 ){ b1!( true ) } 
-   *     | for( b <- b1; l <- lock ){ 
-   *        match l with 
-   *         case true => P1; 
-   *         case false => lock!( false )
-   *       }
-   *      ...
-   *     | for( bindingsN ){ bN!( true ) } 
-   *     | for( b <- b1; l <- lock ){ 
-   *        match l with 
-   *         case true => P1; 
-   *         case false => lock!( false )
-   *       } |]( t )
-   */
+  override def visit(  p : PNew, arg : A ) : R = {
+    throw new Exception( "TBD" )
+  }
   override def visit(  p : PChoice, arg : A ) : R = {
-    import scala.collection.JavaConverters._    
+    import scala.collection.JavaConverters._
+
+    def cBranchToParPair( b : CBranch ) = {
+      b match {
+        case branch : Choice => {
+          // bverity = 1, babsurdity = 0
+          val ( bverity, babsurdity ) = 
+            ( 
+              new PValue( new VQuant( new QInt( 1 ) ) ), 
+              new PValue( new VQuant( new QInt( 0 ) ) ) 
+            )
+
+          // bmsg <- bchan
+          val bmsgVStr = Fresh()
+          val ( bmsg, bchan ) = 
+            ( new CPtVar( new VarPtVar( bmsgVStr ) ), new CVar( Fresh() ) )
+          val bbind = new InputBind( bmsg, bchan )
+
+          // lmsg <- lchan
+          val ( lmsg, lchan ) = 
+            ( new CPtVar( new VarPtVar( Fresh() ) ), new CVar( Fresh() ) )
+          val lbind = new InputBind( lmsg, lchan )
+
+          val bvericase =
+            new PatternMatch( new PPtVal( new VPtInt( 1 ) ), branch.proc_ )
+
+          val balertActls = new ListProc()
+          balertActls.add( babsurdity )
+
+          val babsucase =
+            new PatternMatch( 
+              new PPtVal( new VPtInt( 0 ) ), 
+              new PLift( lchan, balertActls ) 
+            )
+         
+          val bcases = new ListPMBranch()
+          bcases.add( bvericase )
+          bcases.add( babsucase )
+
+          val bsatActls = new ListProc()
+          bsatActls.add( new PValue( new VQuant( new QInt( 1 ) ) ) )
+
+          val blocks = new ListBind()
+          blocks.add( bbind )
+          blocks.add( lbind )
+
+          val bmatch = new PMatch( new PVar( bmsgVStr ), bcases )
+
+          val bpair = 
+            new PPar(
+              // for( binding_i ){ bchan!( 1 ) }
+              new PInput( branch.listbind_, new PLift( bchan, bsatActls ) ),
+              // for( bmsg <- bchan; lmsg <- lchan ){
+              //   match bmsg with
+              //    case 1 => P_i
+              //    case 0 => lchan!( 0 )
+              // }          
+              new PInput( blocks, bmatch )
+            )
+
+          ( bchan, bpair )
+        }
+        case _ => {
+          throw new UnexpectedBranchType( b )
+        }
+      }
+    }
 
     p.listcbranch_.asScala.toList match {
+      // select {} = Nil
       case Nil => {
         combine( arg, Some( L( G( "#niv" ), T() ) ) )
       }
+      // select { case bindings => P } = for( bindings )P
       case ( branch : Choice ) :: Nil => {
-        visit(
-          new PInput( branch.listbind_, branch.proc_ ),
-          arg
-        )
+        visit( new PInput( branch.listbind_, branch.proc_ ), arg )
       }
+      /*
+       * select { case bindings1 => P1; ...; case bindingsN => PN }
+       * =
+       * new b1, ..., bN, lock in 
+       *   lock!( true )
+       *   | for( bindings1 ){ b1!( true ) } 
+       *   | for( b <- b1; l <- lock ){ 
+       *      match l with 
+       *       case true => P1; 
+       *       case false => lock!( false )
+       *     }
+       *    ...
+       *   | for( bindingsN ){ bN!( true ) } 
+       *   | for( b <- b1; l <- lock ){ 
+       *      match l with 
+       *       case true => P1; 
+       *       case false => lock!( false )
+       *     }
+       */
       case branches => {
-        throw new Exception( "TBD" )
-        // val bvarsNpars =
-        //   branches.map(
-        //     { 
-        //       ( b ) => {
-        //         val ( bverity, babsurdity ) = ( new QInt( 1 ), new QInt( 0 ) )
+        val ( bvars, bpar :: rbpars ) = branches.map( cBranchToParPair ).unzip
+        val bigbpar = ( bpar /: rbpars )( { ( acc, e ) => { new PPar( acc, e ) } } )
+        val bnewVars = new ListVar()
+        bvars.map( { ( bvar ) => { bnewVars.add( bvar.var_ ) } } )
 
-        //         val ( bmsg, bchan ) = ( new VarPtVar( Fresh() ), new CVar( Fresh() ) )
-        //         val bbind = new InputBind( bmsg, bchan )
-
-        //         val ( lmsg, lchan ) = ( new VarPtVar( Fresh() ), new CVar( Fresh() ) )
-        //         val lbind = new InputBind( lmsg, lchan )
-
-        //         val bsend = new ListProc( List( new QInt( 0 ) ).asJava )
-        //         val balert = new PInput( b.listbind_, new PLift( bchan, bsend ) )       
-
-        //         val blocks = new ListBind( List( bbind, lbind ).asJava )
-        //         val bvericase = new PatternMatch( new PPtVal() )
-        //         val babsucase = new PatternMatch( new PPtVal() )
-        //         val bcases =
-        //           new ListPMBranch( List( bvericase, babsucase ).asJava )
-
-        //         val bmatch = new PMatch( new PVar( bmsg.var_ ), bcases )
-        //         val bindproc = new PInput( blocks, bindmatch )
-
-        //         val bpair = new PPar( balert, bindmatch )
-
-        //         ( bchan, bpair )
-        //       }
-        //     }
-        //   )
-
-        
+        visit( new PNew( bnewVars, bigbpar ), arg )
       }
     }
 
     
   }
   override def visit(  p : PMatch, arg : A ) : R
-  override def visit(  p : PNew, arg : A ) : R
+  //override def visit(  p : PNew, arg : A ) : R
   override def visit(  p : PConstr, arg : A ) : R
   override def visit(  p : PPar, arg : A ) : R
 
@@ -526,7 +571,7 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : InputBind, arg : A ) : R = {
     arg match {
       // [[ P ]] is proc
-      case Location( proc : StrTermCtxt, Top() ) => {
+      case Some( Location( proc : StrTermCtxt, Top() ) ) => {
         for(
           // [[ chan ]] is chanTerm
           Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
