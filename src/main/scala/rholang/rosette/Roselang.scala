@@ -81,6 +81,7 @@ object ComprehensionOps {
 
 object RosetteOps {
   val _abs = "proc"
+  val _produce = "produce"
 }
 
 trait StrFoldCtxtVisitor
@@ -321,7 +322,25 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PVar, arg : A ) : R
   override def visit(  p : PDrop, arg : A ) : R
   override def visit(  p : PInject, arg : A ) : R
-  override def visit(  p : PLift, arg : A ) : R
+  override def visit(  p : PLift, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+    val actls =
+      ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
+        {
+          ( acc, e ) => {
+            visit( e, Here() ) match {
+              case Some( pTerm : StrTermCtxt ) => acc ++ List( pTerm )
+              case None => acc
+            }
+          }
+        }
+      )        
+
+    combine(
+      arg,
+      Some( L( B( _produce )( (List( TS ) ++ actls):_* ), Top() ) )
+    )
+  }
   override def visit(  p : PInput, arg : A ) : R = {
     import scala.collection.JavaConverters._
 
