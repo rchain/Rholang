@@ -310,7 +310,30 @@ extends StrFoldCtxtVisitor {
    */
 
   /* Contr */
-  override def visit( p : DContr, arg : A ) : R
+  override def visit(p: DContr, arg: A): R = {
+    import scala.collection.JavaConverters._
+    var constructor_args_list =
+      ( List[StrTermCtxt]() /: p.listcpattern_.asScala.toList )(
+        {
+          ( acc, e ) => {
+            visit( e, Here() ) match {
+              case Some( Location(cTerm : StrTermCtxt, _) ) => acc ++ List( cTerm )
+              case None => acc
+            }
+          }
+        }
+      )
+
+    combine(
+      L( V( "*H*" ), T() ),
+      for (
+        Location(bodyTerm: StrTermCtxt, _) <- visit(p.proc_, Here())
+      ) yield {
+        // (defActor [[ p.name_ ]]Contract (method ([[ p.name_ ]] p.listcpattern) [[ P ]]))
+        L(B("defActor")(V(p.name_ + "Contract"), B("method")(B(p.name_)( (constructor_args_list):_* ), bodyTerm)), T())
+      }
+    )
+  }
 
   /* Proc */
   def visit( p : Proc, arg : A ) : R
