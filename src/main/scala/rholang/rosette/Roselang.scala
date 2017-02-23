@@ -372,7 +372,7 @@ extends StrFoldCtxtVisitor {
         {
           ( acc, e ) => {
             visit( e, Here() ) match {
-              case Some( pTerm : StrTermCtxt ) => acc ++ List( pTerm )
+              case Some( Location( pTerm : StrTermCtxt, _ ) ) => acc ++ List( pTerm )
               case None => acc
             }
           }
@@ -642,7 +642,7 @@ extends StrFoldCtxtVisitor {
         {
           ( acc, e ) => {
             visit( e, Here() ) match {
-              case Some( pTerm : StrTermCtxt ) => acc ++ List( pTerm )
+              case Some( Location( pTerm : StrTermCtxt, _ ) ) => acc ++ List( pTerm )
               case None => acc
             }
           }
