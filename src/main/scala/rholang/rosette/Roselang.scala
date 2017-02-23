@@ -325,7 +325,7 @@ extends StrFoldCtxtVisitor {
       )
 
     combine(
-      L( V( "*H*" ), T() ),
+      arg,
       for (
         Location(bodyTerm: StrTermCtxt, _) <- visit(p.proc_, Here())
       ) yield {
