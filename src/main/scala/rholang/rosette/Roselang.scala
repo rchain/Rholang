@@ -84,6 +84,7 @@ object RosetteOps {
   val _defActor = "defActor"
   val _method = "method"
   val _produce = "produce"
+  val _block = "block"
 }
 
 trait StrFoldCtxtVisitor
@@ -653,7 +654,22 @@ extends StrFoldCtxtVisitor {
       Some( L( B( p.name_ )( (List( TS ) ++ actls):_* ), Top() ) )
     )
   }
-  override def visit(  p : PPar, arg : A ) : R
+  override def visit(  p : PPar, arg : A ) : R = {
+    /*
+     * [| P1 | P2 |]( t ) 
+     * =
+     * ( block [| P1 |]( t ) [| P2 |]( t ) )
+     */
+    combine(
+      arg,
+      for( 
+        Location( pTerm1 : StrTermCtxt, _ ) <- visit( p.proc_1, Here() );
+        Location( pTerm2 : StrTermCtxt, _ ) <- visit( p.proc_2, Here() )
+      ) yield {
+        L( B( _block )( pTerm1, pTerm2 ), Top() )
+      }
+    )
+  }
 
   /* Chan */
   def visit(  p : Chan, arg : A ) : R
