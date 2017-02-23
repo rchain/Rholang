@@ -629,7 +629,30 @@ extends StrFoldCtxtVisitor {
 
   override def visit(  p : PMatch, arg : A ) : R
   //override def visit(  p : PNew, arg : A ) : R
-  override def visit(  p : PConstr, arg : A ) : R
+  override def visit(  p : PConstr, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+    /*
+     *  [| <Name>( P1, ..., PN ) |]( t )
+     *  =
+     *  ( <Name> [| P1 |]( t ) ... [| PN |]( t ) )
+     */
+    val actls =
+      ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
+        {
+          ( acc, e ) => {
+            visit( e, Here() ) match {
+              case Some( pTerm : StrTermCtxt ) => acc ++ List( pTerm )
+              case None => acc
+            }
+          }
+        }
+      )        
+
+    combine(
+      arg,
+      Some( L( B( p.name_ )( (List( TS ) ++ actls):_* ), Top() ) )
+    )
+  }
   override def visit(  p : PPar, arg : A ) : R
 
   /* Chan */
