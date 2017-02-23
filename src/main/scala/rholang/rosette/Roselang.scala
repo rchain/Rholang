@@ -81,6 +81,8 @@ object ComprehensionOps {
 
 object RosetteOps {
   val _abs = "proc"
+  val _defActor = "defActor"
+  val _method = "method"
   val _produce = "produce"
 }
 
@@ -310,7 +312,42 @@ extends StrFoldCtxtVisitor {
    */
 
   /* Contr */
-  override def visit( p : DContr, arg : A ) : R
+  override def visit( p : DContr, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+    /*
+     * [| contract <Name>( <formals> ) = { <body> } |]( t )
+     * =
+     * (defActor <Name>Contract 
+     *   (method (<Name> [| formals |]( t )) [| body |]))
+     */
+    combine(
+      arg,
+      (for( Location( pTerm : StrTermCtxt, _ ) <- visit( p.proc_, Here() ) )
+      yield {
+        val formals =
+          ( List[StrTermCtxt]() /: p.listcpattern_.asScala.toList )(
+            {
+              ( acc, e ) => {
+                visit( e, Here() ) match {
+                  case Some( Location( frml : StrTermCtxt, _ ) ) => {
+                    acc ++ List( frml )
+                  }
+                  case None => {
+                    acc
+                  }
+                }
+              }
+            }
+          )
+        val methodTerm =
+          B( _method )( B( p.name_ )( formals:_* ), pTerm )
+        val actorTerm =
+          B( _defActor )( G( s"""${p.name_}Contract""" ), methodTerm )
+
+        L( actorTerm, Top() )
+      })
+    )
+  }
 
   /* Proc */
   def visit( p : Proc, arg : A ) : R
@@ -324,6 +361,11 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PInject, arg : A ) : R
   override def visit(  p : PLift, arg : A ) : R = {
     import scala.collection.JavaConverters._
+    /*
+     *  [| x!( P1, ..., PN ) |]( t )
+     *  =
+     *  ( produce t [| x ]( t ) [| P1 |]( t ) ... [| PN |]( t ) )
+     */
     val actls =
       ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
         {
