@@ -737,6 +737,18 @@ extends StrFoldCtxtVisitor {
       L( G( s"""'${p.char_}'"""), Top() )
     )
   }
+  override def visit( p : QTrue, arg : A) : R = {
+    combine(
+      arg,
+      L( G( s"""#t"""), Top() )
+    )
+  }
+  override def visit( p : QFalse, arg : A) : R = {
+    combine(
+      arg,
+      L( G( s"""#f"""), Top() )
+    )
+  }
   override def visit(  p : EStruct, arg : A ) : R
   override def visit(  p : ECollect, arg : A ) : R
   /* Struct */
