@@ -1,0 +1,105 @@
+;; -*- mode: Lisp;-*- 
+;; Filename:    space.rbl 
+;; Authors:     luciusmeredith                                                    
+;; Creation:    Thu Feb 23 18:57:26 2017 
+;; Copyright:   See site license
+;; Description: Basic Linda pattern
+;; ------------------------------------------------------------------------
+
+(defOprn consume)
+(defOprn produce)
+(defOprn match?)
+(defOprn miss?)
+(defOprn production?)
+
+(defActor NameSpace (slots& chart (new RblTable)))
+
+(defRMethod NameSpace (consume ctxt & location)
+ ;;; by makng this a reflective method - RMethod - we gain access to the awaiting continuation
+ ;;; bound to the formal parameter ctxt
+  (letrec [[[channel ptrn] location]
+  ;;; the channel and the pattern of incoming messages to look for are destructured and bound
+        [subspace (tbl-get chart channel)]
+                ;;; the incoming messages associated with the channel are collected in a subtable
+                ;;; in this sense we can see that the semantic framework supports a compositional
+                ;;; topic/subtopic/subsubtopic/… structuring technique that unifies message passing
+                ;;; with content delivery primitives
+                ;;; the channel name becomes the topic, and the pattern structure becomes
+                ;;; the subtopic tree
+                ;;; this also unifies with the URL view of resource access
+       [candidates (names subspace)]
+       [[extractions remainder]
+          (fold candidates
+            (proc [e acc k]
+                (let [[[hits misses] acc]
+                [binding (match? ptrn e)]]
+            (if (miss? binding)
+                (k [hits [e & misses]])
+                (k [[[e binding] & hits] misses])))))]
+                  ;;; note that this is generic in the match? and miss? predicates
+                  ;;; matching could be unification (as it is in SpecialK) or it could be
+                  ;;; a number of other special purpose protocols
+                  ;;; the price for this genericity is performance
+                  ;;; there is decent research showing that there are hashing disciplines
+                  ;;; that could provide a better than reasonable approximation of unification
+       [[productions consummation]
+            (fold extractions
+              (proc [[e binding] acc k]
+                (let [[[productions consumers] acc]
+               [hit (tbl-get subspace e)]]
+                  (if (production? hit)
+               (k [[[[e binding] hit] & productions] consumers])
+               (k [productions [[e hit] & consumers]])))))]]
+                  ;;; this divides the hits into those matches that are data and
+                  ;;; those matches that are continuations
+                  ;;; and the rest of the code sends data to the awaiting continuation
+                  ;;; and appends the continuation to those matches that are currently
+                  ;;; data starved
+                  ;;; this is a much more fine-grained view of excluded middle
+
+   (seq
+     (map productions
+       (proc [[[ptrn binding] product]]
+            (delete subspace ptrn)))
+     (map consummation
+          (proc [[ptrn consumers]]
+            (tbl-add subspace
+            ptrn (reverse [ctxt & (reverse consumers)]))))
+     (update!)
+     (ctxt-rtn ctxt productions))))
+
+;;; This code is perfectly dual to the consumer code and so all the comments
+;;; there apply in the corresponging code sites
+(defRMethod NameSpace (produce ctxt & production)
+ (letrec [[[channel ptrn product] production]
+        [subspace (tbl-get chart channel)]
+       [candidates (names subspace)]
+       [[extractions remainder]
+          (fold candidates
+            (proc [e acc k]
+                (let [[[hits misses] acc]
+                [binding (match? ptrn e)]]
+            (if (miss? binding)
+                (k [[e & hits] misses])
+                (k [hits [e & misses]])))))]
+       [[productions consummation]
+            (fold extractions
+              (proc [[e binding] acc k]
+                (let [[[productions consumers] acc]
+               [hit (tbl-get subspace e)]]
+                  (if (production? hit)
+               (k [[[e hit] & productions] consumers])
+               (k [productions [[[e binding] hit] & consumers]])))))]]
+   (seq
+     (map productions
+       (proc [[ptrn prod]] (tbl-add subspace ptrn product)))
+     (map consummation
+       (proc [[[ptrn binding] consumers]]
+       (seq
+            (delete subspace ptrn)
+            (map consumers
+              (proc [consumer]
+                (send ctxt-rtn consumer [product binding])
+                binding)))))
+     (update!)
+     (ctxt-rtn ctxt product))))
