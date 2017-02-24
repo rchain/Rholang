@@ -69,6 +69,10 @@ object CompilerExceptions {
     b : CBranch
   ) extends Exception( s"$b found in unexpected context" )
       with CompilerException with SyntaxException
+  case class FailedQuotation(
+    b : AnyRef
+  ) extends Exception( s"$b found in unexpected context" )
+      with CompilerException with SyntaxException
 }
 
 object ComprehensionOps {
@@ -85,6 +89,10 @@ object RosetteOps {
   val _method = "method"
   val _produce = "produce"
   val _block = "block"
+  val _quote = "Q"
+  val _rx = "RX"
+  val _run = "run"
+  val _compile = "compile"
 }
 
 trait StrFoldCtxtVisitor
@@ -249,6 +257,38 @@ extends StrFoldCtxtVisitor {
     uuidComponents( uuidComponents.length - 1 )
   }
 
+  def isTopLevel( r : R ) : Boolean = {
+    r match {
+      case Some( Location( StrTermCtxtLf( Left( v ) ), Top() ) ) if v.equals( theCtxtVar ) => {
+        true
+      }
+      case _ => false
+    }
+  }
+
+  /* TODO : rewrite this to be amenable to tail recursion elimination */
+  def doQuote( rexpr : R ) : R = {
+    for( Location( expr : StrTermCtxt, _ ) <- rexpr )
+    yield {
+      expr match {
+        case leaf : StrTermCtxtLf => {
+          L( B( _quote )( leaf ), Top() )
+        }
+        case StrTermCtxtBr( op, subterms ) => {
+          val qterms = subterms.map( 
+            { 
+              ( term ) => { 
+                (for( Location( qterm : StrTermCtxt, _ ) <- doQuote( term ) )
+                yield { qterm }).getOrElse( throw new FailedQuotation( term ) )
+              }
+            }
+          )
+          L( B( _rx )( (List( B( _quote )( V( op ) ) ) ++ qterms):_* ), Top() )
+        }
+      }
+    }
+  }
+
   def combine( ctxt1 : A, ctxt2 : R ) : R =
     combine( ctxt1, ctxt2, Here() )
 
@@ -358,21 +398,52 @@ extends StrFoldCtxtVisitor {
   }
   override def visit(  p : PValue, arg : A ) : R
   override def visit(  p : PVar, arg : A ) : R
-  override def visit(  p : PDrop, arg : A ) : R
+  override def visit(  p : PDrop, arg : A ) : R = {
+    /*
+     *  Note that there are at least two different approaches to the
+     *  lift/drop semantics. One is to compile the actuals supplied to
+     *  lift to the target language and then let the target language
+     *  supply the execution semantics for the drop. Dual to this one
+     *  is to defer the compilation of the actuals to lift and then
+     *  compile at drop time. This is more portable, though
+     *  potentially less efficient. Another technique that comes into
+     *  play is to calculate the hash of (each of) the actuals to lift
+     *  and store the code at a name that is a function of the
+     *  hash. Then send the hashes. Then at a drop the hash is used to
+     *  recover the code. This technique can be composed with either
+     *  of the other two techniques.
+     */
+    combine( arg, 
+      ( p.chan_ match {
+        case quote : CQuote => {
+          visit( quote.proc_, Here() )
+        }
+        case v : CVar => {
+          Some( L( B( _run )( B( _compile )( V( v.var_ ) ) ), Top() ) )
+        }
+      } )
+    )    
+  }
   override def visit(  p : PInject, arg : A ) : R
   override def visit(  p : PLift, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
      *  [| x!( P1, ..., PN ) |]( t )
      *  =
-     *  ( produce t [| x ]( t ) [| P1 |]( t ) ... [| PN |]( t ) )
+     *  ( produce t [| x ]( t ) `(,[| P1 |]( t )) ... `(,[| PN |]( t )) )
      */
     val actls =
       ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
         {
           ( acc, e ) => {
             visit( e, Here() ) match {
-              case Some( Location( pTerm : StrTermCtxt, _ ) ) => acc ++ List( pTerm )
+              case Some( Location( pTerm : StrTermCtxt, _ ) ) => {
+                doQuote( pTerm ) match {
+                  case Some( Location( qTerm : StrTermCtxt, _ ) ) =>
+                    acc ++ List( qTerm )
+                  case None => acc
+                }                
+              }
               case None => acc
             }
           }
