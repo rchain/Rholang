@@ -718,16 +718,36 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : VQuant, arg : A ) : R
   override def visit(  p : VEnt, arg : A ) : R
   /* Quantity */
-  override def visit(  p : QInt, arg : A ) : R
-  override def visit(  p : QDouble, arg : A ) : R
+  override def visit(  p : QInt, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( s"""${p.integer_}"""), Top() )
+    )
+  }
+  override def visit(  p : QDouble, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( s"""${p.double_}"""), Top() )
+    )
+  }
   /* Entity */
-  override def visit(  p : EChar, arg : A ) : R
+  override def visit(  p : EChar, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( s"""'${p.char_}'"""), Top() )
+    )
+  }
   override def visit(  p : EStruct, arg : A ) : R
   override def visit(  p : ECollect, arg : A ) : R
   /* Struct */
   override def visit(  p : StructConstr, arg : A ) : R
   /* Collect */
-  override def visit(  p : CString, arg : A ) : R
+  override def visit(  p : CString, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( s""""${p.string_}""""), Top() )
+    )
+  }
   /* Pattern */
   def visit( p : CPattern, arg : A ) : R
   /* VarPattern */
