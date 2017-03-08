@@ -6,12 +6,12 @@
 // Description: 
 // ------------------------------------------------------------------------
 
+package coop.rchain.rho2rose
+
 import coop.rchain.lib.term._
 import coop.rchain.lib.zipper._
 
-//import rholang.parsing.rholang2._
 import coop.rchain.syntax.rholang._
-//import rholang.parsing.rholang2.Absyn._
 import coop.rchain.syntax.rholang.Absyn._
 
 trait StrTermNavigation extends TermNavigation[String,String,String]
@@ -57,6 +57,10 @@ object CompilerExceptions {
   trait SyntaxException
   trait SemanticsException
 
+  case class UnexpectedContractType(
+    c : Contr
+  ) extends Exception( s"$c found in unexpected context" )
+      with CompilerException with SyntaxException
   case class NoComprehensionBindings(
     p : PInput 
   ) extends Exception( s"$p has no bindings" )
@@ -353,6 +357,12 @@ extends StrFoldCtxtVisitor {
    */
 
   /* Contr */
+  def visit( p : Contr, arg : A ) : R = {
+    p match {
+      case dcontr : DContr => visit( dcontr, arg )
+      case _ => throw new UnexpectedContractType( p )
+    }
+  }
   override def visit( p : DContr, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
