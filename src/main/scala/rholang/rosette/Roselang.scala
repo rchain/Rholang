@@ -373,7 +373,7 @@ extends StrFoldCtxtVisitor {
      */
     combine(
       arg,
-      (for( Location( pTerm : StrTermCtxt, _ ) <- visit( p.proc_, Here() ) )
+      (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
         val formals =
           ( List[StrTermCtxt]() /: p.listcpattern_.asScala.toList )(
@@ -401,7 +401,23 @@ extends StrFoldCtxtVisitor {
   }
 
   /* Proc */
-  def visit( p : Proc, arg : A ) : R
+  def visitDispatch( p : Proc, arg : A ) : R = {
+    p match {
+      case pNil : PNil => visit( pNil, arg )
+      case pVal : PValue => visit( pVal, arg )
+      case pDrop : PDrop => visit( pDrop, arg )
+      case pInject : PInject => visit( pInject, arg )
+      case pLift : PLift => visit( pLift, arg )
+      case pFoldL : PFoldL => visit( pFoldL, arg )
+      case pFoldR : PFoldR => visit( pFoldR, arg )
+      case pInput : PInput => visit( pInput, arg )
+      case pChoice : PChoice => visit( pChoice, arg )
+      case pMatch : PMatch => visit( pMatch, arg )
+      case pNew : PNew => visit( pNew, arg )
+      case pConstr : PConstr => visit( pConstr, arg )
+      case pPar : PPar => visit( pPar, arg )
+    }
+  }
 
   override def visit(  p : PNil, arg : A ) : R = {    
     combine( arg, Some( L( G( "#niv" ), T() ) ) )
@@ -426,7 +442,7 @@ extends StrFoldCtxtVisitor {
     combine( arg, 
       ( p.chan_ match {
         case quote : CQuote => {
-          visit( quote.proc_, Here() )
+          visitDispatch( quote.proc_, Here() )
         }
         case v : CVar => {
           Some( L( B( _run )( B( _compile )( V( v.var_ ) ) ), Top() ) )
@@ -446,7 +462,7 @@ extends StrFoldCtxtVisitor {
       ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
         {
           ( acc, e ) => {
-            visit( e, Here() ) match {
+            visitDispatch( e, Here() ) match {
               case Some( Location( pTerm : StrTermCtxt, _ ) ) => {
                 doQuote( pTerm ) match {
                   case Some( Location( qTerm : StrTermCtxt, _ ) ) =>
@@ -477,7 +493,7 @@ extends StrFoldCtxtVisitor {
             // [[ ptrn ]] is ptrnTerm
             Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
             // [[ P ]] is bodyTerm
-            Location( bodyTerm : StrTermCtxt, _ ) <- visit( proc, Here() )
+            Location( bodyTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
           ) yield {
             // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
             L( B( _map )( chanTerm, B( _abs )( ptrnTerm, bodyTerm ) ), T() )
@@ -489,9 +505,9 @@ extends StrFoldCtxtVisitor {
             Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
             // [[ ptrn ]] is ptrnTerm
             Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
-            Location( filterTerm : StrTermCtxt, _ ) <- visit( cndInBind.proc_, Here() );
+            Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
             // [[ P ]] is bodyTerm
-            Location( bodyTerm : StrTermCtxt, _ ) <- visit( proc, Here() )
+            Location( bodyTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
           ) yield {
             // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
             L( 
@@ -561,7 +577,7 @@ extends StrFoldCtxtVisitor {
                       Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
                       // [[ ptrn ]] is ptrnTerm
                       Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
-                      Location( filterTerm : StrTermCtxt, _ ) <- visit( cndInBind.proc_, Here() );
+                      Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
                       Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
                     ) yield {
                       // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
@@ -591,7 +607,7 @@ extends StrFoldCtxtVisitor {
     val newVars = p.listvar_.asScala.toList
     combine( 
       arg,
-      (for( Location( pTerm : StrTermCtxt, _ ) <- visit( p.proc_, Here() ) )
+      (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
         val newBindings = newVars.map( { ( v ) => { B( v )( V( Fresh() ) ) } } )
         L( B( "let" )( (newBindings ++ List( pTerm )):_* ), Top() )
@@ -722,7 +738,7 @@ extends StrFoldCtxtVisitor {
       ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
         {
           ( acc, e ) => {
-            visit( e, Here() ) match {
+            visitDispatch( e, Here() ) match {
               case Some( Location( pTerm : StrTermCtxt, _ ) ) => acc ++ List( pTerm )
               case None => acc
             }
@@ -744,8 +760,8 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       for( 
-        Location( pTerm1 : StrTermCtxt, _ ) <- visit( p.proc_1, Here() );
-        Location( pTerm2 : StrTermCtxt, _ ) <- visit( p.proc_2, Here() )
+        Location( pTerm1 : StrTermCtxt, _ ) <- visitDispatch( p.proc_1, Here() );
+        Location( pTerm2 : StrTermCtxt, _ ) <- visitDispatch( p.proc_2, Here() )
       ) yield {
         L( B( _block )( pTerm1, pTerm2 ), Top() )
       }
