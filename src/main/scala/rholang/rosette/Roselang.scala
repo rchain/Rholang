@@ -379,7 +379,7 @@ extends StrFoldCtxtVisitor {
           ( List[StrTermCtxt]() /: p.listcpattern_.asScala.toList )(
             {
               ( acc, e ) => {
-                visit( e, Here() ) match {
+                visitDispatch( e, Here() ) match {
                   case Some( Location( frml : StrTermCtxt, _ ) ) => {
                     acc ++ List( frml )
                   }
@@ -491,7 +491,7 @@ extends StrFoldCtxtVisitor {
             // [[ chan ]] is chanTerm
             Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
             // [[ ptrn ]] is ptrnTerm
-            Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
+            Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
             // [[ P ]] is bodyTerm
             Location( bodyTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
           ) yield {
@@ -504,7 +504,7 @@ extends StrFoldCtxtVisitor {
             // [[ chan ]] is chanTerm
             Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
             // [[ ptrn ]] is ptrnTerm
-            Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
+            Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.cpattern_, Here() );
             Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
             // [[ P ]] is bodyTerm
             Location( bodyTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
@@ -563,7 +563,7 @@ extends StrFoldCtxtVisitor {
                         // [[ chan ]] is chanTerm
                         Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
                         // [[ ptrn ]] is ptrnTerm
-                        Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
+                        Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
                         Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
                       ) yield {
                         // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
@@ -576,7 +576,7 @@ extends StrFoldCtxtVisitor {
                       // [[ chan ]] is chanTerm
                       Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
                       // [[ ptrn ]] is ptrnTerm
-                      Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
+                      Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.cpattern_, Here() );
                       Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
                       Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
                     ) yield {
@@ -789,7 +789,7 @@ extends StrFoldCtxtVisitor {
           // [[ chan ]] is chanTerm
           Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() );
           // [[ ptrn ]] is ptrnTerm
-          Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() )
+          Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( p.cpattern_, Here() )
         ) yield {
           // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
           L( B( _map )( chanTerm, B( _abs )( ptrnTerm, proc ) ), T() )
@@ -801,7 +801,7 @@ extends StrFoldCtxtVisitor {
           // [[ chan ]] is chanTerm
           Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() );
           // [[ ptrn ]] is ptrnTerm
-          Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() );
+          Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( p.cpattern_, Here() );
           Location( rbindingsTerm : StrTermCtxt, _ ) <- arg
         ) yield {
           // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
@@ -863,7 +863,13 @@ extends StrFoldCtxtVisitor {
     )
   }
   /* Pattern */
-  def visit( p : CPattern, arg : A ) : R
+  def visitDispatch( p : CPattern, arg : A ) : R = {
+    p match {
+      case cPtVar : CPtVar => visit( cPtVar, arg )
+      case cPtQuote : CPtQuote => visit( cPtQuote, arg )
+      case cValPtrn : CValPtrn => visit( cValPtrn, arg )
+    }
+  }
   /* VarPattern */
   override def visit(  p : VarPtVar, arg : A ) : R
   override def visit(  p : VarPtWild, arg : A ) : R
