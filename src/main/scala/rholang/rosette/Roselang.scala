@@ -489,7 +489,7 @@ extends StrFoldCtxtVisitor {
         case inBind : InputBind => {
           for(
             // [[ chan ]] is chanTerm
-            Location( chanTerm : StrTermCtxt, _ ) <- visit( inBind.chan_, Here() );
+            Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
             // [[ ptrn ]] is ptrnTerm
             Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
             // [[ P ]] is bodyTerm
@@ -502,7 +502,7 @@ extends StrFoldCtxtVisitor {
         case cndInBind : CondInputBind => {
           for(
             // [[ chan ]] is chanTerm
-            Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
+            Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
             // [[ ptrn ]] is ptrnTerm
             Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
             Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
@@ -561,7 +561,7 @@ extends StrFoldCtxtVisitor {
                       acc,
                       for(
                         // [[ chan ]] is chanTerm
-                        Location( chanTerm : StrTermCtxt, _ ) <- visit( inBind.chan_, Here() );
+                        Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
                         // [[ ptrn ]] is ptrnTerm
                         Location( ptrnTerm : StrTermCtxt, _ ) <- visit( inBind.cpattern_, Here() );
                         Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
@@ -574,7 +574,7 @@ extends StrFoldCtxtVisitor {
                   case cndInBind : CondInputBind => {
                     for(
                       // [[ chan ]] is chanTerm
-                      Location( chanTerm : StrTermCtxt, _ ) <- visit( cndInBind.chan_, Here() );
+                      Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
                       // [[ ptrn ]] is ptrnTerm
                       Location( ptrnTerm : StrTermCtxt, _ ) <- visit( cndInBind.cpattern_, Here() );
                       Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
@@ -769,7 +769,12 @@ extends StrFoldCtxtVisitor {
   }
 
   /* Chan */
-  def visit(  p : Chan, arg : A ) : R
+  def visitDispatch(  p : Chan, arg : A ) : R = {
+    p match {
+      case cVar : CVar => visit( cVar, arg )
+      case cQuote : CVar => visit( cQuote, arg )
+    }
+  }
   override def visit(  p : CVar, arg : A ) : R = {
     combine( arg, Some( L( V( p.var_ ), T() ) ) )
   }
@@ -782,7 +787,7 @@ extends StrFoldCtxtVisitor {
       case Some( Location( proc : StrTermCtxt, Top() ) ) => {
         for(
           // [[ chan ]] is chanTerm
-          Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
+          Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() );
           // [[ ptrn ]] is ptrnTerm
           Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() )
         ) yield {
@@ -794,7 +799,7 @@ extends StrFoldCtxtVisitor {
         // should ensure that arg is a reasonable context to be really safe
         for(
           // [[ chan ]] is chanTerm
-          Location( chanTerm : StrTermCtxt, _ ) <- visit( p.chan_, Here() );
+          Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() );
           // [[ ptrn ]] is ptrnTerm
           Location( ptrnTerm : StrTermCtxt, _ ) <- visit( p.cpattern_, Here() );
           Location( rbindingsTerm : StrTermCtxt, _ ) <- arg
