@@ -25,6 +25,9 @@ trait Rholang2RosetteCompilerT {
   def compile( fileName : String ) : VisitorTypes.R
 }
 
+object StrTermZipr extends StrTermNavigation
+    with StrTermMutation with StrTermZipperComposition
+
 object Rholang2RosetteCompiler extends RholangASTToTerm
     with Rholang2RosetteCompilerT
 {
@@ -38,7 +41,8 @@ object Rholang2RosetteCompiler extends RholangASTToTerm
    
    // Members declared in coop.rchain.rho2rose.StrFoldCtxtVisitor
   def theCtxtVar: String = s"""ContextVar${Fresh()}"""
-  def zipr: StrTermNavigation with coop.rchain.rho2rose.StrTermMutation with coop.rchain.rho2rose.StrTermZipperComposition = ???
+  def zipr: StrTermNavigation with StrTermMutation with StrTermZipperComposition = 
+    StrTermZipr
 
   override def reader( fileName : String ) : FileReader = { new FileReader( fileName ) }
   override def lexer( fileReader : FileReader ) : Yylex = { new Yylex( fileReader ) }
