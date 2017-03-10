@@ -10,8 +10,11 @@
 package coop.rchain.rho2rose
 
 import coop.rchain.lib.term._
+import coop.rchain.lib.zipper._
 import coop.rchain.syntax.rholang._
 import coop.rchain.syntax.rholang.Absyn._
+
+import coop.rchain.rho2rose.StrTermCtorAbbrevs
 
 import java_cup.runtime._
 import java.io._
@@ -21,6 +24,7 @@ trait Rholang2RosetteCompilerT {
   def reader( fileName : String ) : FileReader
   def lexer( fileReader : FileReader ) : Yylex
   def parser( lexer : Yylex ) : parser
+  def serialize( ast : VisitorTypes.R ) : String
 
   def compile( fileName : String ) : VisitorTypes.R
 }
@@ -47,6 +51,13 @@ object Rholang2RosetteCompiler extends RholangASTToTerm
   override def reader( fileName : String ) : FileReader = { new FileReader( fileName ) }
   override def lexer( fileReader : FileReader ) : Yylex = { new Yylex( fileReader ) }
   override def parser( lexer : Yylex ) : parser = { new parser( lexer ) }
+  override def serialize( ast : VisitorTypes.R ) : String = {
+    ast match {
+      case Some(Location(term: StrTermCtorAbbrevs.StrTermCtxt, _)) =>
+        term.rosette_serialize
+      case _ => "Not a StrTermCtxt"
+    }
+  }
 
   override def compile( fileName : String ) : VisitorTypes.R = {
     try {
@@ -66,5 +77,10 @@ object Rholang2RosetteCompiler extends RholangASTToTerm
         None
       }
     }
+  }
+
+  def main(args: Array[String]): Unit = {
+    val result = compile(args(0))
+    println(serialize(result))
   }
 }
