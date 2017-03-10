@@ -142,7 +142,7 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 	)
 	*/
 	yLoc match {
-	  case Location( StrTermCtxtLf( Right( v ) ), Top( ) ) => xLoc
+	  case Location( StrTermCtxtLf( Right( v ) ), Top( ) ) => yLoc
 	  case Location( _, Top( ) ) => {
 	    xCtxt match {
 	      case Top() => {
@@ -278,7 +278,7 @@ extends StrFoldCtxtVisitor {
         case leaf : StrTermCtxtLf => {
           L( B( _quote )( leaf ), Top() )
         }
-        case StrTermCtxtBr( op, subterms ) => {
+        case TermCtxtBranch( op, subterms ) => {
           val qterms = subterms.map( 
             { 
               ( term ) => { 
@@ -420,7 +420,7 @@ extends StrFoldCtxtVisitor {
   }
 
   override def visit(  p : PNil, arg : A ) : R = {    
-    combine( arg, Some( L( G( "#niv" ), T() ) ) )
+    combine( arg, Some( L( V( "#niv" ), T() ) ) )
   }
   override def visit(  p : PValue, arg : A ) : R
   override def visit(  p : PVar, arg : A ) : R
