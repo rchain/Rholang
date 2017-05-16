@@ -14,20 +14,21 @@ import coop.rchain.lib.zipper._
 import coop.rchain.syntax.rholang._
 import coop.rchain.syntax.rholang.Absyn._
 
-trait StrTermNavigation extends TermNavigation[String,String,String]
-trait StrTermMutation extends TermMutation [String,String,String]
-trait StrTermZipperComposition extends TermZipperComposition[String,String,String]
-trait StrTermSubstitution extends TermSubstitution[String,String,String]
+trait StrTermNavigation extends TermNavigation[String,Either[String,String],String]
+trait StrTermMutation extends TermMutation [String,Either[String,String],String]
+trait StrTermZipperComposition extends TermZipperComposition[String,Either[String,String],String]
+trait StrTermSubstitution extends TermSubstitution[String,Either[String,String],String]
 
 object StrTermCtorAbbrevs {
-  type StrTermCtxt = TermCtxt[String,String,String] with Factual
-  def V( v : String ) : StrTermCtxt = StrTermCtxtLf( Right( v ) )
-  def G( v : String ) : StrTermCtxt = StrTermCtxtLf( Left( v ) )
-  def B( v : String )( terms : StrTermCtxt* ) = StrTermCtxtBr( v, terms.toList )
+  type StrTermCtxt = TermCtxt[String,Either[String,String],String] with Factual
+  def V( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Right( Left( v ) ) )
+  def K( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Right( Right( v ) ) )
+  def G( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Left( v ) )
+  def B( v : String )( terms : StrTermCtxt* ) = StrTermPtdCtxtBr( v, terms.toList )
 }
 
 object StrZipAbbrevs {
-  type ValOrVar = Either[String,String]
+  type ValOrVar = Either[String,Either[String,String]]
   type LocVorV = Location[ValOrVar]
   def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[ValOrVar] ) : LocVorV = Location( term, ctxt )   
   def HV( cv : String ) : LocVorV = 
@@ -142,7 +143,7 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 	)
 	*/
 	yLoc match {
-	  case Location( StrTermCtxtLf( Right( v ) ), Top( ) ) => xLoc
+	  case Location( StrTermPtdCtxtLf( Right( v ) ), Top( ) ) => xLoc
 	  case Location( _, Top( ) ) => {
 	    xCtxt match {
 	      case Top() => {
@@ -179,7 +180,7 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 	  }
 	  case _ => {
 	    xLoc match {	      
-	      case Location( StrTermCtxtLf( Right( v ) ), Top() ) => {
+	      case Location( StrTermPtdCtxtLf( Right( v ) ), Top() ) => {
 		val loc = zipr.update( yLoc, xTerm )
 		/*
 		 println(
@@ -263,7 +264,7 @@ extends StrFoldCtxtVisitor {
 
   def isTopLevel( r : R ) : Boolean = {
     r match {
-      case Some( Location( StrTermCtxtLf( Left( v ) ), Top() ) ) if v.equals( theCtxtVar ) => {
+      case Some( Location( StrTermPtdCtxtLf( Left( v ) ), Top() ) ) if v.equals( theCtxtVar ) => {
         true
       }
       case _ => false
@@ -275,10 +276,10 @@ extends StrFoldCtxtVisitor {
     for( Location( expr : StrTermCtxt, _ ) <- rexpr )
     yield {
       expr match {
-        case leaf : StrTermCtxtLf => {
+        case leaf : StrTermPtdCtxtLf => {
           L( B( _quote )( leaf ), Top() )
         }
-        case StrTermCtxtBr( op, subterms ) => {
+        case StrTermPtdCtxtBr( op, subterms ) => {
           val qterms = subterms.map( 
             { 
               ( term ) => { 

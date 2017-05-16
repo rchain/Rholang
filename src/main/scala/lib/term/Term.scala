@@ -304,3 +304,12 @@ case class StrTermCtxtBr(
   override val labels : List[TermCtxt[String,String,String] with Factual]
 ) extends TermCtxtBranch[String,String,String]( nameSpace, labels ) with Factual
 
+
+// Var is split into two, a term variable and a context variable
+case class StrTermPtdCtxtLf( override val tag : Either[String,Either[String,String]] )
+     extends TermCtxtLeaf[String,Either[String,String],String]( tag ) with Factual
+
+case class StrTermPtdCtxtBr(
+  override val nameSpace : String,
+  override val labels : List[TermCtxt[String,Either[String,String],String] with Factual]
+) extends TermCtxtBranch[String,Either[String,String],String]( nameSpace, labels ) with Factual
