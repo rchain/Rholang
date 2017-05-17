@@ -32,7 +32,7 @@ object StrZipAbbrevs {
   type LocVorV = Location[ValOrVar]
   def L( term : StrTermCtorAbbrevs.StrTermCtxt, ctxt : Context[ValOrVar] ) : LocVorV = Location( term, ctxt )   
   def HV( cv : String ) : LocVorV = 
-    Location( StrTermCtorAbbrevs.V( cv ), Top[ValOrVar]() )
+    Location( StrTermCtorAbbrevs.K( cv ), Top[ValOrVar]() )
   def T() : Context[ValOrVar] = Top()
 }
 
@@ -78,6 +78,11 @@ object CompilerExceptions {
     b : AnyRef
   ) extends Exception( s"$b found in unexpected context" )
       with CompilerException with SyntaxException
+  case class UnexpectedCombination(
+    xLoc : StrZipAbbrevs.LocVorV,
+    yLoc : StrZipAbbrevs.LocVorV
+  ) extends Exception( s"attempting to combine: $xLoc with $yLoc" )
+      with CompilerException
 }
 
 object ComprehensionOps {
@@ -143,7 +148,10 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 	)
 	*/
 	yLoc match {
-	  case Location( StrTermPtdCtxtLf( Right( v ) ), Top( ) ) => xLoc
+	  case Location( StrTermPtdCtxtLf( Right( Left( v ) ) ), Top( ) ) => {
+            throw new CompilerExceptions.UnexpectedCombination( xLoc, yLoc )
+          }
+          case Location( StrTermPtdCtxtLf( Right( Right( v ) ) ), Top( ) ) => xLoc
 	  case Location( _, Top( ) ) => {
 	    xCtxt match {
 	      case Top() => {
@@ -179,8 +187,11 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
 	    }	    
 	  }
 	  case _ => {
-	    xLoc match {	      
-	      case Location( StrTermPtdCtxtLf( Right( v ) ), Top() ) => {
+	    xLoc match {
+              case Location( StrTermPtdCtxtLf( Right( Left( v ) ) ), Top() ) => {
+                throw new CompilerExceptions.UnexpectedCombination( xLoc, yLoc )
+              }
+	      case Location( StrTermPtdCtxtLf( Right( Right( v ) ) ), Top() ) => {
 		val loc = zipr.update( yLoc, xTerm )
 		/*
 		 println(
