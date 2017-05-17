@@ -114,8 +114,8 @@ extends FoldVisitor[VisitorTypes.R,VisitorTypes.A] {
   def leaf( context : VisitorTypes.R ) : VisitorTypes.R = wrap( context )    
 
   override def combine(
-    x : VisitorTypes.R, 
-    y : VisitorTypes.R, 
+    y : VisitorTypes.R,
+    x : VisitorTypes.R,
     context : VisitorTypes.R
   ) : VisitorTypes.R = {
     /*
