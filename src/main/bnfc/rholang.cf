@@ -1,3 +1,20 @@
+-- Top level cost assignment
+
+Our goal here is to provide a formula for proportional cost assignment to language productions based off of the eventual instructions they will invoke and the operands of those instructions, where G is a grammar element. Cost assignments is parametric in the cost values assigned to OpCodes and Bytes which may vary from one namespace to another.
+
+COST(G)          = DataCost(G) + OpCost(G)
+
+/* This is the essential cost of instruction operands */
+
+DataCost(G)      = COST(Byte) * ByteSize(G)
+
+/* In the imminent case we'd like to quantify recurring sequences of OpCodes, this function is composable. The cost of an instruction
+sequence is simply OpCost(...(OpCost(x))). This allows G to be a sequence of instructions and is essentially form of the quantification shown in the language assignments. */
+
+OpCost(G)        = COST(OpCode) * Frequency(OpCode) + DataCost(OpCode)
+
+/* Note that DataCost(OpCode) = COST(Byte) * ByteSize(OpCode) = COST(Byte) * 1 as bytecodes are exactly that...bytesized instructions */
+
 -- Top level contract declaration
 DContr. Contr ::= "contract" Name "(" [CPattern] ")" "=" "{" Proc "}" ;
 
@@ -88,7 +105,8 @@ separator nonempty PatternBind ";" ;
 PtBranch. PatternPatternMatch ::= PPattern "=>" "{" PPattern "}" ;
 separator nonempty PatternPatternMatch "" ;
 
--- Value patterns
+-- Value patterns -> COST(ValPattern) = 
+
 VPtStruct. ValPattern ::= Var "{" [PPattern] "}" ;
 VPtTuple. ValPattern ::= "<" [PPattern] ">" ;
 VPtTrue. ValPattern ::= "true" ;
