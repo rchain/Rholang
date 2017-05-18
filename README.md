@@ -8,5 +8,9 @@ To run on Ubuntu Linux pre-install
 * [CUP](http://www2.cs.tum.edu/projects/cup/install.php) - can be installed using apt
 * JLex - install using apt
 
-Then clone this repository and run `sbt compile` followed by `sbt run`.
+Then clone this repository and run `sbt` from inside the repository folder.
+`compile` builds the project.
+`run` allows you to select which parser to run.
+`runMain <mainclass> <rhofile>` will actually run parsing on the file.
 
+For example try `runMain rholang.parsing.rholang2.Test examples/sugar/Cell1.rho`
