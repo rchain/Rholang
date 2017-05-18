@@ -883,7 +883,12 @@ extends StrFoldCtxtVisitor {
     }
   }
   /* VarPattern */
-  override def visit(  p : VarPtVar, arg : A ) : R
+  override def visit(p: VarPtVar, arg: A): R = {
+    combine(
+      arg,
+      L(G(p.var_), Top())
+    )
+  }
   override def visit(  p : VarPtWild, arg : A ) : R
   /* PPattern */
   override def visit(  p : PPtVar, arg : A ) : R
@@ -902,7 +907,17 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PPtPar, arg : A ) : R
 
   /* CPattern */
-  override def visit(  p : CPtVar, arg : A ) : R
+  override def visit(p: CPtVar, arg: A): R = {
+    combine(arg,
+      p.varpattern_ match {
+        case regular: VarPtVar => {
+          visit(regular, Here());
+        }
+        case wild: VarPtWild => {
+          visit(wild, Here());
+        }
+      })
+  }
   override def visit(  p : CPtQuote, arg : A ) : R
   /* PatternBind */
   override def visit(  p : PtBind, arg : A ) : R
