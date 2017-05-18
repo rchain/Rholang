@@ -417,6 +417,7 @@ extends StrFoldCtxtVisitor {
     p match {
       case pNil : PNil => visit( pNil, arg )
       case pVal : PValue => visit( pVal, arg )
+      case pVar : PVar => visit( pVar, arg )
       case pDrop : PDrop => visit( pDrop, arg )
       case pInject : PInject => visit( pInject, arg )
       case pLift : PLift => visit( pLift, arg )
@@ -434,8 +435,12 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PNil, arg : A ) : R = {    
     combine( arg, Some( L( G( "#niv" ), T() ) ) )
   }
-  override def visit(  p : PValue, arg : A ) : R
-  override def visit(  p : PVar, arg : A ) : R
+  override def visit(  p : PValue, arg : A ) : R = {
+    combine( arg, visitDispatch( p.value_, Here() ) )
+  }
+  override def visit(  p : PVar, arg : A ) : R = {
+    combine( arg, L(V(p.var_), Top()) )
+  }
   override def visit(  p : PDrop, arg : A ) : R = {
     /*
      *  Note that there are at least two different approaches to the
@@ -829,8 +834,18 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : Choice, arg : A ) : R
 
   /* Value */
-  override def visit(  p : VQuant, arg : A ) : R
-  override def visit(  p : VEnt, arg : A ) : R
+  def visitDispatch( p : Value, arg : A ) : R = {
+    p match {
+      case ent : VEnt => visit( ent, arg )
+      case quant : VQuant => visit( quant, arg )
+    }
+  }
+  override def visit(  p : VQuant, arg : A ) : R = {
+    throw new Exception( "tbd" )
+  }
+  override def visit(  p : VEnt, arg : A ) : R = {
+    throw new Exception( "tbd" )
+  }
   /* Quantity */
   override def visit(  p : QInt, arg : A ) : R = {
     combine(
@@ -884,10 +899,7 @@ extends StrFoldCtxtVisitor {
   }
   /* VarPattern */
   override def visit(p: VarPtVar, arg: A): R = {
-    combine(
-      arg,
-      L(G(p.var_), Top())
-    )
+    combine( arg, L(V(p.var_), Top()) )
   }
   override def visit(  p : VarPtWild, arg : A ) : R
   /* PPattern */

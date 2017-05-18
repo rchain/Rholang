@@ -128,12 +128,12 @@ extends Term[Either[Namespace,Var],Either[Tag,Var]] {
     }
   }
 
-  def rosette_serialize: String = {
+  def rosetteSerialize: String = {
     this match {
       case leaf: TermCtxtLeaf[Namespace, Var, Tag] =>
-        leaf.rosette_serialize
+        leaf.rosetteSerialize
       case branch: TermCtxtBranch[Namespace, Var, Tag] =>
-        branch.rosette_serialize
+        branch.rosetteSerialize
       case _ => throw new Exception("unexpected CCL type")
     }
   }
@@ -159,7 +159,7 @@ with Factual {
       case Right( v ) => v + ""
     }
   }
-  override def rosette_serialize = {
+  override def rosetteSerialize = {
     tag match {
       case Left( t ) => "" + t
       case Right( v ) => "" + v
@@ -213,16 +213,16 @@ extends TermCtxt[Namespace,Var,Tag] {
     nameSpace + "(" + lblStr + ")"
   }
 
-  override def rosette_serialize: String = {
+  override def rosetteSerialize: String = {
     val lblStr =
       labels match {
         case albl :: rlbls => {
-          val seed = if (albl.rosette_serialize.contains("ContextVar")) ""
-            else albl.rosette_serialize
+          val seed = if (albl.rosetteSerialize.contains("ContextVar")) ""
+            else albl.rosetteSerialize
           (seed /: rlbls) (
             {
               (acc, lbl) => {
-                val lbl_string = lbl.rosette_serialize
+                val lbl_string = lbl.rosetteSerialize
                 if (lbl_string.contains("ContextVar")) {
                   acc
                 } else {
