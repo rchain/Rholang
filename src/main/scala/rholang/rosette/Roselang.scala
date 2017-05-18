@@ -841,12 +841,19 @@ extends StrFoldCtxtVisitor {
     }
   }
   override def visit(  p : VQuant, arg : A ) : R = {
-    throw new Exception( "tbd" )
+    combine( arg, visitDispatch( p.quantity_, Here() ) )
   }
   override def visit(  p : VEnt, arg : A ) : R = {
-    throw new Exception( "tbd" )
+    combine( arg, visitDispatch( p.entity_, Here() ) )
   }
   /* Quantity */
+  def visitDispatch( p : Quantity, arg : A ) : R = {
+    p match {
+      case bool : QBool => visit( bool, arg )
+      case int : QInt => visit( int, arg )
+      case double : QDouble => visit( double, arg )
+    }
+  }
   override def visit(  p : QInt, arg : A ) : R = {
     combine(
       arg,
@@ -857,13 +864,6 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       L( G( s"""${p.double_}"""), Top() )
-    )
-  }
-  /* Entity */
-  override def visit(  p : EChar, arg : A ) : R = {
-    combine(
-      arg,
-      L( G( s"""'${p.char_}'"""), Top() )
     )
   }
   override def visit( p : QTrue, arg : A) : R = {
@@ -878,8 +878,25 @@ extends StrFoldCtxtVisitor {
       L( G( s"""#f"""), Top() )
     )
   }
+
+  /* Entity */
+  def visitDispatch( p : Entity, arg : A ) : R = {
+    p match {
+      case char : EChar => visit( char, arg )
+      case struct : EStruct => visit( struct, arg )
+      case collect : ECollect => visit( collect, arg )
+      case tuple : ETuple => visit( tuple, arg )
+    }
+  }
+  override def visit(  p : EChar, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( s"""'${p.char_}'"""), Top() )
+    )
+  }
   override def visit(  p : EStruct, arg : A ) : R
   override def visit(  p : ECollect, arg : A ) : R
+
   /* Struct */
   override def visit(  p : StructConstr, arg : A ) : R
   /* Collect */
