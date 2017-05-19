@@ -162,7 +162,12 @@ with Factual {
   override def rosetteSerialize = {
     tag match {
       case Left( t ) => "" + t
-      case Right( v ) => "" + v
+      case Right( v ) => {
+        v match {
+          case Left(language_v) => "" + language_v
+          case _ => "" + v
+        }
+      }
     }
   }
 }
