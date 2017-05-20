@@ -46,7 +46,7 @@ case class StrTermPtdCtxtBr(override val nameSpace: String,
                            ) extends TermCtxtBranch[String, Either[String, String], String](nameSpace, labels) with Factual with RosetteSerialization[String, Either[String, String], String] {
   override def rosetteSerializeOperation: String = {
     val result = labels match {
-      case (albl:StrTermPtdCtxtBr) :: rlbls => {
+      case (albl: StrTermPtdCtxtBr) :: rlbls => {
         val preSeed = albl.nameSpace
         val seed = if (nameSpace.toString.contentEquals("method")) {
           "(defOprn " + preSeed + ")\n"
@@ -74,22 +74,21 @@ case class StrTermPtdCtxtBr(override val nameSpace: String,
     }
     result
   }
+
   override def rosetteSerialize: String = {
     val lblStr =
       labels match {
         case albl :: rlbls => {
-          val seed = if (albl.rosetteSerialize.contentEquals("ContextVar")) ""
-          else albl.rosetteSerialize
+          // TODO: Check if proc can have more than one argument when compiling from Rholang
+          val preSeed = albl.rosetteSerialize
+          val seed = if (nameSpace.toString.contentEquals("proc")) {
+            "[" + preSeed + "]"
+          } else {
+            preSeed
+          }
           (seed /: rlbls) (
             {
-              (acc, lbl) => {
-                val lbl_string = lbl.rosetteSerialize
-                if (lbl_string.contentEquals("ContextVar")) {
-                  acc
-                } else {
-                  acc + " " + lbl_string
-                }
-              }
+              (acc, lbl) => acc + " " + lbl.rosetteSerialize
             }
           )
         }
