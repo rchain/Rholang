@@ -574,19 +574,16 @@ extends StrFoldCtxtVisitor {
               ( acc, e ) => {
                 e match {
                   case inBind : InputBind => {
-                    combine(
-                      acc,
-                      for(
-                        // [[ chan ]] is chanTerm
-                        Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
-                        // [[ ptrn ]] is ptrnTerm
-                        Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
-                        Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
-                      ) yield {
-                        // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
-                        L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
-                      }
-                    )
+                    for (
+                      // [[ chan ]] is chanTerm
+                      Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
+                      // [[ ptrn ]] is ptrnTerm
+                      Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
+                      Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
+                    ) yield {
+                      // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
+                      L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
+                    }
                   }
                   case cndInBind : CondInputBind => {
                     for(
