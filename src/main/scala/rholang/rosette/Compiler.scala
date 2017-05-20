@@ -14,8 +14,6 @@ import coop.rchain.lib.zipper._
 import coop.rchain.syntax.rholang._
 import coop.rchain.syntax.rholang.Absyn._
 
-import coop.rchain.rho2rose.StrTermCtorAbbrevs
-
 import java_cup.runtime._
 import java.io._
 

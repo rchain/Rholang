@@ -127,24 +127,6 @@ extends Term[Either[Namespace,Var],Either[Tag,Var]] {
       case _ => throw new Exception( "unexpected CCL type" )
     }
   }
-
-  def rosetteSerializeOperation: String = {
-    this match {
-      case leaf: TermCtxtLeaf[Namespace, Var, Tag] => ""
-      case branch: TermCtxtBranch[Namespace, Var, Tag] => branch.rosetteSerializeOperation
-      case _ => throw new Exception("unexpected CCL type")
-    }
-  }
-
-  def rosetteSerialize: String = {
-    this match {
-      case leaf: TermCtxtLeaf[Namespace, Var, Tag] =>
-        leaf.rosetteSerialize
-      case branch: TermCtxtBranch[Namespace, Var, Tag] =>
-        branch.rosetteSerialize
-      case _ => throw new Exception("unexpected CCL type")
-    }
-  }
 }
 
 class TermCtxtLeaf[Namespace,Var,Tag]( val tag : Either[Tag,Var] )
@@ -155,7 +137,6 @@ with Factual {
   override def self = List( Left( tag ) )
   override def toString = {
     tag match {
-      //case Left( t ) => "<" + t + ">"
       case Left( t ) => "" + t + ""
       case Right( v ) => "'" + v
     }
@@ -165,17 +146,6 @@ with Factual {
       case Left( t : String ) => "\"" + t + "\""
       case Left( t ) => t + ""
       case Right( v ) => v + ""
-    }
-  }
-  override def rosetteSerialize = {
-    tag match {
-      case Left( t ) => "" + t
-      case Right( v ) => {
-        v match {
-          case Left(language_v) => "" + language_v
-          case _ => "" + v
-        }
-      }
     }
   }
 }
@@ -224,65 +194,6 @@ extends TermCtxt[Namespace,Var,Tag] {
 	case Nil => ""
       }
     nameSpace + "(" + lblStr + ")"
-  }
-
-  // TODO: Refactor and move out both serializes to a more Rholang specific
-  override def rosetteSerializeOperation: String = {
-    val result = labels match {
-      case (albl:AbstractTermCtxtBranch[Namespace, Var, Tag]) :: rlbls => {
-        val preSeed = albl.nameSpace
-        val seed = if (nameSpace.toString.contains("method")) {
-          "(defOprn " + preSeed + ")\n"
-        } else {
-          ""
-        }
-        (seed /: rlbls) (
-          {
-            (acc, lbl) => {
-              val lbl_string = lbl.rosetteSerializeOperation
-              acc + lbl_string
-            }
-          }
-        )
-      }
-      case _ :: rlbls => {
-        val seed = ""
-        (seed /: rlbls) (
-          {
-            (acc, lbl) => {
-              val lbl_string = lbl.rosetteSerializeOperation
-              acc + " " + lbl_string
-            }
-          }
-        )
-      }
-      case _ => ""
-    }
-    result
-  }
-
-  override def rosetteSerialize: String = {
-    val lblStr =
-      labels match {
-        case albl :: rlbls => {
-          val seed = if (albl.rosetteSerialize.contains("ContextVar")) ""
-            else albl.rosetteSerialize
-          (seed /: rlbls) (
-            {
-              (acc, lbl) => {
-                val lbl_string = lbl.rosetteSerialize
-                if (lbl_string.contains("ContextVar")) {
-                  acc
-                } else {
-                  acc + " " + lbl_string
-                }
-              }
-            }
-          )
-        }
-        case Nil => ""
-      }
-    "(" + nameSpace + " " + lblStr + ")"
   }
 }
 
@@ -391,13 +302,3 @@ case class StrTermCtxtBr(
   override val nameSpace : String,
   override val labels : List[TermCtxt[String,String,String] with Factual]
 ) extends TermCtxtBranch[String,String,String]( nameSpace, labels ) with Factual
-
-
-// Var is split into two, a term variable and a context variable
-case class StrTermPtdCtxtLf( override val tag : Either[String,Either[String,String]] )
-     extends TermCtxtLeaf[String,Either[String,String],String]( tag ) with Factual
-
-case class StrTermPtdCtxtBr(
-  override val nameSpace : String,
-  override val labels : List[TermCtxt[String,Either[String,String],String] with Factual]
-) extends TermCtxtBranch[String,Either[String,String],String]( nameSpace, labels ) with Factual

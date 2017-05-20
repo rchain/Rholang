@@ -14,13 +14,18 @@ import coop.rchain.lib.zipper._
 import coop.rchain.syntax.rholang._
 import coop.rchain.syntax.rholang.Absyn._
 
+// TODO: Check if we can move these to a specific file like "RoselangNavigation.scala"
+// and see if we need change some of the new TermCtxtBranch[L,V,T] calls to more specific classes
 trait StrTermNavigation extends TermNavigation[String,Either[String,String],String]
 trait StrTermMutation extends TermMutation [String,Either[String,String],String]
 trait StrTermZipperComposition extends TermZipperComposition[String,Either[String,String],String]
 trait StrTermSubstitution extends TermSubstitution[String,Either[String,String],String]
 
+// V for language variable
+// K for "context" variable
+// G for "ground" value
 object StrTermCtorAbbrevs {
-  type StrTermCtxt = TermCtxt[String,Either[String,String],String] with Factual
+  type StrTermCtxt = TermCtxt[String,Either[String,String],String] with Factual with RosetteSerialization[String,Either[String,String],String]
   def V( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Right( Left( v ) ) )
   def K( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Right( Right( v ) ) )
   def G( v : String ) : StrTermCtxt = StrTermPtdCtxtLf( Left( v ) )
