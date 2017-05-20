@@ -128,6 +128,14 @@ extends Term[Either[Namespace,Var],Either[Tag,Var]] {
     }
   }
 
+  def rosetteSerializeOperation: String = {
+    this match {
+      case leaf: TermCtxtLeaf[Namespace, Var, Tag] => ""
+      case branch: TermCtxtBranch[Namespace, Var, Tag] => branch.rosetteSerializeOperation
+      case _ => throw new Exception("unexpected CCL type")
+    }
+  }
+
   def rosetteSerialize: String = {
     this match {
       case leaf: TermCtxtLeaf[Namespace, Var, Tag] =>
@@ -216,6 +224,41 @@ extends TermCtxt[Namespace,Var,Tag] {
 	case Nil => ""
       }
     nameSpace + "(" + lblStr + ")"
+  }
+
+  // TODO: Refactor and move out both serializes to a more Rholang specific
+  override def rosetteSerializeOperation: String = {
+    val result = labels match {
+      case (albl:AbstractTermCtxtBranch[Namespace, Var, Tag]) :: rlbls => {
+        val preSeed = albl.nameSpace
+        val seed = if (nameSpace.toString.contains("method")) {
+          "(defOprn " + preSeed + ")\n"
+        } else {
+          ""
+        }
+        (seed /: rlbls) (
+          {
+            (acc, lbl) => {
+              val lbl_string = lbl.rosetteSerializeOperation
+              acc + lbl_string
+            }
+          }
+        )
+      }
+      case _ :: rlbls => {
+        val seed = ""
+        (seed /: rlbls) (
+          {
+            (acc, lbl) => {
+              val lbl_string = lbl.rosetteSerializeOperation
+              acc + " " + lbl_string
+            }
+          }
+        )
+      }
+      case _ => ""
+    }
+    result
   }
 
   override def rosetteSerialize: String = {

@@ -54,7 +54,7 @@ object Rholang2RosetteCompiler extends RholangASTToTerm
   override def serialize( ast : VisitorTypes.R ) : String = {
     ast match {
       case Some(Location(term: StrTermCtorAbbrevs.StrTermCtxt, _)) =>
-        term.rosetteSerialize
+        term.rosetteSerializeOperation + term.rosetteSerialize
       case _ => "Not a StrTermCtxt"
     }
   }
