@@ -473,6 +473,7 @@ extends StrFoldCtxtVisitor {
     )    
   }
   override def visit(  p : PInject, arg : A ) : R
+
   override def visit(  p : PLift, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
@@ -480,6 +481,7 @@ extends StrFoldCtxtVisitor {
      *  =
      *  ( produce t [| x ]( t ) `(,[| P1 |]( t )) ... `(,[| PN |]( t )) )
      */
+
     val actls =
       ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
         {
@@ -500,7 +502,9 @@ extends StrFoldCtxtVisitor {
 
     combine(
       arg,
-      Some( L( B( _produce )( (List( TS ) ++ actls):_* ), Top() ) )
+      for( Location( cTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() ) ) yield {
+        L( B( _produce )( (List( TS ) ++ List(cTerm) ++ actls):_* ), Top() )
+      }
     )
   }
   override def visit(  p : PInput, arg : A ) : R = {
