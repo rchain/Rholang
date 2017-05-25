@@ -79,18 +79,30 @@ case class StrTermPtdCtxtBr(override val nameSpace: String,
     val lblStr =
       labels match {
         case albl :: rlbls => {
-          // TODO: Check if proc can have more than one argument when compiling from Rholang
-          val preSeed = albl.rosetteSerialize
-          val seed = if (nameSpace.toString.contentEquals("proc")) {
-            "[" + preSeed + "]"
-          } else {
-            preSeed
-          }
-          (seed /: rlbls) (
-            {
-              (acc, lbl) => acc + " " + lbl.rosetteSerialize
+          if (nameSpace.toString.contentEquals("let")) {
+            var acc = ""
+            for ((lbl, i) <- labels.zipWithIndex) {
+              if (i == labels.length - 1) {
+                acc = "[" + acc + " ] " + lbl.rosetteSerialize
+              } else {
+                acc = acc + " " + lbl.rosetteSerialize.map({ case '(' => '['  case ')' => ']' case c => c })
+              }
             }
-          )
+            acc
+          } else {
+            val preSeed = albl.rosetteSerialize
+            // TODO: Check if proc can have more than one argument when compiling from Rholang
+            val seed = if (nameSpace.toString.contentEquals("proc")) {
+              "[" + preSeed + "]"
+            } else {
+              preSeed
+            }
+            (seed /: rlbls) (
+              {
+                (acc, lbl) => acc + " " + lbl.rosetteSerialize
+              }
+            )
+          }
         }
         case Nil => ""
       }
