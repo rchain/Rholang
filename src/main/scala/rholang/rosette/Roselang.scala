@@ -79,6 +79,10 @@ object CompilerExceptions {
     b : CBranch
   ) extends Exception( s"$b found in unexpected context" )
       with CompilerException with SyntaxException
+  case class UnexpectedPMBranchType(
+    b : PMBranch
+  ) extends Exception( s"$b found in unexpected context" )
+    with CompilerException with SyntaxException
   case class FailedQuotation(
     b : AnyRef
   ) extends Exception( s"$b found in unexpected context" )
@@ -745,11 +749,60 @@ extends StrFoldCtxtVisitor {
 
         visit( new PNew( bnewVars, bigbpar ), arg )
       }
-    }    
+    }
   }
 
-  override def visit(  p : PMatch, arg : A ) : R
-  //override def visit(  p : PNew, arg : A ) : R
+  override def visit(  p : PMatch, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+    /*
+     *  match <var> with
+     *    case <bindings1> => P1;
+     *    ...
+     *    case <bindingsN> => PN;
+     *  =
+     *  (if (match? <var> [[ bindings1 ]]) [[ P1 ]]
+     *     (if (match? <var> [[ bindings2 ]]) [[ P2 ]]
+     *         ...
+     *         (if (match? <var> [[bindingsN]]) [[ PN ]] #niv) // TODO: Handle nonexhaustive match by replacing #niv
+     *     )
+     *  )
+     */
+    def nonExhaustiveMatch: R = L(G("#niv"), Top())
+
+    def patternMatchVisitAux: R = {
+      val result = for (Location(pTerm: StrTermCtxt, _) <- visitDispatch(p.proc_, Here())) yield {
+        val reverseListPMBranch = p.listpmbranch_.asScala.toList.reverse
+        (nonExhaustiveMatch /: reverseListPMBranch) {
+          (acc, e) => {
+            e match {
+              case pm: PatternMatch => {
+                for (
+                  Location(pattern: StrTermCtxt, _) <- visitDispatch(pm.ppattern_, Here());
+                  Location(continuation: StrTermCtxt, _) <- visitDispatch(pm.proc_, Here());
+                  Location(remainder: StrTermCtxt, _) <- acc
+                ) yield {
+                  val matchTerm = B("match?")(pTerm, pattern)
+                  val ifTerm = B("if")(matchTerm, continuation, remainder)
+                  L(ifTerm, Top())
+                }
+              }
+              case _ => throw new UnexpectedPMBranchType(e)
+            }
+          }
+        }
+      }
+      result match {
+        case Some(r) => r
+        case _ => throw new Exception()
+      }
+    }
+
+    combine(
+      arg,
+      patternMatchVisitAux
+    )
+  }
+
   override def visit(  p : PConstr, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
@@ -833,9 +886,6 @@ extends StrFoldCtxtVisitor {
       }
     }
   }
-  /* PMBranch */
-  override def visit(  p : PatternMatch, arg : A
- ) : R
   /* CBranch */
   override def visit(  p : Choice, arg : A ) : R
 
@@ -925,10 +975,21 @@ extends StrFoldCtxtVisitor {
     combine( arg, L(V(p.var_), Top()) )
   }
   override def visit(  p : VarPtWild, arg : A ) : R
+
   /* PPattern */
+  def visitDispatch( p : PPattern, arg : A ) : R = {
+    // TODO: Fill in rest of PPattern subclasses
+    p match {
+      case pPtVar : PPtVar => visit( pPtVar, arg )
+      case pPtNil : PPtNil => visit( pPtNil, arg )
+      case pPtVal : PPtVal => visit( pPtVal, arg )
+    }
+  }
   override def visit(  p : PPtVar, arg : A ) : R
   override def visit(  p : PPtNil, arg : A ) : R
-  override def visit(  p : PPtVal, arg : A ) : R
+  override def visit(  p : PPtVal, arg : A ) : R = {
+    combine(arg, visitDispatch(p.valpattern_, Here()))
+  }
 
   override def visit(  p : PPtDrop, arg : A ) : R
   override def visit(  p : PPtInject, arg : A ) : R
@@ -946,10 +1007,10 @@ extends StrFoldCtxtVisitor {
     combine(arg,
       p.varpattern_ match {
         case regular: VarPtVar => {
-          visit(regular, Here());
+          visit(regular, Here())
         }
         case wild: VarPtWild => {
-          visit(wild, Here());
+          visit(wild, Here())
         }
       })
   }
@@ -959,5 +1020,18 @@ extends StrFoldCtxtVisitor {
   /* PatternPatternMatch */
   override def visit(  p : PtBranch, arg : A ) : R
   /* ValPattern */
+  def visitDispatch( p : ValPattern, arg : A ) : R = {
+    // TODO: Fill in rest of ValPattern subclasses
+    p match {
+      case vPtStruct : VPtStruct => visit( vPtStruct, arg )
+      case vPtInt : VPtInt => visit( vPtInt, arg )
+    }
+  }
   override def visit(  p : VPtStruct, arg : A ) : R
+  override def visit(  p : VPtInt, arg: A ): R = {
+    combine(
+      arg,
+      L( G( s"""${p.integer_}"""), Top() )
+    )
+  }
 }
