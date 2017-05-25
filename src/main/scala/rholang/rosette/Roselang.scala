@@ -668,12 +668,12 @@ extends StrFoldCtxtVisitor {
             ( new CPtVar( new VarPtVar( lmsgVStr ) ), new CVar( Fresh() ) )
           val lbind = new InputBind( lmsg, lchan )
 
-          // case 1 => P_i
-          val bvericase =
-            new PatternMatch( new PPtVal( new VPtInt( 1 ) ), branch.proc_ )
-
           val balertActls = new ListProc()
           balertActls.add( babsurdity )
+
+          // case 1 => P_i | lchan!(0)
+          val bvericase =
+            new PatternMatch( new PPtVal( new VPtInt( 1 ) ), new PPar(branch.proc_, new PLift( lchan, balertActls )))
 
           // case 0 => lchan!( 0 )
           val babsucase =
@@ -701,7 +701,7 @@ extends StrFoldCtxtVisitor {
               new PInput( branch.listbind_, new PLift( bchan, bsatActls ) ),
               // for( bmsg <- bchan; lmsg <- lchan ){
               //   match lmsg with
-              //    case 1 => P_i
+              //    case 1 => P_i | lchan!(0)
               //    case 0 => lchan!( 0 )
               // }          
               new PInput( blocks, bmatch )
@@ -732,14 +732,14 @@ extends StrFoldCtxtVisitor {
        *   | for( bindings1 ){ b1!( true ) } 
        *   | for( b <- b1; l <- lock ){ 
        *      match l with 
-       *       case true => P1; 
+       *       case true => P1 | lock!(false)
        *       case false => lock!( false )
        *     }
        *    ...
        *   | for( bindingsN ){ bN!( true ) } 
        *   | for( b <- b1; l <- lock ){ 
        *      match l with 
-       *       case true => P1; 
+       *       case true => P1 | lock!(false)
        *       case false => lock!( false )
        *     }
        */
