@@ -112,6 +112,8 @@ object RosetteOps {
   val _rx = "RX"
   val _run = "run"
   val _compile = "compile"
+  var _if = "if"
+  var _match = "match?" // TODO: Adjust based on Rosette implementation. This operation checks for equality in the "match" implementation.
 }
 
 trait StrFoldCtxtVisitor
@@ -781,8 +783,8 @@ extends StrFoldCtxtVisitor {
                   Location(continuation: StrTermCtxt, _) <- visitDispatch(pm.proc_, Here());
                   Location(remainder: StrTermCtxt, _) <- acc
                 ) yield {
-                  val matchTerm = B("match?")(pTerm, pattern)
-                  val ifTerm = B("if")(matchTerm, continuation, remainder)
+                  val matchTerm = B(_match)(pTerm, pattern)
+                  val ifTerm = B(_if)(matchTerm, continuation, remainder)
                   L(ifTerm, Top())
                 }
               }
