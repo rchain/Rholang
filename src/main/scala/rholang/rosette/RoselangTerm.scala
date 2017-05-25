@@ -78,31 +78,37 @@ case class StrTermPtdCtxtBr(override val nameSpace: String,
   override def rosetteSerialize: String = {
     val lblStr =
       labels match {
-        case albl :: rlbls => {
-          if (nameSpace.toString.contentEquals("let")) {
-            var acc = ""
-            for ((lbl, i) <- labels.zipWithIndex) {
-              if (i == labels.length - 1) {
-                acc = "[" + acc + " ] " + lbl.rosetteSerialize
-              } else {
-                acc = acc + " " + lbl.rosetteSerialize.map({ case '(' => '['  case ')' => ']' case c => c })
-              }
-            }
-            acc
-          } else {
-            val preSeed = albl.rosetteSerialize
-            // TODO: Check if proc can have more than one argument when compiling from Rholang
-            val seed = if (nameSpace.toString.contentEquals("proc")) {
-              "[" + preSeed + "]"
+        case _ :: _ => {
+          var acc = ""
+
+          def serializeLetExpr(lbl: TermCtxt[String, Either[String, String], String] with Factual with RosetteSerialization[String, Either[String, String], String], i: Int) = {
+            if (i == labels.length - 1) {
+              acc = "[" + acc + " ] " + lbl.rosetteSerialize
             } else {
-              preSeed
+              acc = acc + " " + lbl.rosetteSerialize.map({ case '(' => '[' case ')' => ']' case c => c })
             }
-            (seed /: rlbls) (
-              {
-                (acc, lbl) => acc + " " + lbl.rosetteSerialize
-              }
-            )
           }
+
+          def serializeExpr(lbl: TermCtxt[String, Either[String, String], String] with Factual with RosetteSerialization[String, Either[String, String], String], i: Int) = {
+            if (i == 0) {
+              if (nameSpace.toString.contentEquals("proc")) {
+                acc = "[" + lbl.rosetteSerialize + "]"
+              } else {
+                acc = lbl.rosetteSerialize
+              }
+            } else {
+              acc = acc + " " + lbl.rosetteSerialize
+            }
+          }
+
+          for ((lbl, i) <- labels.zipWithIndex) {
+            if (nameSpace.toString.contentEquals("let")) {
+              serializeLetExpr(lbl, i)
+            } else {
+              serializeExpr(lbl, i)
+            }
+          }
+          acc
         }
         case Nil => ""
       }
