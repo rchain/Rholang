@@ -764,7 +764,7 @@ extends StrFoldCtxtVisitor {
      *    case <bindingsN> => PN;
      *  =
      *  (if (match? <var> [[ bindings1 ]]) [[ P1 ]]
-     *     (if (match? <var> [[ bindings2 ]]) ((proc [ [[ bindings2 ]] ] [[ P2 ]]) <var>) // Note a proc is generated only if there is a pattern binding needed
+     *     (if (match? <var> [[ bindings2 ]]) ((proc [ [[ bindings2 ]] ] [[ P2 ]]) <var>) // Note a proc is generated only if there is a variable inside the <var> term
      *         ...
      *         (if (match? <var> [[bindingsN]]) [[ PN ]] #niv) // TODO: Handle nonexhaustive match by replacing #niv
      *     )
@@ -792,21 +792,10 @@ extends StrFoldCtxtVisitor {
                   }
 
                   val matchTerm = B(_match)(pTerm, pattern)
-                  val matchTrueTerm = pm.ppattern_ match {
-                    // TODO: Discuss if we can divide the cases
-                    // where we need pattern bindings and where we don't
-                    // just like with Quantity and Entity in the BNFC.
-                    // Otherwise, we have this undispatched nested pattern matching.
-                    // Alternatively, we can try adding types to the output AST
-                    // so we can pattern match the returned (post-dispatch) StrTermCtxt.
-                    case value: PPtVal => {
-                      value.valpattern_ match {
-                        case _: VPtStruct => createProcForPatternBindings
-                        case _: VPtTuple => createProcForPatternBindings
-                        case _ => continuation
-                      }
-                    }
-                    case _ => createProcForPatternBindings
+                  val matchTrueTerm = if (hasVariable(pm.ppattern_)) {
+                    createProcForPatternBindings
+                  } else {
+                    continuation
                   }
                   val ifTerm = B(_if)(matchTerm, matchTrueTerm, remainder)
                   L(ifTerm, Top())
@@ -827,6 +816,24 @@ extends StrFoldCtxtVisitor {
       arg,
       patternMatchVisitAux
     )
+  }
+
+  def hasVariable(p: PPattern): Boolean = {
+    // TODO: Fill in rest of cases
+    p match {
+      case pPtVar : PPtVar => true
+      case pPtNil : PPtNil => false
+      case pPtVal : PPtVal => hasVariable( pPtVal.valpattern_ )
+    }
+  }
+
+  def hasVariable(p: ValPattern) : Boolean = {
+    import scala.collection.JavaConverters._
+    p match {
+      case vPtStruct : VPtStruct => vPtStruct.listppattern_.asScala.toList.exists(hasVariable)
+      case vPtTuple: VPtTuple => vPtTuple.listppattern_.asScala.toList.exists(hasVariable)
+      case _ => false
+    }
   }
 
   override def visit(  p : PConstr, arg : A ) : R = {
