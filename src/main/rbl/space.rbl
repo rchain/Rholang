@@ -35,7 +35,7 @@
                 [binding (match? ptrn e)]]
             (if (miss? binding)
                 (k [hits [e & misses]])
-                (k [[[e binding] & hits] misses])))))]
+                (k [[[e binding] & hits] misses])))) [[] []])]
                   ;;; note that this is generic in the match? and miss? predicates
                   ;;; matching could be unification (as it is in SpecialK) or it could be
                   ;;; a number of other special purpose protocols
@@ -49,7 +49,7 @@
                [hit (tbl-get subspace e)]]
                   (if (production? hit)
                (k [[[[e binding] hit] & productions] consumers])
-               (k [productions [[e hit] & consumers]])))))]]
+               (k [productions [[e hit] & consumers]])))) [[] []])]]
                   ;;; this divides the hits into those matches that are data and
                   ;;; those matches that are continuations
                   ;;; and the rest of the code sends data to the awaiting continuation
@@ -81,7 +81,7 @@
                 [binding (match? ptrn e)]]
                     (if (miss? binding)
                         (k [hits [e & misses]])
-                        (k [[e & hits] misses])))))]
+                        (k [[e & hits] misses])))) [[] []])]
        [[productions consummation]
             (fold extractions
               (proc [[e binding] acc k]
@@ -89,7 +89,7 @@
                [hit (tbl-get subspace e)]]
                   (if (production? hit)
                (k [[[e hit] & productions] consumers])
-               (k [productions [[[e binding] hit] & consumers]])))))]]
+               (k [productions [[[e binding] hit] & consumers]])))) [[] []])]]
    (seq
      (map productions
        (proc [[ptrn prod]] (tbl-add subspace ptrn product)))
