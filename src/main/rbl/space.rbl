@@ -17,7 +17,7 @@
 (defRMethod NameSpace (consume ctxt & location)
  ;;; by makng this a reflective method - RMethod - we gain access to the awaiting continuation
  ;;; bound to the formal parameter ctxt
-  (letrec [[[channel ptrn] location]
+  (let* [[[channel ptrn] location]
   ;;; the channel and the pattern of incoming messages to look for are destructured and bound
         [subspace (tbl-get chart channel)]
                 ;;; the incoming messages associated with the channel are collected in a subtable
@@ -71,7 +71,7 @@
 ;;; This code is perfectly dual to the consumer code and so all the comments
 ;;; there apply in the corresponging code sites
 (defRMethod NameSpace (produce ctxt & production)
- (letrec [[[channel ptrn product] production]
+ (let* [[[channel ptrn product] production]
         [subspace (tbl-get chart channel)]
        [candidates (names subspace)]
        [[extractions remainder]
