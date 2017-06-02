@@ -79,7 +79,12 @@
             (tbl-add subspace
             ptrn (reverse [ctxt & (reverse consumers)]))))
      (update!)
-     (ctxt-rtn ctxt productions))))
+     ;;; Return data (productions) back and execute the continuation.
+     ;;; If there was no match that was data, the thread will remain suspended.
+     (if (not (null? productions)) (ctxt-rtn ctxt productions) (print "DEBUG: Waiting for data"))
+    )
+  )
+)
 
 ;;; This code is perfectly dual to the consumer code and so all the comments
 ;;; there apply in the corresponging code sites
