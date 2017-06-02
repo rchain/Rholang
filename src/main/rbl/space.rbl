@@ -12,7 +12,14 @@
 (defOprn miss?)
 (defOprn production?)
 
-(defActor NameSpace (slots& chart (new RblTable)))
+(defActor NameSpace (slots& chart (new RblTable))
+    ;;; Temporary implementations of NameSpace predicates
+    ;;; TODO: Fully implement and potentially move out of NameSpace?
+    (method (match? ptrn candidate) (seq (update) #t))
+    (method (miss? binding) (seq (update) #f))
+    ;;; Change to #t if calling produce first
+    (method (production? v) (seq (update) #f))
+)
 
 (defOprn tuplespace-tbl-get-or-create)
 (defPure RblTable (tuplespace-tbl-get-or-create key)
@@ -45,8 +52,8 @@
           (fold candidates
             (proc [e acc k]
                 (let [[[hits misses] acc]
-                [binding (match? ptrn e)]]
-            (if (miss? binding)
+                [binding (match? NameSpace ptrn e)]]
+            (if (miss? NameSpace binding)
                 (k [hits [e & misses]])
                 (k [[[e binding] & hits] misses])))) [[] []])]
                   ;;; note that this is generic in the match? and miss? predicates
@@ -60,7 +67,7 @@
               (proc [[e binding] acc k]
                 (let [[[productions consumers] acc]
                [hit (tbl-get subspace e)]]
-                  (if (production? hit)
+                  (if (production? NameSpace hit)
                (k [[[[e binding] hit] & productions] consumers])
                (k [productions [[e hit] & consumers]])))) [[] []])]]
                   ;;; this divides the hits into those matches that are data and
@@ -96,8 +103,8 @@
           (fold candidates
             (proc [e acc k]
                 (let [[[hits misses] acc]
-                [binding (match? ptrn e)]]
-                    (if (miss? binding)
+                [binding (match? NameSpace ptrn e)]]
+                    (if (miss? NameSpace binding)
                         (k [hits [e & misses]])
                         (k [[e & hits] misses])))) [[] []])]
        [[productions consummation]
@@ -105,7 +112,7 @@
               (proc [[e binding] acc k]
                 (let [[[productions consumers] acc]
                [hit (tbl-get subspace e)]]
-                  (if (production? hit)
+                  (if (production? NameSpace hit)
                (k [[e & productions] consumers])
                (k [productions [[[e binding] hit] & consumers]])))) [[] []])]]
    (seq
