@@ -88,11 +88,11 @@
                 (let [[[productions consumers] acc]
                [hit (tbl-get subspace e)]]
                   (if (production? hit)
-               (k [[[e hit] & productions] consumers])
+               (k [[e & productions] consumers])
                (k [productions [[[e binding] hit] & consumers]])))) [[] []])]]
    (seq
      (map productions
-       (proc [[ptrn prod]] (tbl-add subspace ptrn product)))
+       (proc [ptrn] (tbl-add subspace ptrn product)))
      (map consummation
        (proc [[[ptrn binding] consumers]]
        (seq
