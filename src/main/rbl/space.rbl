@@ -14,12 +14,25 @@
 
 (defActor NameSpace (slots& chart (new RblTable)))
 
+(defOprn tuplespace-tbl-get-or-create)
+(defPure RblTable (tuplespace-tbl-get-or-create key)
+    (let [[subspace (tbl-get (self) key)]]
+        (if (absent? subspace)
+            (seq
+                (tbl-add (self) key (new RblTable))
+                (tbl-get (self) key)
+            )
+            subspace
+        )
+    )
+)
+
 (defRMethod NameSpace (consume ctxt & location)
  ;;; by makng this a reflective method - RMethod - we gain access to the awaiting continuation
  ;;; bound to the formal parameter ctxt
   (let* [[[channel ptrn] location]
   ;;; the channel and the pattern of incoming messages to look for are destructured and bound
-        [subspace (tbl-get chart channel)]
+        [subspace (tuplespace-tbl-get-or-create chart channel)]
                 ;;; the incoming messages associated with the channel are collected in a subtable
                 ;;; in this sense we can see that the semantic framework supports a compositional
                 ;;; topic/subtopic/subsubtopic/… structuring technique that unifies message passing
@@ -72,7 +85,7 @@
 ;;; there apply in the corresponging code sites
 (defRMethod NameSpace (produce ctxt & production)
  (let* [[[channel ptrn product] production]
-        [subspace (tbl-get chart channel)]
+        [subspace (tuplespace-tbl-get-or-create chart channel)]
        [candidates (names subspace)]
        [[extractions remainder]
           (fold candidates
