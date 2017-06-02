@@ -4,10 +4,6 @@
 ;;; The space.rbl must be loaded into the Rosette REPL context
 ;;; before this file is executed.
 ;;;
-;;; IMPORTANT: Ensure production? always evaluates to #f in space.rbl
-;;; In other words, you should have `(method (production? v) (seq (update) #f))`
-;;; Note this is a temporary hack until production? is fully implemented
-;;;
 ;;; Expected output of this script:
 ;;; "Hello World!"
 

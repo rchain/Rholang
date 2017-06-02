@@ -16,8 +16,8 @@
     ;;; Temporary implementations of NameSpace predicates
     ;;; TODO: Fully implement and potentially move out of NameSpace?
     (method (match? ptrn candidate) (if (type? ptrn candidate) (seq (update) ((proc [ptrn] ptrn) candidate)) (seq (update) #niv)) )
-    ;;; Change to #t if calling produce first
-    (method (production? v) (seq (update) #f))
+    ;;; storedValue is the tuple [data continuation]
+    (method (production? storedValue) (seq (update) (not (niv? (head storedValue)))))
 )
 
 (defOprn tuplespace-tbl-get-or-create)
@@ -64,11 +64,13 @@
        [[productions consummation]
             (fold extractions
               (proc [[e binding] acc k]
-                (let [[[productions consumers] acc]
-               [hit (tbl-get subspace e)]]
-                  (if (production? NameSpace hit)
-               (k [[[[e binding] hit] & productions] consumers])
-               (k [productions [[e hit] & consumers]])))) [[] []])]]
+                (let* [[[productions consumers] acc]
+                      [storedValue (tbl-get subspace e)]
+                      [[data continuation] storedValue]
+                     ]
+                  (if (production? NameSpace storedValue)
+               (k [[[[e binding] data] & productions] consumers])
+               (k [productions [[e continuation] & consumers]])))) [[] []])]]
                   ;;; this divides the hits into those matches that are data and
                   ;;; those matches that are continuations
                   ;;; and the rest of the code sends data to the awaiting continuation
@@ -81,13 +83,21 @@
        ;;; TODO: Eliminate _ by changing implementation of map over productions
        (proc [_ [[ptrn binding] product]]
             (tbl-del subspace ptrn)))
-     ;;; TODO: Original form of `(tbl-add subspace ptrn ctxt)`. Potentially revert.
-     ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn (reverse [ctxt & (reverse consumers)]))))
-     (tbl-add subspace ptrn ctxt)
-     (update!)
      ;;; Return data (productions) back and execute the continuation.
      ;;; If there was no match that was data, the thread will remain suspended.
-     (if (not (null? productions)) (ctxt-rtn ctxt productions) (print "DEBUG: Waiting for data"))
+     (if (not (null? productions))
+        (seq
+            (update!)
+            (ctxt-rtn ctxt productions)
+        )
+        (seq
+            (print "DEBUG: Waiting for data")
+            ;;; TODO: Potentially revert to original form
+            ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn [#niv (reverse [ctxt & (reverse consumers)])])))
+            (tbl-add subspace ptrn [#niv ctxt])
+            (update!)
+        )
+     )
     )
   )
 )
@@ -109,21 +119,23 @@
        [[productions consummation]
             (fold extractions
               (proc [[e binding] acc k]
-                (let [[[productions consumers] acc]
-               [hit (tbl-get subspace e)]]
-                  (if (production? NameSpace hit)
+                (let* [[[productions consumers] acc]
+                      [storedValue (tbl-get subspace e)]
+                      [[data continuation] storedValue]
+                     ]
+                  (if (production? NameSpace storedValue)
                (k [[] consumers])
-               (k [productions [[[e binding] hit] & consumers]])))) [[] []])]]
+               (k [productions [[[e binding] continuation] & consumers]])))) [[] []])]]
    (seq
       ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Potentially revert.
-      ;;; (map productions (proc [ptrn] (tbl-add subspace ptrn product)))
-     (tbl-add subspace ptrn product)
+      ;;; (map productions (proc [ptrn product] (tbl-add subspace ptrn product)))
+     (tbl-add subspace ptrn [product #niv])
      (map consummation
-        ;;; TODO: Eliminate _ by changing implementation of map over consummation
-       (proc [_ [[ptrn binding] consumers]]
+        ;;; TODO: Eliminate _index by changing implementation of map over consummation
+       (proc [_index [[ptrn binding] consumers]]
        (seq
             (tbl-del subspace ptrn)
-            ;;; TODO: Assumes that consumers is just a single Ctxt not a list
+            ;;; TODO: Assumes that consumers is just a single continuation not a list of continuations
             ;;; See below for previous implementation
             ;;;(map consumers
             ;;;  (proc [consumer]
