@@ -15,8 +15,7 @@
 (defActor NameSpace (slots& chart (new RblTable))
     ;;; Temporary implementations of NameSpace predicates
     ;;; TODO: Fully implement and potentially move out of NameSpace?
-    (method (match? ptrn candidate) (seq (update) #t))
-    (method (miss? binding) (seq (update) #f))
+    (method (match? ptrn candidate) (if (type? ptrn candidate) (seq (update) ((proc [ptrn] ptrn) candidate)) (seq (update) #niv)) )
     ;;; Change to #t if calling produce first
     (method (production? v) (seq (update) #f))
 )
@@ -53,7 +52,7 @@
             (proc [e acc k]
                 (let [[[hits misses] acc]
                 [binding (match? NameSpace ptrn e)]]
-            (if (miss? NameSpace binding)
+            (if (niv? binding)
                 (k [hits [e & misses]])
                 (k [[[e binding] & hits] misses])))) [[] []])]
                   ;;; note that this is generic in the match? and miss? predicates
@@ -104,7 +103,7 @@
             (proc [e acc k]
                 (let [[[hits misses] acc]
                 [binding (match? NameSpace ptrn e)]]
-                    (if (miss? NameSpace binding)
+                    (if (niv? binding)
                         (k [hits [e & misses]])
                         (k [[[e binding] & hits] misses])))) [[] []])]
        [[productions consummation]
