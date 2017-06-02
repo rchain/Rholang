@@ -1,0 +1,33 @@
+;;; This demonstrates a HelloWorld pseudo contract that
+;;; produces (stores) the data first and then has the
+;;; contract invoked, calling consume.
+;;;
+;;; The space.rbl must be loaded into the Rosette REPL context
+;;; before this file is executed.
+;;;
+;;; IMPORTANT: Ensure production? always evaluates to #t in space.rbl
+;;; In other words, you should have `(method (production? v) (seq (update) #t))`
+;;; Note this is a temporary hack until production? is fully implemented
+;;;
+;;; Expected output of this script:
+;;; "Hello World!"
+
+(define t (new NameSpace))
+(defOprn HelloWorld)
+
+(defActor HelloWorldContract
+	(method (HelloWorld world1 world2)
+		(let [[ [[[ptrn binding] product]] (consume t world1 'msg)]]
+			((proc [[ptrn product]] (print product)) [ptrn product])
+		)
+	)
+)
+
+(define contract (new HelloWorldContract))
+
+;;; store "Hello World!" in the channel 'world1
+;;; and silently discard output
+(let [[result (produce t 'world1 'msg "Hello World!")]] #niv)
+
+;;; Invoke contract
+(HelloWorld contract 'world1 'world2)
