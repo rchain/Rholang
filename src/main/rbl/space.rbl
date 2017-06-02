@@ -79,12 +79,12 @@
 
    (seq
      (map productions
-       (proc [[[ptrn binding] product]]
-            (delete subspace ptrn)))
-     (map consummation
-          (proc [[ptrn consumers]]
-            (tbl-add subspace
-            ptrn (reverse [ctxt & (reverse consumers)]))))
+       ;;; TODO: Eliminate _ by changing implementation of map over productions
+       (proc [_ [[ptrn binding] product]]
+            (tbl-del subspace ptrn)))
+     ;;; TODO: Original form of `(tbl-add subspace ptrn ctxt)`. Potentially revert.
+     ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn (reverse [ctxt & (reverse consumers)]))))
+     (tbl-add subspace ptrn ctxt)
      (update!)
      ;;; Return data (productions) back and execute the continuation.
      ;;; If there was no match that was data, the thread will remain suspended.
@@ -106,25 +106,34 @@
                 [binding (match? NameSpace ptrn e)]]
                     (if (miss? NameSpace binding)
                         (k [hits [e & misses]])
-                        (k [[e & hits] misses])))) [[] []])]
+                        (k [[[e binding] & hits] misses])))) [[] []])]
        [[productions consummation]
             (fold extractions
               (proc [[e binding] acc k]
                 (let [[[productions consumers] acc]
                [hit (tbl-get subspace e)]]
                   (if (production? NameSpace hit)
-               (k [[e & productions] consumers])
+               (k [[] consumers])
                (k [productions [[[e binding] hit] & consumers]])))) [[] []])]]
    (seq
-     (map productions
-       (proc [ptrn] (tbl-add subspace ptrn product)))
+      ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Potentially revert.
+      ;;; (map productions (proc [ptrn] (tbl-add subspace ptrn product)))
+     (tbl-add subspace ptrn product)
      (map consummation
-       (proc [[[ptrn binding] consumers]]
+        ;;; TODO: Eliminate _ by changing implementation of map over consummation
+       (proc [_ [[ptrn binding] consumers]]
        (seq
-            (delete subspace ptrn)
-            (map consumers
-              (proc [consumer]
-                (send ctxt-rtn consumer [product binding])
-                binding)))))
+            (tbl-del subspace ptrn)
+            ;;; TODO: Assumes that consumers is just a single Ctxt not a list
+            ;;; See below for previous implementation
+            ;;;(map consumers
+            ;;;  (proc [consumer]
+            ;;;    (send ctxt-rtn consumer [product binding])
+            ;;;    binding))
+
+            ;;; TODO: Potentially unnest [[[ptrn binding] product]]
+            (send ctxt-rtn consumers [[[ptrn binding] product]])
+            binding
+       )))
      (update!)
      (ctxt-rtn ctxt product))))
