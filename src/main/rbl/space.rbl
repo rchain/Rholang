@@ -9,7 +9,6 @@
 (defOprn consume)
 (defOprn produce)
 (defOprn match?)
-(defOprn miss?)
 (defOprn production?)
 
 (defActor NameSpace (slots& chart (new RblTable))
@@ -21,12 +20,12 @@
 )
 
 (defOprn tuplespace-tbl-get-or-create)
-(defPure RblTable (tuplespace-tbl-get-or-create key)
-    (let [[subspace (tbl-get (self) key)]]
+(defPure RblTable (tuplespace-tbl-get-or-create channel)
+    (let [[subspace (tbl-get (self) channel)]]
         (if (absent? subspace)
             (seq
-                (tbl-add (self) key (new RblTable))
-                (tbl-get (self) key)
+                (tbl-add (self) channel (new RblTable))
+                (tbl-get (self) channel)
             )
             subspace
         )
@@ -142,7 +141,6 @@
             ;;;    (send ctxt-rtn consumer [product binding])
             ;;;    binding))
 
-            ;;; TODO: Potentially unnest [[[ptrn binding] product]]
             (send ctxt-rtn consumers [[[ptrn binding] product]])
             binding
        )))
