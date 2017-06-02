@@ -79,9 +79,9 @@
             (proc [e acc k]
                 (let [[[hits misses] acc]
                 [binding (match? ptrn e)]]
-            (if (miss? binding)
-                (k [[e & hits] misses])
-                (k [hits [e & misses]])))))]
+                    (if (miss? binding)
+                        (k [hits [e & misses]])
+                        (k [[e & hits] misses])))))]
        [[productions consummation]
             (fold extractions
               (proc [[e binding] acc k]
