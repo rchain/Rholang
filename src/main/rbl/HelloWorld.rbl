@@ -1,0 +1,48 @@
+;;; This demonstrates a full Rosette HelloWorld contract that
+;;; suspends on the consume call until the produce is executed.
+;;; A helper contract SimplePrinterContract is added to print
+;;; any message that is sent on world2 that is of the pattern 'msg.
+;;;
+;;; The space.rbl must be loaded into the Rosette REPL context
+;;; before this file is executed.
+;;;
+;;; Expected output of this script:
+;;; "Inside SimplePrinterContract about to print product"
+;;; "Hello World!"
+
+(define t (new NameSpace))
+
+(defOprn HelloWorld)
+(defActor HelloWorldContract
+	(method (HelloWorld world1 world2)
+		(let [[ [[[ptrn binding] product]] (consume t world1 'msg)]]
+			((proc [[ptrn product]] (produce t 'world2 ptrn product)) [ptrn product])
+		)
+	)
+)
+
+(defOprn (SimplePrinter))
+(defActor SimplePrinterContract
+	(method (SimplePrinter channel ptrn)
+		(let [[ [[[ptrn binding] product]] (consume t channel ptrn)]]
+			((proc [[ptrn product]]
+			    (seq
+			        (print "Inside SimplePrinterContract about to print product")
+			        (print product)
+                )
+			 ) [ptrn product])
+		)
+	)
+)
+
+(define contract (new HelloWorldContract))
+(define simplePrinter (new SimplePrinterContract))
+
+;;; Invoke contract and printer
+(HelloWorld contract 'world1 'world2)
+(SimplePrinter simplePrinter 'world2 'msg)
+
+;;; Silently discard result of produce
+;;; Otherwise it would misleadingly two copies of "Hello World!"
+(let [[result (produce t 'world1 'msg "Hello World!")]] #niv)
+
