@@ -7,27 +7,22 @@
 ;;; before this file is executed.
 ;;;
 ;;; Expected output of this script:
-;;; "Inside SimplePrinterContract about to print product"
 ;;; "Hello World!"
 
 (define t (new NameSpace))
 
 (defOprn HelloWorld)
 (defActor HelloWorldContract
-	(method (HelloWorld world1 world2)
-		(let [[ [[[ptrn binding] product]] (consume t world1 'msg)]]
-			((proc [[ptrn product]] (produce t 'world2 ptrn product)) [ptrn product])
-		)
-	)
-)
+    (method (HelloWorld world1 world2)
+        (let [[[[[dd66c1eab1eb _binding] 8419030e6f88]] (consume t world1 'msg)]]
+           ( (proc [dd66c1eab1eb] (produce t world2 'msg dd66c1eab1eb)) 8419030e6f88))))
 
-(defOprn (SimplePrinter))
+(defOprn SimplePrinter)
 (defActor SimplePrinterContract
 	(method (SimplePrinter channel ptrn)
 		(let [[ [[[ptrn binding] product]] (consume t channel ptrn)]]
 			((proc [[ptrn product]]
 			    (seq
-			        (print "Inside SimplePrinterContract about to print product")
 			        (print product)
                 )
 			 ) [ptrn product])
@@ -39,10 +34,10 @@
 (define simplePrinter (new SimplePrinterContract))
 
 ;;; Invoke contract and printer
-(HelloWorld contract 'world1 'world2)
+(let [[result1 (HelloWorld contract 'world1 'world2)]] #niv)
 (SimplePrinter simplePrinter 'world2 'msg)
 
 ;;; Silently discard result of produce
 ;;; Otherwise it would misleadingly two copies of "Hello World!"
-(let [[result (produce t 'world1 'msg "Hello World!")]] #niv)
+(let [[result2 (produce t 'world1 'msg "Hello World!")]] #niv)
 
