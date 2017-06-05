@@ -281,8 +281,9 @@ extends StrFoldCtxtVisitor {
   def H() = HV( theCtxtVar )
   def Here() = Some( HV( theCtxtVar ) )
   def Fresh() = {
+    val prefix = "rholang"
     val uuidComponents = java.util.UUID.randomUUID.toString.split( "-" )
-    uuidComponents( uuidComponents.length - 1 )
+    prefix + uuidComponents( uuidComponents.length - 1 )
   }
 
   def isTopLevel( r : R ) : Boolean = {
