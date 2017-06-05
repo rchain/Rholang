@@ -6,6 +6,13 @@
 ;;; The space.rbl must be loaded into the Rosette REPL context
 ;;; before this file is executed.
 ;;;
+;;; To verify that the HelloWorldContract was output from the Rholang compiler
+;;; execute the following in the sbt console for the Rholang compiler
+;;; and compare with (or replace) the HelloWorldContract below.
+;;;
+;;; import coop.rchain.rho2rose._
+;;; Rholang2RosetteCompiler.main(Array("<path_to_Rholang_compiler>/Rholang/examples/HelloWorld.rho"))
+;;;
 ;;; Expected output of this script:
 ;;; "Hello World!"
 
