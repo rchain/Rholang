@@ -915,7 +915,7 @@ public class PrettyPrinter
     {
        coop.rchain.syntax.rholang.Absyn.CString _cstring = (coop.rchain.syntax.rholang.Absyn.CString) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_cstring.string_, 0);
+       printQuoted(_cstring.string_);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
@@ -1209,7 +1209,7 @@ public class PrettyPrinter
     {
        coop.rchain.syntax.rholang.Absyn.VPtStr _vptstr = (coop.rchain.syntax.rholang.Absyn.VPtStr) foo;
        if (_i_ > 0) render(_L_PAREN);
-       pp(_vptstr.string_, 0);
+       printQuoted(_vptstr.string_);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
