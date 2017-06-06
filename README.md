@@ -7,7 +7,12 @@ The language is still in the early stages of development, but for those who are 
 # Configuration
 
 1. Clone the repository
-2. Configure/fetch dependencies (Java Cup, JLex, BNFC, Scala, and SBT)
+2. Configure/fetch dependencies
+    * [sbt](http://www.scala-sbt.org/0.13/docs/Installing-sbt-on-Linux.html)
+    * [CUP](http://www2.cs.tum.edu/projects/cup/install.php) - can be installed using apt
+    * JLex - install using apt
+    * BNFC
+    * Scala
 4. Run `sbt bnfc:generate` to generate the parser
 5. Run `sbt console` to launch the sbt console
 6. In the sbt console import the compiler with `import coop.rchain.rho2rose._`
