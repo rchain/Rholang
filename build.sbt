@@ -20,7 +20,7 @@ lazy val consoleOptions = commonOptions diff Seq("-Ywarn-unused-import")
 
 lazy val commonSettings = Seq(
   name := "rholang",
-  organization := "com.synereo",
+  organization := "coop.rchain",
   scalaVersion := "2.11.8",
   crossScalaVersions := Seq("2.10.6", scalaVersion.value),
   scalacOptions := commonOptions,
