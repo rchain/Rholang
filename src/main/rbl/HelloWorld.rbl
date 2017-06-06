@@ -1,0 +1,50 @@
+;;; This demonstrates a full Rosette HelloWorld contract that
+;;; suspends on the consume call until the produce is executed.
+;;; A helper contract SimplePrinterContract is added to print
+;;; any message that is sent on world2 that is of the pattern 'msg.
+;;;
+;;; The space.rbl must be loaded into the Rosette REPL context
+;;; before this file is executed.
+;;;
+;;; To verify that the HelloWorldContract was output from the Rholang compiler
+;;; execute the following in the sbt console for the Rholang compiler
+;;; and compare with (or replace) the HelloWorldContract below.
+;;;
+;;; import coop.rchain.rho2rose._
+;;; Rholang2RosetteCompiler.main(Array("<path_to_Rholang_compiler>/Rholang/examples/HelloWorld.rho"))
+;;;
+;;; Expected output of this script:
+;;; "Hello World!"
+
+(define t (new NameSpace))
+
+(defOprn HelloWorld)
+(defActor HelloWorldContract
+    (method (HelloWorld world1 world2)
+        (let [[[[[dd66c1eab1eb _binding] 8419030e6f88]] (consume t world1 'msg)]]
+           ( (proc [dd66c1eab1eb] (produce t world2 'msg dd66c1eab1eb)) 8419030e6f88))))
+
+(defOprn SimplePrinter)
+(defActor SimplePrinterContract
+	(method (SimplePrinter channel ptrn)
+		(let [[ [[[ptrn binding] product]] (consume t channel ptrn)]]
+			((proc [[ptrn product]]
+			    (seq
+			        (print product)
+                )
+			 ) [ptrn product])
+		)
+	)
+)
+
+(define contract (new HelloWorldContract))
+(define simplePrinter (new SimplePrinterContract))
+
+;;; Invoke contract and printer
+(let [[result1 (HelloWorld contract 'world1 'world2)]] #niv)
+(SimplePrinter simplePrinter 'world2 'msg)
+
+;;; Silently discard result of produce
+;;; Otherwise it would misleadingly two copies of "Hello World!"
+(let [[result2 (produce t 'world1 'msg "Hello World!")]] #niv)
+

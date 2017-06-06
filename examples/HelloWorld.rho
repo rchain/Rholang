@@ -1,0 +1,5 @@
+contract HelloWorld( world1, world2 ) = {
+    for( msg <- world1 ) {
+        world2!(msg)
+    }
+}
