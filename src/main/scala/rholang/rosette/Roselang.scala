@@ -467,7 +467,7 @@ extends StrFoldCtxtVisitor {
   }
 
   override def visit(  p : PNil, arg : A ) : R = {    
-    combine( arg, Some( L( G( "#niv" ), T() ) ) )
+    combine( arg, Some( L( V( "#niv" ), T() ) ) )
   }
   override def visit(  p : PValue, arg : A ) : R = {
     combine( arg, visitDispatch( p.value_, Here() ) )
