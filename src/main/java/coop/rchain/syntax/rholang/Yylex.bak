@@ -57,11 +57,6 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 <YYINITIAL>total { return new Symbol(sym._SYMB_30); }
 <YYINITIAL>true { return new Symbol(sym._SYMB_31); }
 <YYINITIAL>with { return new Symbol(sym._SYMB_32); }
-<YYINITIAL>"//"[^\n]*\n { /* skip */ }
-<YYINITIAL>"/*" { yybegin(COMMENT); }
-<COMMENT>"*/" { yybegin(YYINITIAL); }
-<COMMENT>. { /* skip */ }
-<COMMENT>[\n] { /* skip */ }
 
 <YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Name, yytext().intern()); }
 <YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Var, yytext().intern()); }

@@ -107,3 +107,6 @@ token Var (lower (letter | digit | '_' | '\'')*) ;
 
 separator nonempty Var "," ;
 separator nonempty Name "," ;
+
+comment "//" ;
+comment "/*" "*/" ;
