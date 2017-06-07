@@ -213,7 +213,7 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
-  public static String print(coop.rchain.syntax.rholang.Absyn.Value foo)
+  public static String print(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
   {
     pp(foo, 0);
     trim();
@@ -221,7 +221,7 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
-  public static String show(coop.rchain.syntax.rholang.Absyn.Value foo)
+  public static String show(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
   {
     sh(foo);
     String temp = buf_.toString();
@@ -243,7 +243,7 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
-  public static String print(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
+  public static String print(coop.rchain.syntax.rholang.Absyn.Value foo)
   {
     pp(foo, 0);
     trim();
@@ -251,7 +251,7 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
-  public static String show(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
+  public static String show(coop.rchain.syntax.rholang.Absyn.Value foo)
   {
     sh(foo);
     String temp = buf_.toString();
@@ -800,49 +800,6 @@ public class PrettyPrinter
        }
      }  }
 
-  private static void pp(coop.rchain.syntax.rholang.Absyn.Value foo, int _i_)
-  {
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VQuant)
-    {
-       coop.rchain.syntax.rholang.Absyn.VQuant _vquant = (coop.rchain.syntax.rholang.Absyn.VQuant) foo;
-       if (_i_ > 0) render(_L_PAREN);
-       pp(_vquant.quantity_, 0);
-       if (_i_ > 0) render(_R_PAREN);
-    }
-    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.VEnt)
-    {
-       coop.rchain.syntax.rholang.Absyn.VEnt _vent = (coop.rchain.syntax.rholang.Absyn.VEnt) foo;
-       if (_i_ > 0) render(_L_PAREN);
-       pp(_vent.entity_, 0);
-       if (_i_ > 0) render(_R_PAREN);
-    }
-  }
-
-  private static void pp(coop.rchain.syntax.rholang.Absyn.Quantity foo, int _i_)
-  {
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QBool)
-    {
-       coop.rchain.syntax.rholang.Absyn.QBool _qbool = (coop.rchain.syntax.rholang.Absyn.QBool) foo;
-       if (_i_ > 0) render(_L_PAREN);
-       pp(_qbool.rhobool_, 0);
-       if (_i_ > 0) render(_R_PAREN);
-    }
-    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QInt)
-    {
-       coop.rchain.syntax.rholang.Absyn.QInt _qint = (coop.rchain.syntax.rholang.Absyn.QInt) foo;
-       if (_i_ > 0) render(_L_PAREN);
-       pp(_qint.integer_, 0);
-       if (_i_ > 0) render(_R_PAREN);
-    }
-    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDouble)
-    {
-       coop.rchain.syntax.rholang.Absyn.QDouble _qdouble = (coop.rchain.syntax.rholang.Absyn.QDouble) foo;
-       if (_i_ > 0) render(_L_PAREN);
-       pp(_qdouble.double_, 0);
-       if (_i_ > 0) render(_R_PAREN);
-    }
-  }
-
   private static void pp(coop.rchain.syntax.rholang.Absyn.RhoBool foo, int _i_)
   {
     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QTrue)
@@ -857,6 +814,93 @@ public class PrettyPrinter
        coop.rchain.syntax.rholang.Absyn.QFalse _qfalse = (coop.rchain.syntax.rholang.Absyn.QFalse) foo;
        if (_i_ > 0) render(_L_PAREN);
        render("false");
+       if (_i_ > 0) render(_R_PAREN);
+    }
+  }
+
+  private static void pp(coop.rchain.syntax.rholang.Absyn.Quantity foo, int _i_)
+  {
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QBool)
+    {
+       coop.rchain.syntax.rholang.Absyn.QBool _qbool = (coop.rchain.syntax.rholang.Absyn.QBool) foo;
+       if (_i_ > 4) render(_L_PAREN);
+       pp(_qbool.rhobool_, 0);
+       if (_i_ > 4) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QInt)
+    {
+       coop.rchain.syntax.rholang.Absyn.QInt _qint = (coop.rchain.syntax.rholang.Absyn.QInt) foo;
+       if (_i_ > 4) render(_L_PAREN);
+       pp(_qint.integer_, 0);
+       if (_i_ > 4) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDouble)
+    {
+       coop.rchain.syntax.rholang.Absyn.QDouble _qdouble = (coop.rchain.syntax.rholang.Absyn.QDouble) foo;
+       if (_i_ > 4) render(_L_PAREN);
+       pp(_qdouble.double_, 0);
+       if (_i_ > 4) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QNeg)
+    {
+       coop.rchain.syntax.rholang.Absyn.QNeg _qneg = (coop.rchain.syntax.rholang.Absyn.QNeg) foo;
+       if (_i_ > 3) render(_L_PAREN);
+       render("-");
+       pp(_qneg.quantity_, 4);
+       if (_i_ > 3) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QMult)
+    {
+       coop.rchain.syntax.rholang.Absyn.QMult _qmult = (coop.rchain.syntax.rholang.Absyn.QMult) foo;
+       if (_i_ > 2) render(_L_PAREN);
+       pp(_qmult.quantity_1, 2);
+       render("*");
+       pp(_qmult.quantity_2, 3);
+       if (_i_ > 2) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDiv)
+    {
+       coop.rchain.syntax.rholang.Absyn.QDiv _qdiv = (coop.rchain.syntax.rholang.Absyn.QDiv) foo;
+       if (_i_ > 2) render(_L_PAREN);
+       pp(_qdiv.quantity_1, 2);
+       render("/");
+       pp(_qdiv.quantity_2, 3);
+       if (_i_ > 2) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QAdd)
+    {
+       coop.rchain.syntax.rholang.Absyn.QAdd _qadd = (coop.rchain.syntax.rholang.Absyn.QAdd) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       pp(_qadd.quantity_1, 1);
+       render("+");
+       pp(_qadd.quantity_2, 2);
+       if (_i_ > 1) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QMinus)
+    {
+       coop.rchain.syntax.rholang.Absyn.QMinus _qminus = (coop.rchain.syntax.rholang.Absyn.QMinus) foo;
+       if (_i_ > 1) render(_L_PAREN);
+       pp(_qminus.quantity_1, 1);
+       render("-");
+       pp(_qminus.quantity_2, 2);
+       if (_i_ > 1) render(_R_PAREN);
+    }
+  }
+
+  private static void pp(coop.rchain.syntax.rholang.Absyn.Value foo, int _i_)
+  {
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VQuant)
+    {
+       coop.rchain.syntax.rholang.Absyn.VQuant _vquant = (coop.rchain.syntax.rholang.Absyn.VQuant) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_vquant.quantity_, 0);
+       if (_i_ > 0) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.VEnt)
+    {
+       coop.rchain.syntax.rholang.Absyn.VEnt _vent = (coop.rchain.syntax.rholang.Absyn.VEnt) foo;
+       if (_i_ > 0) render(_L_PAREN);
+       pp(_vent.entity_, 0);
        if (_i_ > 0) render(_R_PAREN);
     }
   }
@@ -1513,23 +1557,17 @@ public class PrettyPrinter
      }
   }
 
-  private static void sh(coop.rchain.syntax.rholang.Absyn.Value foo)
+  private static void sh(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
   {
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VQuant)
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QTrue)
     {
-       coop.rchain.syntax.rholang.Absyn.VQuant _vquant = (coop.rchain.syntax.rholang.Absyn.VQuant) foo;
-       render("(");
-       render("VQuant");
-       sh(_vquant.quantity_);
-       render(")");
+       coop.rchain.syntax.rholang.Absyn.QTrue _qtrue = (coop.rchain.syntax.rholang.Absyn.QTrue) foo;
+       render("QTrue");
     }
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VEnt)
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QFalse)
     {
-       coop.rchain.syntax.rholang.Absyn.VEnt _vent = (coop.rchain.syntax.rholang.Absyn.VEnt) foo;
-       render("(");
-       render("VEnt");
-       sh(_vent.entity_);
-       render(")");
+       coop.rchain.syntax.rholang.Absyn.QFalse _qfalse = (coop.rchain.syntax.rholang.Absyn.QFalse) foo;
+       render("QFalse");
     }
   }
 
@@ -1559,19 +1597,69 @@ public class PrettyPrinter
        sh(_qdouble.double_);
        render(")");
     }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QNeg)
+    {
+       coop.rchain.syntax.rholang.Absyn.QNeg _qneg = (coop.rchain.syntax.rholang.Absyn.QNeg) foo;
+       render("(");
+       render("QNeg");
+       sh(_qneg.quantity_);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QMult)
+    {
+       coop.rchain.syntax.rholang.Absyn.QMult _qmult = (coop.rchain.syntax.rholang.Absyn.QMult) foo;
+       render("(");
+       render("QMult");
+       sh(_qmult.quantity_1);
+       sh(_qmult.quantity_2);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDiv)
+    {
+       coop.rchain.syntax.rholang.Absyn.QDiv _qdiv = (coop.rchain.syntax.rholang.Absyn.QDiv) foo;
+       render("(");
+       render("QDiv");
+       sh(_qdiv.quantity_1);
+       sh(_qdiv.quantity_2);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QAdd)
+    {
+       coop.rchain.syntax.rholang.Absyn.QAdd _qadd = (coop.rchain.syntax.rholang.Absyn.QAdd) foo;
+       render("(");
+       render("QAdd");
+       sh(_qadd.quantity_1);
+       sh(_qadd.quantity_2);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QMinus)
+    {
+       coop.rchain.syntax.rholang.Absyn.QMinus _qminus = (coop.rchain.syntax.rholang.Absyn.QMinus) foo;
+       render("(");
+       render("QMinus");
+       sh(_qminus.quantity_1);
+       sh(_qminus.quantity_2);
+       render(")");
+    }
   }
 
-  private static void sh(coop.rchain.syntax.rholang.Absyn.RhoBool foo)
+  private static void sh(coop.rchain.syntax.rholang.Absyn.Value foo)
   {
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QTrue)
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VQuant)
     {
-       coop.rchain.syntax.rholang.Absyn.QTrue _qtrue = (coop.rchain.syntax.rholang.Absyn.QTrue) foo;
-       render("QTrue");
+       coop.rchain.syntax.rholang.Absyn.VQuant _vquant = (coop.rchain.syntax.rholang.Absyn.VQuant) foo;
+       render("(");
+       render("VQuant");
+       sh(_vquant.quantity_);
+       render(")");
     }
-    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QFalse)
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.VEnt)
     {
-       coop.rchain.syntax.rholang.Absyn.QFalse _qfalse = (coop.rchain.syntax.rholang.Absyn.QFalse) foo;
-       render("QFalse");
+       coop.rchain.syntax.rholang.Absyn.VEnt _vent = (coop.rchain.syntax.rholang.Absyn.VEnt) foo;
+       render("(");
+       render("VEnt");
+       sh(_vent.entity_);
+       render(")");
     }
   }
 

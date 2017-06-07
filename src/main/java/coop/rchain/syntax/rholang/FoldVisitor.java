@@ -159,15 +159,13 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       return r;
     }
 
-/* Value */
-    public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg) {
+/* RhoBool */
+    public R visit(coop.rchain.syntax.rholang.Absyn.QTrue p, A arg) {
       R r = leaf(arg);
-      r = combine(p.quantity_.accept(this, arg), r, arg);
       return r;
     }
-    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg) {
+    public R visit(coop.rchain.syntax.rholang.Absyn.QFalse p, A arg) {
       R r = leaf(arg);
-      r = combine(p.entity_.accept(this, arg), r, arg);
       return r;
     }
 
@@ -185,14 +183,45 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       R r = leaf(arg);
       return r;
     }
-
-/* RhoBool */
-    public R visit(coop.rchain.syntax.rholang.Absyn.QTrue p, A arg) {
+    public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg) {
       R r = leaf(arg);
+      r = combine(p.quantity_.accept(this, arg), r, arg);
       return r;
     }
-    public R visit(coop.rchain.syntax.rholang.Absyn.QFalse p, A arg) {
+    public R visit(coop.rchain.syntax.rholang.Absyn.QMult p, A arg) {
       R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QDiv p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QAdd p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QMinus p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+
+/* Value */
+    public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.entity_.accept(this, arg), r, arg);
       return r;
     }
 

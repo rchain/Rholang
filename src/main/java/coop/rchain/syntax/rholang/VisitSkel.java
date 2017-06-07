@@ -141,15 +141,13 @@ public class VisitSkel
       return null;
     }
   }
-  public class ValueVisitor<R,A> implements Value.Visitor<R,A>
+  public class RhoBoolVisitor<R,A> implements RhoBool.Visitor<R,A>
   {
-    public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg)
-    { /* Code For VQuant Goes Here */
-      p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QTrue p, A arg)
+    { /* Code For QTrue Goes Here */
       return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg)
-    { /* Code For VEnt Goes Here */
-      p.entity_.accept(new EntityVisitor<R,A>(), arg);
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QFalse p, A arg)
+    { /* Code For QFalse Goes Here */
       return null;
     }
   }
@@ -167,15 +165,41 @@ public class VisitSkel
     { /* Code For QDouble Goes Here */
       //p.double_;
       return null;
-    }
-  }
-  public class RhoBoolVisitor<R,A> implements RhoBool.Visitor<R,A>
-  {
-    public R visit(coop.rchain.syntax.rholang.Absyn.QTrue p, A arg)
-    { /* Code For QTrue Goes Here */
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg)
+    { /* Code For QNeg Goes Here */
+      p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
       return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.QFalse p, A arg)
-    { /* Code For QFalse Goes Here */
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QMult p, A arg)
+    { /* Code For QMult Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QDiv p, A arg)
+    { /* Code For QDiv Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QAdd p, A arg)
+    { /* Code For QAdd Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QMinus p, A arg)
+    { /* Code For QMinus Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }        
+  }
+  public class ValueVisitor<R,A> implements Value.Visitor<R,A>
+  {
+    public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg)
+    { /* Code For VQuant Goes Here */
+      p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg)
+    { /* Code For VEnt Goes Here */
+      p.entity_.accept(new EntityVisitor<R,A>(), arg);
       return null;
     }
   }
