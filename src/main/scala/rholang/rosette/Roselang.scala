@@ -946,11 +946,19 @@ extends StrFoldCtxtVisitor {
       case bool : QBool => visitDispatch( bool.rhobool_, arg )
       case int : QInt => visit( int, arg )
       case double : QDouble => visit( double, arg )
+
       case neg : QNeg => visit(neg, arg)
       case mult : QMult => visit(mult, arg)
       case div : QDiv => visit(div, arg)
       case add : QAdd => visit(add, arg)
       case minus : QMinus => visit(minus, arg)
+
+      case lt : QLt => visit(lt, arg)
+      case lte : QLte => visit(lte, arg)
+      case gt : QGt => visit(gt, arg)
+      case gte : QGte => visit(gte, arg)
+      case eq : QEq => visit(eq, arg)
+      case neq : QNeq => visit(neq, arg)
     }
   }
   override def visit(  p : QVar, arg : A ) : R = {
@@ -1027,6 +1035,74 @@ extends StrFoldCtxtVisitor {
       }
     )
   }
+  override def visit( p : QLt, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B("<")(q1,q2), Top() )
+      }
+    )
+  }
+  override def visit( p : QLte, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B("<=")(q1,q2), Top() )
+      }
+    )
+  }
+  override def visit( p : QGt, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B(">")(q1,q2), Top() )
+      }
+    )
+  }
+  override def visit( p : QGte, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B(">=")(q1,q2), Top() )
+      }
+    )
+  }
+  override def visit( p : QEq, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B("==")(q1,q2), Top() )
+      }
+    )
+  }
+  override def visit( p : QNeq, arg : A) : R = {
+    combine(
+      arg,
+      for(
+        Location( q1 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_1, Here() );
+        Location( q2 : StrTermCtxt, _ ) <- visitDispatch( p.quantity_2, Here() )
+      ) yield {
+        L( B("!=")(q1,q2), Top() )
+      }
+    )
+  }
+
+
   override def visit( p : QMinus, arg : A) : R = {
     combine(
       arg,
