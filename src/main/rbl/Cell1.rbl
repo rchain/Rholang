@@ -1,0 +1,17 @@
+;;; Current compiler output for Cell1.rho
+
+(defOprn Cell)
+(defActor CellContract
+    (method (Cell get set state)
+        (block
+            (flatMap get
+                (proc [rtn]
+                    (let [[[[[_unification_ptrn _unification_binding] rholang2bd2469c6366]] (consume t state **wildcard** **wildcard**)]]
+                        ( (proc [v] (block (block (produce t rtn **wildcard** v) (produce t state **wildcard** v)) (Cell t get set state))) rholang2bd2469c6366))))
+            (flatMap set
+                (proc [newValue]
+                    (let [[[[[_unification_ptrn _unification_binding] rholang9e4638b13e20]] (consume t state **wildcard** **wildcard**)]]
+                        ( (proc [v] (block (produce t state **wildcard** newValue) (Cell t get set state))) rholang9e4638b13e20))))
+        )
+    )
+)
