@@ -425,26 +425,6 @@ extends StrFoldCtxtVisitor {
     )
   }
 
-  /* Proc with StrTermCtxt */
-  // TODO: Unify with visitDispatch( p : Proc) and reduce code duplication
-  def visitDispatch( p : Proc, product: StrTermCtxt, arg : A ) : R = {
-    p match {
-      case pNil : PNil => visit( pNil, arg )
-      case pVal : PValue => visit( pVal, arg )
-      case pDrop : PDrop => visit( pDrop, arg )
-      case pInject : PInject => visit( pInject, arg )
-      case pLift : PLift => visit( pLift, product, arg )
-      case pFoldL : PFoldL => visit( pFoldL, arg )
-      case pFoldR : PFoldR => visit( pFoldR, arg )
-      case pInput : PInput => visit( pInput, arg )
-      case pChoice : PChoice => visit( pChoice, arg )
-      case pMatch : PMatch => visit( pMatch, arg )
-      case pNew : PNew => visit( pNew, arg )
-      case pConstr : PConstr => visit( pConstr, arg )
-      case pPar : PPar => visit( pPar, arg )
-    }
-  }
-
   /* Proc */
   def visitDispatch( p : Proc, arg : A ) : R = {
     p match {
@@ -498,40 +478,6 @@ extends StrFoldCtxtVisitor {
   }
   override def visit(  p : PInject, arg : A ) : R
 
-  def visit(  p : PLift, product: StrTermCtxt, arg : A ) : R = {
-    import scala.collection.JavaConverters._
-    /*
-     *  [| x!( P1, ..., PN ) |]( t )
-     *  =
-     *  ( produce t [| x ]( t ) `(,[| P1 |]( t )) ... `(,[| PN |]( t )) )
-     */
-
-    val actls =
-      ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
-        {
-          ( acc, e ) => {
-            visitDispatch( e, Here() ) match {
-              case Some( Location( pTerm : StrTermCtxt, _ ) ) => {
-                doQuote( pTerm ) match {
-                  case Some( Location( qTerm : StrTermCtxt, _ ) ) =>
-                    acc ++ List( qTerm )
-                  case None => acc
-                }
-              }
-              case None => acc
-            }
-          }
-        }
-      )
-
-    combine(
-      arg,
-      for( Location( cTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() ) ) yield {
-        L( B( _produce )( (List( TS ) ++ List(cTerm) ++ actls ++ List(product)):_* ), Top() )
-      }
-    )
-  }
-
   override def visit(  p : PLift, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
@@ -546,11 +492,7 @@ extends StrFoldCtxtVisitor {
           ( acc, e ) => {
             visitDispatch( e, Here() ) match {
               case Some( Location( pTerm : StrTermCtxt, _ ) ) => {
-                doQuote( pTerm ) match {
-                  case Some( Location( qTerm : StrTermCtxt, _ ) ) =>
-                    acc ++ List( qTerm )
-                  case None => acc
-                }                
+                acc ++ List( pTerm )
               }
               case None => acc
             }
@@ -561,7 +503,7 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       for( Location( cTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() ) ) yield {
-        L( B( _produce )( (List( TS ) ++ List(cTerm) ++ actls):_* ), Top() )
+        L( B( _produce )( (List( TS ) ++ List(cTerm) ++ List(V("**wildcard**")) ++ actls):_* ), Top() )
       }
     )
   }
@@ -572,7 +514,6 @@ extends StrFoldCtxtVisitor {
     def forToMap( binding : Bind, proc : Proc ) : R = {
       binding match {
         case inBind : InputBind => {
-          var patternFresh = V( Fresh() )
           var productFresh = V( Fresh() )
           for(
             // [[ chan ]] is chanTerm
@@ -580,16 +521,19 @@ extends StrFoldCtxtVisitor {
             // [[ ptrn ]] is ptrnTerm
             Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
             // [[ P ]] is bodyTerm
-            Location( procTerm : StrTermCtxt, _ ) <- visitDispatch( proc, patternFresh, Here() )
+            Location( procTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
           ) yield {
-            // (let [[[[[ptrnFresh _binding] productFresh]] (consume t chanTerm quotedPtrnTerm) ]]
-            //   ((proc [ptrnFresh] bodyTerm ) productFresh)
+            // (let [[[[[_unification_ptrn _unification_binding] productFresh]] (consume t chanTerm **wildcard** ptrn) ]]
+            //   ((proc [ptrnTerm] bodyTerm ) productFresh)
             // )
-            val quotedPtrnTerm = (for( Location( q : StrTermCtxt, _ ) <- doQuote( ptrnTerm ) ) yield { q })
-              .getOrElse( throw new FailedQuotation( ptrnTerm ) )
-            val consumeTerm = B("consume")(TS, chanTerm, quotedPtrnTerm)
-            val letBindingsTerm = B(_list)(B(_list)(B(_list)(B(_list)(patternFresh, V("_binding")), productFresh)), consumeTerm)
-            val bodyTerm = B("")(B("proc")(B(_list)(patternFresh), procTerm), productFresh)
+            val quotedPtrnTerm = inBind.cpattern_ match {
+              case variable : CPtVar => V("**wildcard**")
+              case _ => (for( Location( q : StrTermCtxt, _ ) <- doQuote( ptrnTerm ) ) yield { q })
+                .getOrElse( throw new FailedQuotation( ptrnTerm ) )
+            }
+            val consumeTerm = B("consume")(TS, chanTerm, V("**wildcard**"), quotedPtrnTerm)
+            val letBindingsTerm = B(_list)(B(_list)(B(_list)(B(_list)(V("_unification_ptrn"), V("_unification_binding")), productFresh)), consumeTerm)
+            val bodyTerm = B("")(B("proc")(B(_list)(ptrnTerm), procTerm), productFresh)
             L( B( "let" )(B(_list)(letBindingsTerm), bodyTerm), T() )
           }
         }
