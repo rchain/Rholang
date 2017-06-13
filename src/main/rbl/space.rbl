@@ -6,17 +6,21 @@
 ;; Description: Basic Linda pattern
 ;; ------------------------------------------------------------------------
 
+(add '**wildcard** #niv) ;; TODO: Add wildcard token in Rosette implementation and swap out #niv
+
 (defOprn consume)
 (defOprn produce)
+(defOprn unify?)
 (defOprn match?)
 (defOprn production?)
 
 (defActor NameSpace (slots& chart (new RblTable))
-    ;;; Temporary implementations of NameSpace predicates
-    ;;; TODO: Fully implement and potentially move out of NameSpace?
-    (method (match? ptrn candidate) (if (type? ptrn candidate) (seq (update) ((proc [ptrn] ptrn) candidate)) (seq (update) #niv)) )
+    ;;; TODO: We currently do not support prologue style unification (bidirectional) pattern matching
+    ;;; Potential implementation: (if (type? ptrn candidate) (seq (update) ((proc [ptrn] ptrn) candidate)) (seq (update) #niv)) )
+    (pure (unify? ptrn candidate) #t)
+    (pure (match? ptrn candidate) (if (= ptrn **wildcard**) #t (type? ptrn candidate)))
     ;;; storedValue is the tuple [data continuation]
-    (method (production? storedValue) (seq (update) (not (niv? (head storedValue)))))
+    (pure (production? storedValue) (not (niv? (head storedValue))))
 )
 
 (defOprn tuplespace-tbl-get-or-create)
@@ -35,7 +39,7 @@
 (defRMethod NameSpace (consume ctxt & location)
  ;;; by makng this a reflective method - RMethod - we gain access to the awaiting continuation
  ;;; bound to the formal parameter ctxt
-  (let* [[[channel ptrn] location]
+  (let* [[[channel unification_ptrn product_ptrn] location]
   ;;; the channel and the pattern of incoming messages to look for are destructured and bound
         [subspace (tuplespace-tbl-get-or-create chart channel)]
                 ;;; the incoming messages associated with the channel are collected in a subtable
@@ -50,11 +54,11 @@
           (fold candidates
             (proc [e acc k]
                 (let [[[hits misses] acc]
-                [binding (match? NameSpace ptrn e)]]
+                [binding (unify? NameSpace unification_ptrn e)]]
             (if (niv? binding)
                 (k [hits [e & misses]])
                 (k [[[e binding] & hits] misses])))) [[] []])]
-                  ;;; note that this is generic in the match? and miss? predicates
+                  ;;; note that this is generic in the unify? and miss? predicates
                   ;;; matching could be unification (as it is in SpecialK) or it could be
                   ;;; a number of other special purpose protocols
                   ;;; the price for this genericity is performance
@@ -78,6 +82,7 @@
                   ;;; this is a much more fine-grained view of excluded middle
 
    (seq
+     (filter productions (proc [[[e binding] data]] (match? NameSpace product_ptrn data)))
      (map productions
        ;;; TODO: Eliminate _ by changing implementation of map over productions
        (proc [_ [[ptrn binding] product]]
@@ -93,7 +98,7 @@
             (print "DEBUG: Waiting for data")
             ;;; TODO: Potentially revert to original form
             ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn [#niv (reverse [ctxt & (reverse consumers)])])))
-            (tbl-add subspace ptrn [#niv ctxt])
+            (tbl-add subspace unification_ptrn [#niv [product_ptrn ctxt]])
             (update!)
         )
      )
@@ -104,14 +109,14 @@
 ;;; This code is perfectly dual to the consumer code and so all the comments
 ;;; there apply in the corresponging code sites
 (defRMethod NameSpace (produce ctxt & production)
- (let* [[[channel ptrn product] production]
+(let* [[[channel unification_ptrn product] production]
         [subspace (tuplespace-tbl-get-or-create chart channel)]
        [candidates (names subspace)]
        [[extractions remainder]
           (fold candidates
             (proc [e acc k]
                 (let [[[hits misses] acc]
-                [binding (match? NameSpace ptrn e)]]
+                [binding (unify? NameSpace unification_ptrn e)]]
                     (if (niv? binding)
                         (k [hits [e & misses]])
                         (k [[[e binding] & hits] misses])))) [[] []])]
@@ -128,12 +133,13 @@
    (seq
       ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Potentially revert.
       ;;; (map productions (proc [ptrn product] (tbl-add subspace ptrn product)))
-     (tbl-add subspace ptrn [product #niv])
+     (tbl-add subspace unification_ptrn [product #niv])
+     (filter consummation (proc [[[unification_ptrn binding] [product_ptrn continuation]]] (match? NameSpace product_ptrn product)))
      (map consummation
         ;;; TODO: Eliminate _index by changing implementation of map over consummation
-       (proc [_index [[ptrn binding] consumers]]
+       (proc [_index [[unification_ptrn binding] [product_ptrn continuation]]]
        (seq
-            (tbl-del subspace ptrn)
+            (tbl-del subspace unification_ptrn)
             ;;; TODO: Assumes that consumers is just a single continuation not a list of continuations
             ;;; See below for previous implementation
             ;;;(map consumers
@@ -141,7 +147,7 @@
             ;;;    (send ctxt-rtn consumer [product binding])
             ;;;    binding))
 
-            (send ctxt-rtn consumers [[[ptrn binding] product]])
+            (send ctxt-rtn continuation [[[unification_ptrn binding] product]])
             binding
        )))
      (update!)

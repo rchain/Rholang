@@ -21,18 +21,14 @@
 (defOprn HelloWorld)
 (defActor HelloWorldContract
     (method (HelloWorld world1 world2)
-        (let [[[[[dd66c1eab1eb _binding] 8419030e6f88]] (consume t world1 'msg)]]
-           ( (proc [dd66c1eab1eb] (produce t world2 'msg dd66c1eab1eb)) 8419030e6f88))))
+        (let [[[[[_unification_ptrn _unification_binding] 8419030e6f88]] (consume t world1 **wildcard** **wildcard**)]]
+           ( (proc [msg] (produce t world2 **wildcard** msg)) 8419030e6f88))))
 
 (defOprn SimplePrinter)
 (defActor SimplePrinterContract
 	(method (SimplePrinter channel ptrn)
-		(let [[ [[[ptrn binding] product]] (consume t channel ptrn)]]
-			((proc [[ptrn product]]
-			    (seq
-			        (print product)
-                )
-			 ) [ptrn product])
+		(let [[ [[[_ _] product]] (consume t channel **wildcard** **wildcard**)]]
+            (print product)
 		)
 	)
 )
