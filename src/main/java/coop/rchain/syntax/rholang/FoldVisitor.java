@@ -31,10 +31,6 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       r = combine(p.value_.accept(this, arg), r, arg);
       return r;
     }
-    public R visit(coop.rchain.syntax.rholang.Absyn.PVar p, A arg) {
-      R r = leaf(arg);
-      return r;
-    }
     public R visit(coop.rchain.syntax.rholang.Absyn.PDrop p, A arg) {
       R r = leaf(arg);
       r = combine(p.chan_.accept(this, arg), r, arg);
@@ -183,6 +179,10 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       R r = leaf(arg);
       return r;
     }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg) {
+      R r = leaf(arg);
+      return r;
+    }
     public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg) {
       R r = leaf(arg);
       r = combine(p.quantity_.accept(this, arg), r, arg);
@@ -212,6 +212,42 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       r = combine(p.quantity_2.accept(this, arg), r, arg);
       return r;
     }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLt p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLte p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGt p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGte p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QEq p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QNeq p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_1.accept(this, arg), r, arg);
+      r = combine(p.quantity_2.accept(this, arg), r, arg);
+      return r;
+    }
 
 /* Value */
     public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg) {
@@ -219,25 +255,8 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       r = combine(p.quantity_.accept(this, arg), r, arg);
       return r;
     }
-    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg) {
-      R r = leaf(arg);
-      r = combine(p.entity_.accept(this, arg), r, arg);
-      return r;
-    }
-
-/* Entity */
     public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg) {
       R r = leaf(arg);
-      return r;
-    }
-    public R visit(coop.rchain.syntax.rholang.Absyn.EStruct p, A arg) {
-      R r = leaf(arg);
-      r = combine(p.struct_.accept(this, arg), r, arg);
-      return r;
-    }
-    public R visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg) {
-      R r = leaf(arg);
-      r = combine(p.collect_.accept(this, arg), r, arg);
       return r;
     }
     public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg) {
@@ -246,22 +265,6 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       {
         r = combine(x.accept(this, arg), r, arg);
       }
-      return r;
-    }
-
-/* Struct */
-    public R visit(coop.rchain.syntax.rholang.Absyn.StructConstr p, A arg) {
-      R r = leaf(arg);
-      for (Proc x : p.listproc_)
-      {
-        r = combine(x.accept(this, arg), r, arg);
-      }
-      return r;
-    }
-
-/* Collect */
-    public R visit(coop.rchain.syntax.rholang.Absyn.CString p, A arg) {
-      R r = leaf(arg);
       return r;
     }
 
@@ -357,14 +360,14 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       r = combine(p.varpattern_.accept(this, arg), r, arg);
       return r;
     }
-    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg) {
-      R r = leaf(arg);
-      r = combine(p.ppattern_.accept(this, arg), r, arg);
-      return r;
-    }
     public R visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg) {
       R r = leaf(arg);
       r = combine(p.valpattern_.accept(this, arg), r, arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.ppattern_.accept(this, arg), r, arg);
       return r;
     }
 

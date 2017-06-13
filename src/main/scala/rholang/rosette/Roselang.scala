@@ -431,7 +431,6 @@ extends StrFoldCtxtVisitor {
     p match {
       case pNil : PNil => visit( pNil, arg )
       case pVal : PValue => visit( pVal, arg )
-      case pVar : PVar => visit( pVar, arg )
       case pDrop : PDrop => visit( pDrop, arg )
       case pInject : PInject => visit( pInject, arg )
       case pLift : PLift => visit( pLift, product, arg )
@@ -451,7 +450,6 @@ extends StrFoldCtxtVisitor {
     p match {
       case pNil : PNil => visit( pNil, arg )
       case pVal : PValue => visit( pVal, arg )
-      case pVar : PVar => visit( pVar, arg )
       case pDrop : PDrop => visit( pDrop, arg )
       case pInject : PInject => visit( pInject, arg )
       case pLift : PLift => visit( pLift, arg )
@@ -471,9 +469,6 @@ extends StrFoldCtxtVisitor {
   }
   override def visit(  p : PValue, arg : A ) : R = {
     combine( arg, visitDispatch( p.value_, Here() ) )
-  }
-  override def visit(  p : PVar, arg : A ) : R = {
-    combine( arg, L(V(p.var_), Top()) )
   }
   override def visit(  p : PDrop, arg : A ) : R = {
     /*
@@ -760,7 +755,7 @@ extends StrFoldCtxtVisitor {
           blocks.add( bbind )
           blocks.add( lbind )
 
-          val bmatch = new PMatch( new PVar( lmsgVStr ), bcases )
+          val bmatch = new PMatch( new PValue( new VQuant( new QVar( lmsgVStr ) ) ), bcases )
 
           val bpair = 
             new PPar(
@@ -992,19 +987,18 @@ extends StrFoldCtxtVisitor {
   /* Value */
   def visitDispatch( p : Value, arg : A ) : R = {
     p match {
-      case ent : VEnt => visit( ent, arg )
       case quant : VQuant => visit( quant, arg )
+      case char : EChar => visit( char, arg )
+      case tuple : ETuple => visit( tuple, arg )
     }
   }
   override def visit(  p : VQuant, arg : A ) : R = {
     combine( arg, visitDispatch( p.quantity_, Here() ) )
   }
-  override def visit(  p : VEnt, arg : A ) : R = {
-    combine( arg, visitDispatch( p.entity_, Here() ) )
-  }
   /* Quantity */
   def visitDispatch( p : Quantity, arg : A ) : R = {
     p match {
+      case qVar : QVar => visit( qVar, arg )
       case bool : QBool => visitDispatch( bool.rhobool_, arg )
       case int : QInt => visit( int, arg )
       case double : QDouble => visit( double, arg )
@@ -1014,6 +1008,9 @@ extends StrFoldCtxtVisitor {
       case add : QAdd => visit(add, arg)
       case minus : QMinus => visit(minus, arg)
     }
+  }
+  override def visit(  p : QVar, arg : A ) : R = {
+    combine( arg, L(V(p.var_), Top()) )
   }
   def visitDispatch( p : RhoBool, arg : A ) : R = {
     p match {
@@ -1099,30 +1096,10 @@ extends StrFoldCtxtVisitor {
   }
 
   /* Entity */
-  def visitDispatch( p : Entity, arg : A ) : R = {
-    p match {
-      case char : EChar => visit( char, arg )
-      case struct : EStruct => visit( struct, arg )
-      case collect : ECollect => visit( collect, arg )
-      case tuple : ETuple => visit( tuple, arg )
-    }
-  }
   override def visit(  p : EChar, arg : A ) : R = {
     combine(
       arg,
       L( G( s"""'${p.char_}'"""), Top() )
-    )
-  }
-  override def visit(  p : EStruct, arg : A ) : R
-  override def visit(  p : ECollect, arg : A ) : R
-
-  /* Struct */
-  override def visit(  p : StructConstr, arg : A ) : R
-  /* Collect */
-  override def visit(  p : CString, arg : A ) : R = {
-    combine(
-      arg,
-      L( G( s""""${p.string_}""""), Top() )
     )
   }
   /* Pattern */

@@ -29,10 +29,6 @@ public class VisitSkel
     { /* Code For PValue Goes Here */
       p.value_.accept(new ValueVisitor<R,A>(), arg);
       return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.PVar p, A arg)
-    { /* Code For PVar Goes Here */
-      //p.var_;
-      return null;
     }        public R visit(coop.rchain.syntax.rholang.Absyn.PDrop p, A arg)
     { /* Code For PDrop Goes Here */
       p.chan_.accept(new ChanVisitor<R,A>(), arg);
@@ -165,6 +161,10 @@ public class VisitSkel
     { /* Code For QDouble Goes Here */
       //p.double_;
       return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg)
+    { /* Code For QVar Goes Here */
+      //p.var_;
+      return null;
     }        public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg)
     { /* Code For QNeg Goes Here */
       p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
@@ -189,6 +189,36 @@ public class VisitSkel
       p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
       p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
       return null;
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QLt p, A arg)
+    { /* Code For QLt Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QLte p, A arg)
+    { /* Code For QLte Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QGt p, A arg)
+    { /* Code For QGt Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QGte p, A arg)
+    { /* Code For QGte Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QEq p, A arg)
+    { /* Code For QEq Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QNeq p, A arg)
+    { /* Code For QNeq Goes Here */
+      p.quantity_1.accept(new QuantityVisitor<R,A>(), arg);
+      p.quantity_2.accept(new QuantityVisitor<R,A>(), arg);
+      return null;
     }        
   }
   public class ValueVisitor<R,A> implements Value.Visitor<R,A>
@@ -197,48 +227,14 @@ public class VisitSkel
     { /* Code For VQuant Goes Here */
       p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
       return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg)
-    { /* Code For VEnt Goes Here */
-      p.entity_.accept(new EntityVisitor<R,A>(), arg);
-      return null;
-    }
-  }
-  public class EntityVisitor<R,A> implements Entity.Visitor<R,A>
-  {
-    public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg)
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg)
     { /* Code For EChar Goes Here */
       //p.char_;
-      return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.EStruct p, A arg)
-    { /* Code For EStruct Goes Here */
-      p.struct_.accept(new StructVisitor<R,A>(), arg);
-      return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg)
-    { /* Code For ECollect Goes Here */
-      p.collect_.accept(new CollectVisitor<R,A>(), arg);
       return null;
     }    public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg)
     { /* Code For ETuple Goes Here */
       for (Proc x: p.listproc_)
       { /* ... */ }
-      return null;
-    }
-  }
-  public class StructVisitor<R,A> implements Struct.Visitor<R,A>
-  {
-    public R visit(coop.rchain.syntax.rholang.Absyn.StructConstr p, A arg)
-    { /* Code For StructConstr Goes Here */
-      //p.var_;
-      for (Proc x: p.listproc_)
-      { /* ... */ }
-      return null;
-    }
-  }
-  public class CollectVisitor<R,A> implements Collect.Visitor<R,A>
-  {
-    public R visit(coop.rchain.syntax.rholang.Absyn.CString p, A arg)
-    { /* Code For CString Goes Here */
-      //p.string_;
       return null;
     }
   }
@@ -317,13 +313,13 @@ public class VisitSkel
     { /* Code For CPtVar Goes Here */
       p.varpattern_.accept(new VarPatternVisitor<R,A>(), arg);
       return null;
-    }    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg)
-    { /* Code For CPtQuote Goes Here */
-      p.ppattern_.accept(new PPatternVisitor<R,A>(), arg);
-      return null;
     }    public R visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg)
     { /* Code For CValPtrn Goes Here */
       p.valpattern_.accept(new ValPatternVisitor<R,A>(), arg);
+      return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg)
+    { /* Code For CPtQuote Goes Here */
+      p.ppattern_.accept(new PPatternVisitor<R,A>(), arg);
       return null;
     }
   }

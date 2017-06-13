@@ -64,12 +64,12 @@ public class Yylex implements java_cup.runtime.Scanner {
 	private final int CHAR = 2;
 	private final int yy_state_dtrans[] = {
 		0,
-		78,
-		80,
-		82,
 		84,
 		86,
-		88
+		88,
+		90,
+		92,
+		94
 	};
 	private void yybegin (int state) {
 		yy_lexical_state = state;
@@ -284,19 +284,19 @@ public class Yylex implements java_cup.runtime.Scanner {
 		/* 61 */ YY_NO_ANCHOR,
 		/* 62 */ YY_NO_ANCHOR,
 		/* 63 */ YY_NO_ANCHOR,
-		/* 64 */ YY_NOT_ACCEPT,
+		/* 64 */ YY_NO_ANCHOR,
 		/* 65 */ YY_NO_ANCHOR,
 		/* 66 */ YY_NO_ANCHOR,
 		/* 67 */ YY_NO_ANCHOR,
 		/* 68 */ YY_NO_ANCHOR,
-		/* 69 */ YY_NOT_ACCEPT,
-		/* 70 */ YY_NO_ANCHOR,
+		/* 69 */ YY_NO_ANCHOR,
+		/* 70 */ YY_NOT_ACCEPT,
 		/* 71 */ YY_NO_ANCHOR,
-		/* 72 */ YY_NOT_ACCEPT,
+		/* 72 */ YY_NO_ANCHOR,
 		/* 73 */ YY_NO_ANCHOR,
-		/* 74 */ YY_NOT_ACCEPT,
-		/* 75 */ YY_NO_ANCHOR,
-		/* 76 */ YY_NOT_ACCEPT,
+		/* 74 */ YY_NO_ANCHOR,
+		/* 75 */ YY_NOT_ACCEPT,
+		/* 76 */ YY_NO_ANCHOR,
 		/* 77 */ YY_NO_ANCHOR,
 		/* 78 */ YY_NOT_ACCEPT,
 		/* 79 */ YY_NO_ANCHOR,
@@ -310,11 +310,11 @@ public class Yylex implements java_cup.runtime.Scanner {
 		/* 87 */ YY_NO_ANCHOR,
 		/* 88 */ YY_NOT_ACCEPT,
 		/* 89 */ YY_NO_ANCHOR,
-		/* 90 */ YY_NO_ANCHOR,
+		/* 90 */ YY_NOT_ACCEPT,
 		/* 91 */ YY_NO_ANCHOR,
-		/* 92 */ YY_NO_ANCHOR,
+		/* 92 */ YY_NOT_ACCEPT,
 		/* 93 */ YY_NO_ANCHOR,
-		/* 94 */ YY_NO_ANCHOR,
+		/* 94 */ YY_NOT_ACCEPT,
 		/* 95 */ YY_NO_ANCHOR,
 		/* 96 */ YY_NO_ANCHOR,
 		/* 97 */ YY_NO_ANCHOR,
@@ -335,44 +335,51 @@ public class Yylex implements java_cup.runtime.Scanner {
 		/* 112 */ YY_NO_ANCHOR,
 		/* 113 */ YY_NO_ANCHOR,
 		/* 114 */ YY_NO_ANCHOR,
-		/* 115 */ YY_NO_ANCHOR
+		/* 115 */ YY_NO_ANCHOR,
+		/* 116 */ YY_NO_ANCHOR,
+		/* 117 */ YY_NO_ANCHOR,
+		/* 118 */ YY_NO_ANCHOR,
+		/* 119 */ YY_NO_ANCHOR,
+		/* 120 */ YY_NO_ANCHOR,
+		/* 121 */ YY_NO_ANCHOR
 	};
 	private int yy_cmap[] = unpackFromString(1,65538,
-"39:9,46,38,39,46,37,39:18,46,8,44,7,39:3,43,1,2,6,19,13,16,45,9,42:10,10,17" +
-",15,3,18,39,14,40:13,21,40:12,39,11,39:2,20,39,25,41,24,41,27,32,41,34,22,4" +
-"1:2,23,33,29,28,41:2,31,26,30,36,41,35,41:3,4,12,5,39:66,40:23,39,40:7,41:2" +
-"4,39,41:8,39:65280,0:2")[0];
+"41:9,48,40,41,48,39,41:18,48,8,46,7,41:3,45,1,2,6,19,13,16,47,9,44:10,10,17" +
+",15,3,18,41,14,42:13,23,42:12,20,11,21,41,22,41,27,43,26,43,29,34,43,36,24," +
+"43:2,25,35,31,30,43:2,33,28,32,38,43,37,43:3,4,12,5,41:66,42:23,41,42:7,43:" +
+"24,41,43:8,41:65280,0:2")[0];
 
-	private int yy_rmap[] = unpackFromString(1,116,
-"0,1:3,2,1:5,3,1:3,4,1:5,5,6,1,7,1:7,8:2,1,9,8:3,10,8:8,1:17,11,12,8,13,14,1" +
-"5,9,16,17,18,19,20,13,21,22,23,24,25,26,27,28,29,30,31,32,33,34,9,35,36,37," +
-"38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58")[0];
+	private int yy_rmap[] = unpackFromString(1,122,
+"0,1:3,2,1:4,3,4,1:3,5,1:2,6,1:4,7,8,1,9,1:11,10:2,1,11,10:3,12,10:8,1:17,13" +
+",14,10,15,16,17,11,18,19,20,21,22,15,23,24,25,26,27,28,29,30,31,32,33,34,35" +
+",36,11,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59" +
+",60")[0];
 
-	private int yy_nxt[][] = unpackFromString(59,47,
-"1,2,3,4,5,6,7,8,9,10,64,-1,11,12,13,14,15,16,17,18,19,20,21,66,103,66,92,66" +
-":2,93,104,66,94,111,66,105,66,22:2,-1,91,66,23,24,25,-1,22,-1:65,26,-1:34,2" +
-"7,-1:2,69,28,-1:52,30,-1:50,91:2,65,70:14,-1:3,91,70,91:2,-1:23,66:9,31,66:" +
-"2,32,66:4,-1:3,66:4,-1:45,23,-1:2,72,-1:21,66:17,-1:3,66:4,-1:23,91:2,70:15" +
-",-1:3,91,70,91:2,-1:30,74,-1:14,38,-1:15,29,-1:55,91:2,70,34,70:13,-1:3,91," +
-"70,91:2,-1:45,67,-1:13,49,-1:38,69:37,33,69:8,-1:20,66:13,35,66:3,-1:3,66:4" +
-",-1:45,38,-1:24,66:15,36,66,-1:3,66:4,-1:19,76,-1:25,67,-1:24,66:11,37,66:5" +
-",-1:3,66:4,-1:23,66:7,39,66:9,-1:3,66:4,-1:3,1,47:5,68,47:30,-1,48,47:8,-1:" +
-"20,66:7,40,66:9,-1:3,66:4,-1:3,1,50:10,51,50:31,-1,50:3,-1:20,66:14,41,66:2" +
-",-1:3,66:4,-1:3,1,52:28,53,54,52:6,-1:2,52:8,-1:20,66:3,42,66:13,-1:3,66:4," +
-"-1:3,1,-1:42,55,-1:23,66:7,43,66:9,-1:3,66:4,-1:3,1,56:10,57,56:25,-1:2,56:" +
-"5,58,56:2,-1:20,66:14,44,66:2,-1:3,66:4,-1:3,1,59:10,60,59:17,61,62,59:6,-1" +
-":2,59:5,63,59:2,-1:20,66:10,45,66:6,-1:3,66:4,-1:23,66:10,46,66:6,-1:3,66:4" +
-",-1:23,66:7,112,66:8,71,-1:3,66:4,-1:23,66:7,73,66:9,-1:3,66:4,-1:23,66:5,1" +
-"07,66:2,75,66:8,-1:3,66:4,-1:23,66:6,77,66:10,-1:3,66:4,-1:23,66:16,79,-1:3" +
-",66:4,-1:23,66:10,81,66:6,-1:3,66:4,-1:23,66:5,83,66:11,-1:3,66:4,-1:23,66:" +
-"6,85,66:10,-1:3,66:4,-1:23,66:4,87,66:12,-1:3,66:4,-1:23,66:4,89,66:12,-1:3" +
-",66:4,-1:23,66:4,90,66:12,-1:3,66:4,-1:23,66:5,95,66:2,115,66:8,-1:3,66:4,-" +
-"1:23,66:8,106,66:2,96,66:5,-1:3,66:4,-1:23,66:2,97,66:14,-1:3,66:4,-1:23,66" +
-":10,98,66:6,-1:3,66:4,-1:23,66:3,99,66:13,-1:3,66:4,-1:23,66:10,100,66:6,-1" +
-":3,66:4,-1:23,66:7,101,66:9,-1:3,66:4,-1:23,66:5,102,66:11,-1:3,66:4,-1:23," +
-"66:5,108,66:11,-1:3,66:4,-1:23,66:3,109,66:13,-1:3,66:4,-1:23,66:11,110,66:" +
-"5,-1:3,66:4,-1:23,66:10,113,66:6,-1:3,66:4,-1:23,66:9,114,66:7,-1:3,66:4,-1" +
-":3");
+	private int yy_nxt[][] = unpackFromString(61,49,
+"1,2,3,4,5,6,7,8,9,10,70,-1,11,12,13,14,15,16,17,18,19,20,21,22,23,72,109,72" +
+",98,72:2,99,110,72,100,117,72,111,72,24:2,-1,97,72,25,26,27,-1,24,-1:52,28," +
+"-1:14,29,-1:33,30,-1:51,31,-1:2,75,32,-1:41,34,-1:12,35,-1:35,36,-1:67,97:2" +
+",71,76:14,-1:3,97,76,97:2,-1:25,72:9,37,72:2,38,72:4,-1:3,72:4,-1:47,25,-1:" +
+"2,78,-1:23,72:17,-1:3,72:4,-1:25,97:2,76:15,-1:3,97,76,97:2,-1:32,80,-1:14," +
+"44,-1:15,33,-1:59,97:2,76,40,76:13,-1:3,97,76,97:2,-1:47,73,-1:13,55,-1:40," +
+"75:39,39,75:8,-1:22,72:13,41,72:3,-1:3,72:4,-1:47,44,-1:26,72:15,42,72,-1:3" +
+",72:4,-1:19,82,-1:27,73,-1:26,72:11,43,72:5,-1:3,72:4,-1:25,72:7,45,72:9,-1" +
+":3,72:4,-1:3,1,53:5,74,53:32,-1,54,53:8,-1:22,72:7,46,72:9,-1:3,72:4,-1:3,1" +
+",56:10,57,56:33,-1,56:3,-1:22,72:14,47,72:2,-1:3,72:4,-1:3,1,58:30,59,60,58" +
+":6,-1:2,58:8,-1:22,72:3,48,72:13,-1:3,72:4,-1:3,1,-1:44,61,-1:25,72:7,49,72" +
+":9,-1:3,72:4,-1:3,1,62:10,63,62:27,-1:2,62:5,64,62:2,-1:22,72:14,50,72:2,-1" +
+":3,72:4,-1:3,1,65:10,66,65:19,67,68,65:6,-1:2,65:5,69,65:2,-1:22,72:10,51,7" +
+"2:6,-1:3,72:4,-1:25,72:10,52,72:6,-1:3,72:4,-1:25,72:7,118,72:8,77,-1:3,72:" +
+"4,-1:25,72:7,79,72:9,-1:3,72:4,-1:25,72:5,113,72:2,81,72:8,-1:3,72:4,-1:25," +
+"72:6,83,72:10,-1:3,72:4,-1:25,72:16,85,-1:3,72:4,-1:25,72:10,87,72:6,-1:3,7" +
+"2:4,-1:25,72:5,89,72:11,-1:3,72:4,-1:25,72:6,91,72:10,-1:3,72:4,-1:25,72:4," +
+"93,72:12,-1:3,72:4,-1:25,72:4,95,72:12,-1:3,72:4,-1:25,72:4,96,72:12,-1:3,7" +
+"2:4,-1:25,72:5,101,72:2,121,72:8,-1:3,72:4,-1:25,72:8,112,72:2,102,72:5,-1:" +
+"3,72:4,-1:25,72:2,103,72:14,-1:3,72:4,-1:25,72:10,104,72:6,-1:3,72:4,-1:25," +
+"72:3,105,72:13,-1:3,72:4,-1:25,72:10,106,72:6,-1:3,72:4,-1:25,72:7,107,72:9" +
+",-1:3,72:4,-1:25,72:5,108,72:11,-1:3,72:4,-1:25,72:5,114,72:11,-1:3,72:4,-1" +
+":25,72:3,115,72:13,-1:3,72:4,-1:25,72:11,116,72:5,-1:3,72:4,-1:25,72:10,119" +
+",72:6,-1:3,72:4,-1:25,72:9,120,72:7,-1:3,72:4,-1:3");
 
 	public java_cup.runtime.Symbol next_token ()
 		throws java.io.IOException {
@@ -483,7 +490,7 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case -17:
 						break;
 					case 17:
-						{ return new Symbol(sym._SYMB_20); }
+						{ return new Symbol(sym._SYMB_21); }
 					case -18:
 						break;
 					case 18:
@@ -491,262 +498,262 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case -19:
 						break;
 					case 19:
-						{ return new Symbol(sym._SYMB_21); }
+						{ return new Symbol(sym._SYMB_25); }
 					case -20:
 						break;
 					case 20:
-						{ return new Symbol(sym.Name, yytext().intern()); }
+						{ return new Symbol(sym._SYMB_26); }
 					case -21:
 						break;
 					case 21:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+						{ return new Symbol(sym._SYMB_27); }
 					case -22:
 						break;
 					case 22:
-						{ /* ignore white space. */ }
+						{ return new Symbol(sym.Name, yytext().intern()); }
 					case -23:
 						break;
 					case 23:
-						{ return new Symbol(sym._INTEGER_, new Integer(yytext())); }
+						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -24:
 						break;
 					case 24:
-						{ yybegin(CHAR); }
+						{ /* ignore white space. */ }
 					case -25:
 						break;
 					case 25:
-						{ yybegin(STRING); }
+						{ return new Symbol(sym._INTEGER_, new Integer(yytext())); }
 					case -26:
 						break;
 					case 26:
-						{ return new Symbol(sym._SYMB_15); }
+						{ yybegin(CHAR); }
 					case -27:
 						break;
 					case 27:
-						{ yybegin(COMMENT); }
+						{ yybegin(STRING); }
 					case -28:
 						break;
 					case 28:
-						{ return new Symbol(sym._SYMB_8); }
+						{ return new Symbol(sym._SYMB_23); }
 					case -29:
 						break;
 					case 29:
-						{ return new Symbol(sym._SYMB_9); }
+						{ return new Symbol(sym._SYMB_15); }
 					case -30:
 						break;
 					case 30:
-						{ return new Symbol(sym._SYMB_13); }
+						{ return new Symbol(sym._SYMB_24); }
 					case -31:
 						break;
 					case 31:
-						{ return new Symbol(sym._SYMB_28); }
+						{ yybegin(COMMENT); }
 					case -32:
 						break;
 					case 32:
-						{ return new Symbol(sym._SYMB_27); }
+						{ return new Symbol(sym._SYMB_8); }
 					case -33:
 						break;
 					case 33:
-						{ /* skip */ }
+						{ return new Symbol(sym._SYMB_9); }
 					case -34:
 						break;
 					case 34:
-						{ return new Symbol(sym._SYMB_22); }
+						{ return new Symbol(sym._SYMB_20); }
 					case -35:
 						break;
 					case 35:
-						{ return new Symbol(sym._SYMB_32); }
+						{ return new Symbol(sym._SYMB_13); }
 					case -36:
 						break;
 					case 36:
-						{ return new Symbol(sym._SYMB_30); }
+						{ return new Symbol(sym._SYMB_22); }
 					case -37:
 						break;
 					case 37:
-						{ return new Symbol(sym._SYMB_26); }
+						{ return new Symbol(sym._SYMB_34); }
 					case -38:
 						break;
 					case 38:
-						{ return new Symbol(sym._DOUBLE_, new Double(yytext())); }
+						{ return new Symbol(sym._SYMB_33); }
 					case -39:
 						break;
 					case 39:
-						{ return new Symbol(sym._SYMB_23); }
+						{ /* skip */ }
 					case -40:
 						break;
 					case 40:
-						{ return new Symbol(sym._SYMB_34); }
+						{ return new Symbol(sym._SYMB_28); }
 					case -41:
 						break;
 					case 41:
-						{ return new Symbol(sym._SYMB_35); }
+						{ return new Symbol(sym._SYMB_38); }
 					case -42:
 						break;
 					case 42:
-						{ return new Symbol(sym._SYMB_33); }
+						{ return new Symbol(sym._SYMB_36); }
 					case -43:
 						break;
 					case 43:
-						{ return new Symbol(sym._SYMB_25); }
+						{ return new Symbol(sym._SYMB_32); }
 					case -44:
 						break;
 					case 44:
-						{ return new Symbol(sym._SYMB_29); }
+						{ return new Symbol(sym._DOUBLE_, new Double(yytext())); }
 					case -45:
 						break;
 					case 45:
-						{ return new Symbol(sym._SYMB_31); }
+						{ return new Symbol(sym._SYMB_29); }
 					case -46:
 						break;
 					case 46:
-						{ return new Symbol(sym._SYMB_24); }
+						{ return new Symbol(sym._SYMB_40); }
 					case -47:
 						break;
 					case 47:
-						{ /* skip */ }
+						{ return new Symbol(sym._SYMB_41); }
 					case -48:
 						break;
 					case 48:
-						{ /* skip */ }
+						{ return new Symbol(sym._SYMB_39); }
 					case -49:
 						break;
 					case 49:
-						{ yybegin(YYINITIAL); }
+						{ return new Symbol(sym._SYMB_31); }
 					case -50:
 						break;
 					case 50:
-						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
+						{ return new Symbol(sym._SYMB_35); }
 					case -51:
 						break;
 					case 51:
-						{ yybegin(CHARESC); }
+						{ return new Symbol(sym._SYMB_37); }
 					case -52:
 						break;
 					case 52:
-						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
+						{ return new Symbol(sym._SYMB_30); }
 					case -53:
 						break;
 					case 53:
-						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character('\n')); }
+						{ /* skip */ }
 					case -54:
 						break;
 					case 54:
-						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character('\t')); }
+						{ /* skip */ }
 					case -55:
 						break;
 					case 55:
-						{yybegin(YYINITIAL);}
+						{ yybegin(YYINITIAL); }
 					case -56:
 						break;
 					case 56:
-						{ pstring += yytext(); }
+						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
 					case -57:
 						break;
 					case 57:
-						{ yybegin(ESCAPED); }
+						{ yybegin(CHARESC); }
 					case -58:
 						break;
 					case 58:
-						{ String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
+						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
 					case -59:
 						break;
 					case 59:
-						{ pstring += yytext(); yybegin(STRING); }
+						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character('\n')); }
 					case -60:
 						break;
 					case 60:
-						{ pstring += "\\"; yybegin(STRING); }
+						{ yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character('\t')); }
 					case -61:
 						break;
 					case 61:
-						{ pstring +=  "\n"; yybegin(STRING); }
+						{yybegin(YYINITIAL);}
 					case -62:
 						break;
 					case 62:
-						{ pstring += "\t"; yybegin(STRING); }
+						{ pstring += yytext(); }
 					case -63:
 						break;
 					case 63:
-						{ pstring += "\""; yybegin(STRING); }
+						{ yybegin(ESCAPED); }
 					case -64:
 						break;
-					case 65:
-						{ return new Symbol(sym.Name, yytext().intern()); }
+					case 64:
+						{ String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
 					case -65:
 						break;
-					case 66:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 65:
+						{ pstring += yytext(); yybegin(STRING); }
 					case -66:
 						break;
-					case 67:
-						{ return new Symbol(sym._DOUBLE_, new Double(yytext())); }
+					case 66:
+						{ pstring += "\\"; yybegin(STRING); }
 					case -67:
 						break;
-					case 68:
-						{ /* skip */ }
+					case 67:
+						{ pstring +=  "\n"; yybegin(STRING); }
 					case -68:
 						break;
-					case 70:
-						{ return new Symbol(sym.Name, yytext().intern()); }
+					case 68:
+						{ pstring += "\t"; yybegin(STRING); }
 					case -69:
 						break;
-					case 71:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 69:
+						{ pstring += "\""; yybegin(STRING); }
 					case -70:
 						break;
-					case 73:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 71:
+						{ return new Symbol(sym.Name, yytext().intern()); }
 					case -71:
 						break;
-					case 75:
+					case 72:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -72:
 						break;
-					case 77:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 73:
+						{ return new Symbol(sym._DOUBLE_, new Double(yytext())); }
 					case -73:
 						break;
-					case 79:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 74:
+						{ /* skip */ }
 					case -74:
 						break;
-					case 81:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+					case 76:
+						{ return new Symbol(sym.Name, yytext().intern()); }
 					case -75:
 						break;
-					case 83:
+					case 77:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -76:
 						break;
-					case 85:
+					case 79:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -77:
 						break;
-					case 87:
+					case 81:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -78:
 						break;
-					case 89:
+					case 83:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -79:
 						break;
-					case 90:
+					case 85:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -80:
 						break;
-					case 91:
-						{ return new Symbol(sym.Name, yytext().intern()); }
+					case 87:
+						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -81:
 						break;
-					case 92:
+					case 89:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -82:
 						break;
-					case 93:
+					case 91:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -83:
 						break;
-					case 94:
+					case 93:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -84:
 						break;
@@ -759,7 +766,7 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case -86:
 						break;
 					case 97:
-						{ return new Symbol(sym.Var, yytext().intern()); }
+						{ return new Symbol(sym.Name, yytext().intern()); }
 					case -87:
 						break;
 					case 98:
@@ -833,6 +840,30 @@ public class Yylex implements java_cup.runtime.Scanner {
 					case 115:
 						{ return new Symbol(sym.Var, yytext().intern()); }
 					case -105:
+						break;
+					case 116:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -106:
+						break;
+					case 117:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -107:
+						break;
+					case 118:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -108:
+						break;
+					case 119:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -109:
+						break;
+					case 120:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -110:
+						break;
+					case 121:
+						{ return new Symbol(sym.Var, yytext().intern()); }
+					case -111:
 						break;
 					default:
 						yy_error(YY_E_INTERNAL,false);

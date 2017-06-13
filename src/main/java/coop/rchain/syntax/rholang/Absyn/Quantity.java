@@ -6,11 +6,18 @@ public abstract class Quantity implements java.io.Serializable {
     public R visit(coop.rchain.syntax.rholang.Absyn.QBool p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QInt p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QDouble p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QMult p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QDiv p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QAdd p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.QMinus p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLt p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLte p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGt p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGte p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QEq p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.QNeq p, A arg);
 
   }
 

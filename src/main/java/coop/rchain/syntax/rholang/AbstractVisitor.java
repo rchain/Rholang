@@ -10,7 +10,6 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
 /* Proc */
     public R visit(coop.rchain.syntax.rholang.Absyn.PNil p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.PValue p, A arg) { return visitDefault(p, arg); }
-    public R visit(coop.rchain.syntax.rholang.Absyn.PVar p, A arg) { return visitDefault(p, arg); }
 
     public R visit(coop.rchain.syntax.rholang.Absyn.PDrop p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.PInject p, A arg) { return visitDefault(p, arg); }
@@ -62,6 +61,7 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.QBool p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.QInt p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.QDouble p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg) { return visitDefault(p, arg); }
 
     public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg) { return visitDefault(p, arg); }
 
@@ -71,32 +71,23 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.QAdd p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.QMinus p, A arg) { return visitDefault(p, arg); }
 
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLt p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QLte p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGt p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QGte p, A arg) { return visitDefault(p, arg); }
+
+    public R visit(coop.rchain.syntax.rholang.Absyn.QEq p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QNeq p, A arg) { return visitDefault(p, arg); }
+
 
     public R visitDefault(coop.rchain.syntax.rholang.Absyn.Quantity p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
 /* Value */
     public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg) { return visitDefault(p, arg); }
-    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(coop.rchain.syntax.rholang.Absyn.Value p, A arg) {
-      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
-    }
-/* Entity */
     public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg) { return visitDefault(p, arg); }
-    public R visit(coop.rchain.syntax.rholang.Absyn.EStruct p, A arg) { return visitDefault(p, arg); }
-    public R visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(coop.rchain.syntax.rholang.Absyn.Entity p, A arg) {
-      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
-    }
-/* Struct */
-    public R visit(coop.rchain.syntax.rholang.Absyn.StructConstr p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(coop.rchain.syntax.rholang.Absyn.Struct p, A arg) {
-      throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
-    }
-/* Collect */
-    public R visit(coop.rchain.syntax.rholang.Absyn.CString p, A arg) { return visitDefault(p, arg); }
-    public R visitDefault(coop.rchain.syntax.rholang.Absyn.Collect p, A arg) {
+    public R visitDefault(coop.rchain.syntax.rholang.Absyn.Value p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }
 /* VarPattern */
@@ -127,8 +118,8 @@ public class AbstractVisitor<R,A> implements AllVisitor<R,A> {
     }
 /* CPattern */
     public R visit(coop.rchain.syntax.rholang.Absyn.CPtVar p, A arg) { return visitDefault(p, arg); }
-    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg) { return visitDefault(p, arg); }
     public R visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg) { return visitDefault(p, arg); }
+    public R visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg) { return visitDefault(p, arg); }
     public R visitDefault(coop.rchain.syntax.rholang.Absyn.CPattern p, A arg) {
       throw new IllegalArgumentException(this.getClass().getName() + ": " + p);
     }

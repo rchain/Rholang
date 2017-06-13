@@ -13,9 +13,6 @@ public class ComposVisitor<A> implements
   coop.rchain.syntax.rholang.Absyn.RhoBool.Visitor<coop.rchain.syntax.rholang.Absyn.RhoBool,A>,
   coop.rchain.syntax.rholang.Absyn.Quantity.Visitor<coop.rchain.syntax.rholang.Absyn.Quantity,A>,
   coop.rchain.syntax.rholang.Absyn.Value.Visitor<coop.rchain.syntax.rholang.Absyn.Value,A>,
-  coop.rchain.syntax.rholang.Absyn.Entity.Visitor<coop.rchain.syntax.rholang.Absyn.Entity,A>,
-  coop.rchain.syntax.rholang.Absyn.Struct.Visitor<coop.rchain.syntax.rholang.Absyn.Struct,A>,
-  coop.rchain.syntax.rholang.Absyn.Collect.Visitor<coop.rchain.syntax.rholang.Absyn.Collect,A>,
   coop.rchain.syntax.rholang.Absyn.VarPattern.Visitor<coop.rchain.syntax.rholang.Absyn.VarPattern,A>,
   coop.rchain.syntax.rholang.Absyn.PPattern.Visitor<coop.rchain.syntax.rholang.Absyn.PPattern,A>,
   coop.rchain.syntax.rholang.Absyn.CPattern.Visitor<coop.rchain.syntax.rholang.Absyn.CPattern,A>,
@@ -43,10 +40,6 @@ public class ComposVisitor<A> implements
     {
       Value value_ = p.value_.accept(this, arg);
       return new coop.rchain.syntax.rholang.Absyn.PValue(value_);
-    }    public Proc visit(coop.rchain.syntax.rholang.Absyn.PVar p, A arg)
-    {
-      String var_ = p.var_;
-      return new coop.rchain.syntax.rholang.Absyn.PVar(var_);
     }    public Proc visit(coop.rchain.syntax.rholang.Absyn.PDrop p, A arg)
     {
       Chan chan_ = p.chan_.accept(this, arg);
@@ -184,6 +177,10 @@ public class ComposVisitor<A> implements
     {
       Double double_ = p.double_;
       return new coop.rchain.syntax.rholang.Absyn.QDouble(double_);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg)
+    {
+      String var_ = p.var_;
+      return new coop.rchain.syntax.rholang.Absyn.QVar(var_);
     }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg)
     {
       Quantity quantity_ = p.quantity_.accept(this, arg);
@@ -208,31 +205,47 @@ public class ComposVisitor<A> implements
       Quantity quantity_1 = p.quantity_1.accept(this, arg);
       Quantity quantity_2 = p.quantity_2.accept(this, arg);
       return new coop.rchain.syntax.rholang.Absyn.QMinus(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QLt p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QLt(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QLte p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QLte(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QGt p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QGt(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QGte p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QGte(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QEq p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QEq(quantity_1, quantity_2);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QNeq p, A arg)
+    {
+      Quantity quantity_1 = p.quantity_1.accept(this, arg);
+      Quantity quantity_2 = p.quantity_2.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.QNeq(quantity_1, quantity_2);
     }
 /* Value */
     public Value visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg)
     {
       Quantity quantity_ = p.quantity_.accept(this, arg);
       return new coop.rchain.syntax.rholang.Absyn.VQuant(quantity_);
-    }    public Value visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg)
-    {
-      Entity entity_ = p.entity_.accept(this, arg);
-      return new coop.rchain.syntax.rholang.Absyn.VEnt(entity_);
-    }
-/* Entity */
-    public Entity visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg)
+    }    public Value visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg)
     {
       Character char_ = p.char_;
       return new coop.rchain.syntax.rholang.Absyn.EChar(char_);
-    }    public Entity visit(coop.rchain.syntax.rholang.Absyn.EStruct p, A arg)
-    {
-      Struct struct_ = p.struct_.accept(this, arg);
-      return new coop.rchain.syntax.rholang.Absyn.EStruct(struct_);
-    }    public Entity visit(coop.rchain.syntax.rholang.Absyn.ECollect p, A arg)
-    {
-      Collect collect_ = p.collect_.accept(this, arg);
-      return new coop.rchain.syntax.rholang.Absyn.ECollect(collect_);
-    }    public Entity visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg)
+    }    public Value visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg)
     {
       ListProc listproc_ = new ListProc();
       for (Proc x : p.listproc_)
@@ -240,23 +253,6 @@ public class ComposVisitor<A> implements
         listproc_.add(x.accept(this,arg));
       }
       return new coop.rchain.syntax.rholang.Absyn.ETuple(listproc_);
-    }
-/* Struct */
-    public Struct visit(coop.rchain.syntax.rholang.Absyn.StructConstr p, A arg)
-    {
-      String var_ = p.var_;
-      ListProc listproc_ = new ListProc();
-      for (Proc x : p.listproc_)
-      {
-        listproc_.add(x.accept(this,arg));
-      }
-      return new coop.rchain.syntax.rholang.Absyn.StructConstr(var_, listproc_);
-    }
-/* Collect */
-    public Collect visit(coop.rchain.syntax.rholang.Absyn.CString p, A arg)
-    {
-      String string_ = p.string_;
-      return new coop.rchain.syntax.rholang.Absyn.CString(string_);
     }
 /* VarPattern */
     public VarPattern visit(coop.rchain.syntax.rholang.Absyn.VarPtVar p, A arg)
@@ -343,14 +339,14 @@ public class ComposVisitor<A> implements
     {
       VarPattern varpattern_ = p.varpattern_.accept(this, arg);
       return new coop.rchain.syntax.rholang.Absyn.CPtVar(varpattern_);
-    }    public CPattern visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg)
-    {
-      PPattern ppattern_ = p.ppattern_.accept(this, arg);
-      return new coop.rchain.syntax.rholang.Absyn.CPtQuote(ppattern_);
     }    public CPattern visit(coop.rchain.syntax.rholang.Absyn.CValPtrn p, A arg)
     {
       ValPattern valpattern_ = p.valpattern_.accept(this, arg);
       return new coop.rchain.syntax.rholang.Absyn.CValPtrn(valpattern_);
+    }    public CPattern visit(coop.rchain.syntax.rholang.Absyn.CPtQuote p, A arg)
+    {
+      PPattern ppattern_ = p.ppattern_.accept(this, arg);
+      return new coop.rchain.syntax.rholang.Absyn.CPtQuote(ppattern_);
     }
 /* PatternBind */
     public PatternBind visit(coop.rchain.syntax.rholang.Absyn.PtBind p, A arg)

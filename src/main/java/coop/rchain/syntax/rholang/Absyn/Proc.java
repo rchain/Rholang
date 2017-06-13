@@ -5,7 +5,6 @@ public abstract class Proc implements java.io.Serializable {
   public interface Visitor <R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.PNil p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.PValue p, A arg);
-    public R visit(coop.rchain.syntax.rholang.Absyn.PVar p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.PDrop p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.PInject p, A arg);
     public R visit(coop.rchain.syntax.rholang.Absyn.PLift p, A arg);

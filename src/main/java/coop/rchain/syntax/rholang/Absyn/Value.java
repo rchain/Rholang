@@ -4,7 +4,8 @@ public abstract class Value implements java.io.Serializable {
   public abstract <R,A> R accept(Value.Visitor<R,A> v, A arg);
   public interface Visitor <R,A> {
     public R visit(coop.rchain.syntax.rholang.Absyn.VQuant p, A arg);
-    public R visit(coop.rchain.syntax.rholang.Absyn.VEnt p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.EChar p, A arg);
+    public R visit(coop.rchain.syntax.rholang.Absyn.ETuple p, A arg);
 
   }
 
