@@ -550,7 +550,7 @@ extends StrFoldCtxtVisitor {
             // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
             L( 
               B( _filter )(
-                B( _map )( chanTerm, B( _abs )( ptrnTerm, bodyTerm ) ),
+                B( _map )( chanTerm, B( _abs )( B(_list)(ptrnTerm), bodyTerm ) ),
                 filterTerm
               ), 
               T()
@@ -603,7 +603,7 @@ extends StrFoldCtxtVisitor {
                       Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
                     ) yield {
                       // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
-                      L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
+                      L( B( _join )( chanTerm, B( _abs )( B(_list)(ptrnTerm), rbindingsTerm ) ), T() )
                     }
                   }
                   case cndInBind : CondInputBind => {
@@ -618,7 +618,7 @@ extends StrFoldCtxtVisitor {
                       // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
                       L(
                         B( _filter )(
-                          B( _map )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ),
+                          B( _map )( chanTerm, B( _abs )( B(_list)(ptrnTerm), rbindingsTerm ) ),
                           filterTerm
                         ),
                         T()
@@ -644,8 +644,8 @@ extends StrFoldCtxtVisitor {
       arg,
       (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
-        val newBindings = newVars.map( { ( v ) => { B( v )( V( Fresh() ) ) } } )
-        L( B( "let" )( (newBindings ++ List( pTerm )):_* ), Top() )
+        val newBindings = newVars.map( { ( v ) => { B(_list)(V( v ), V( Fresh() )) } } )
+        L( B( "let" )( ( List(B(_list)(newBindings:_*)) ++ List( pTerm )):_* ), Top() )
       })
     )
   }
@@ -793,7 +793,7 @@ extends StrFoldCtxtVisitor {
                 ) yield {
 
                   def createProcForPatternBindings = {
-                    val procTerm = B(_abs)(pattern, continuation)
+                    val procTerm = B(_abs)(B(_list)(pattern), continuation)
                     B("")(procTerm, pTerm) // TODO: Potentially allow StrTermPtdCtxtBr without Namespace ?
                   }
 
@@ -907,7 +907,7 @@ extends StrFoldCtxtVisitor {
           Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( p.cpattern_, Here() )
         ) yield {
           // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
-          L( B( _map )( chanTerm, B( _abs )( ptrnTerm, proc ) ), T() )
+          L( B( _map )( chanTerm, B( _abs )( B(_list)(ptrnTerm), proc ) ), T() )
         }
       }
       case _ => { // this is a little too optimistic or forgiving
@@ -920,7 +920,7 @@ extends StrFoldCtxtVisitor {
           Location( rbindingsTerm : StrTermCtxt, _ ) <- arg
         ) yield {
           // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
-          L( B( _join )( chanTerm, B( _abs )( ptrnTerm, rbindingsTerm ) ), T() )
+          L( B( _join )( chanTerm, B( _abs )( B(_list)(ptrnTerm), rbindingsTerm ) ), T() )
         }
       }
     }
