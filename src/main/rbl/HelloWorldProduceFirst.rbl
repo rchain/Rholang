@@ -9,21 +9,20 @@
 ;;; "Hello World!"
 
 (define t (new NameSpace))
-(defOprn HelloWorld)
 
+(defOprn HelloWorld)
 (defActor HelloWorldContract
-	(method (HelloWorld world1 world2)
-		(let [[ [[[ptrn binding] product]] (consume t world1 'msg)]]
-			((proc [[ptrn product]] (print product)) [ptrn product])
-		)
-	)
-)
+    (method (HelloWorld world1 world2)
+        (let [[[[[_unification_ptrn _unification_binding] 8419030e6f88]] (consume t world1 **wildcard** **wildcard**)]]
+           ( (proc [msg] (print msg)) 8419030e6f88))))
 
 (define contract (new HelloWorldContract))
 
-;;; store "Hello World!" in the channel 'world1
-;;; and silently discard output
-(let [[result (produce t 'world1 'msg "Hello World!")]] #niv)
+
+;;; Silently discard result of produce
+;;; Otherwise it would misleadingly two copies of "Hello World!"
+(let [[result1 (produce t 'world1 'msg "Hello World!")]] #niv)
 
 ;;; Invoke contract
-(HelloWorld contract 'world1 'world2)
+(let [[result2 (HelloWorld contract 'world1 'world2)]] #niv)
+
