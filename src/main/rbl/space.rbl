@@ -6,7 +6,11 @@
 ;; Description: Basic Linda pattern
 ;; ------------------------------------------------------------------------
 
+;;; TODO: Add tag for whether persistent
 (add '**wildcard** #niv) ;; TODO: Add wildcard token in Rosette implementation and swap out #niv
+
+(defOprn append)
+(defPure Tuple (append item) (reverse [item & (reverse (self))]))
 
 (defOprn consume)
 (defOprn produce)
@@ -20,7 +24,7 @@
     (pure (unify? ptrn candidate) #t)
     (pure (match? ptrn candidate) (if (= ptrn **wildcard**) #t (type? ptrn candidate)))
     ;;; storedValue is the tuple [data continuation]
-    (pure (production? storedValue) (not (niv? (head storedValue))))
+    (pure (production? storedValue) (not (null? (head storedValue))))
 )
 
 (defOprn tuplespace-tbl-get-or-create)
@@ -82,9 +86,10 @@
                   ;;; this is a much more fine-grained view of excluded middle
 
    (seq
-     (filter productions (proc [[[e binding] data]] (match? NameSpace product_ptrn data)))
+     (filter productions (proc [[[e binding] data]] (any data (proc [datum] match? NameSpace product_ptrn datum))))
      (map productions
        ;;; TODO: Eliminate _ by changing implementation of map over productions
+       ;;; TODO: Only delete what was not consumed or not flagged as subscribe
        (proc [_ [[ptrn binding] product]]
             (tbl-del subspace ptrn)))
      ;;; Return data (productions) back and execute the continuation.
@@ -96,9 +101,16 @@
         )
         (seq
             (print "DEBUG: Waiting for data")
-            ;;; TODO: Potentially revert to original form
-            ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn [#niv (reverse [ctxt & (reverse consumers)])])))
-            (tbl-add subspace unification_ptrn [#niv [product_ptrn ctxt]])
+            ;;; TODO: Append to original form
+            ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn [#niv (append consumers ctxt)])))
+            ;;; TODO: Repeat for patterns that match unification_ptrn but aren't exactly that pattern
+             (add 'stored_value (tbl-get subspace unification_ptrn))
+             (if (= #absent stored_value)
+                 (tbl-add subspace unification_ptrn [[] [[product_ptrn ctxt]]])
+                 (let [[[products continuations] stored_value]]
+                     (tbl-add subspace unification_ptrn [products (append continuations [product_ptrn ctxt])])
+                 )
+             )
             (update!)
         )
      )
@@ -125,30 +137,40 @@
               (proc [[e binding] acc k]
                 (let* [[[productions consumers] acc]
                       [storedValue (tbl-get subspace e)]
-                      [[data continuation] storedValue]
+                      [[_data_list continuation_list] storedValue]
                      ]
                   (if (production? NameSpace storedValue)
                (k [[] consumers])
-               (k [productions [[[e binding] continuation] & consumers]])))) [[] []])]]
+               (k [productions [[[e binding] continuation_list] & consumers]])))) [[] []])]]
    (seq
-      ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Potentially revert.
-      ;;; (map productions (proc [ptrn product] (tbl-add subspace ptrn product)))
-     (tbl-add subspace unification_ptrn [product #niv])
-     (filter consummation (proc [[[unification_ptrn binding] [product_ptrn continuation]]] (match? NameSpace product_ptrn product)))
+     ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Append.
+     ;;; (map productions (proc [ptrn product] (tbl-add subspace ptrn product)))
+
+     ;;; TODO: Repeat for patterns that match unification_ptrn but aren't exactly that pattern
+     (add 'stored_value (tbl-get subspace unification_ptrn))
+     (if (= #absent stored_value)
+         (tbl-add subspace unification_ptrn [[product] [[]]])
+         (let [[[products continuations] (tbl-get subspace unification_ptrn)]]
+             (tbl-add subspace unification_ptrn [(append products product) continuations])
+         )
+     )
      (map consummation
         ;;; TODO: Eliminate _index by changing implementation of map over consummation
-       (proc [_index [[unification_ptrn binding] [product_ptrn continuation]]]
-       (seq
-            (tbl-del subspace unification_ptrn)
-            ;;; TODO: Assumes that consumers is just a single continuation not a list of continuations
-            ;;; See below for previous implementation
-            ;;;(map consumers
-            ;;;  (proc [consumer]
-            ;;;    (send ctxt-rtn consumer [product binding])
-            ;;;    binding))
-
-            (send ctxt-rtn continuation [[[unification_ptrn binding] product]])
-            binding
-       )))
+       (proc [_index [[unification_ptrn binding] continuation_list]]
+           (map continuation_list
+                (proc [_index [product_ptrn continuation]]
+                    (seq
+                       ;;; TODO: Only delete what was send or not flagged as subscribe
+                       (tbl-del subspace unification_ptrn)
+                       (if (match? NameSpace product_ptrn product)
+                           (send ctxt-rtn continuation [[[unification_ptrn binding] product]])
+                           #niv
+                       )
+                       binding
+                    )
+                )
+           )
+       )
+     )
      (update!)
      (ctxt-rtn ctxt product))))
