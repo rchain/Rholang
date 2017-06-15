@@ -12,6 +12,12 @@
 (defOprn append)
 (defPure Tuple (append item) (reverse [item & (reverse (self))]))
 
+(defOprn delete-i)
+(defPure Tuple (delete-i p)
+	(concat (prim-sub-object (self) 0 p)
+		(prim-sub-object (self) (fx+ p 1)
+				 (fx- (prim-size (self)) (fx+ p 1)))))
+
 (defOprn consume)
 (defOprn produce)
 (defOprn unify?)
@@ -86,37 +92,48 @@
                   ;;; this is a much more fine-grained view of excluded middle
 
    (seq
-     (filter productions (proc [[[e binding] data]] (any data (proc [datum] match? NameSpace product_ptrn datum))))
-     (map productions
-       ;;; TODO: Eliminate _ by changing implementation of map over productions
-       ;;; TODO: Only delete what was not consumed or not flagged as subscribe
-       (proc [_ [[ptrn binding] product]]
-            (tbl-del subspace ptrn)))
-     ;;; Return data (productions) back and execute the continuation.
-     ;;; If there was no match that was data, the thread will remain suspended.
-     (if (not (null? productions))
-        (seq
-            (update!)
-            (ctxt-rtn ctxt productions)
-        )
-        (seq
-            (print "DEBUG: Waiting for data")
-            ;;; TODO: Append to original form
-            ;;; (map consummation (proc [[ptrn consumers]] (tbl-add subspace ptrn [#niv (append consumers ctxt)])))
-            ;;; TODO: Repeat for patterns that match unification_ptrn but aren't exactly that pattern
-             (add 'stored_value (tbl-get subspace unification_ptrn))
-             (if (= #absent stored_value)
-                 (tbl-add subspace unification_ptrn [[] [[product_ptrn ctxt]]])
-                 (let [[[products continuations] stored_value]]
-                     (tbl-add subspace unification_ptrn [products (append continuations [product_ptrn ctxt])])
+       ;;; Policy: Consume the first product that is matched
+       (let [[result
+           (map productions
+                (proc [_ [[unification_ptrn binding] product_list]]
+                     (map product_list
+                          (proc [i product]
+                             (if (match? NameSpace product_ptrn product)
+                                  (seq
+                                      (let [[updated_product_list (delete-i product_list i)]]
+                                          (tbl-add subspace unification_ptrn updated_product_list)
+                                      )
+                                      (update!)
+                                      (ctxt-rtn ctxt product)
+                                      #t
+                                  )
+                             )
+                          )
+                     )
                  )
-             )
-            (update!)
-        )
-     )
-    )
+           )
+       ]]
+       (if (null? result)
+           (seq
+               ;;; If continuation was not consumed by a matching product above, store it and suspend
+               (print "DEBUG: Waiting for data")
+               (let [[stored_value (tbl-get subspace unification_ptrn)]]
+                   (if (= #absent stored_value)
+                        (tbl-add subspace unification_ptrn [[] [[product_ptrn ctxt]]])
+                        (let [[[products continuations] stored_value]]
+                            (tbl-add subspace unification_ptrn [products (append continuations [product_ptrn ctxt])])
+                        )
+                   )
+               )
+               (update!)
+           )
+       )
+       )
+       (update!)
+   )
   )
 )
+
 
 ;;; This code is perfectly dual to the consumer code and so all the comments
 ;;; there apply in the corresponging code sites
@@ -143,34 +160,43 @@
                (k [[] consumers])
                (k [productions [[[e binding] continuation_list] & consumers]])))) [[] []])]]
    (seq
-     ;;; TODO: Original form of `(tbl-add subspace ptrn product)`. Append.
-     ;;; (map productions (proc [ptrn product] (tbl-add subspace ptrn product)))
-
-     ;;; TODO: Repeat for patterns that match unification_ptrn but aren't exactly that pattern
-     (add 'stored_value (tbl-get subspace unification_ptrn))
-     (if (= #absent stored_value)
-         (tbl-add subspace unification_ptrn [[product] [[]]])
-         (let [[[products continuations] (tbl-get subspace unification_ptrn)]]
-             (tbl-add subspace unification_ptrn [(append products product) continuations])
+     ;;; Policy: Send the product to the first continuation that is matched
+     (let [[result
+         (map consummation
+           (proc [_ [[unification_ptrn binding] continuation_list]]
+               (map continuation_list
+                    (proc [i [product_ptrn continuation]]
+                       (if (match? NameSpace product_ptrn product)
+                            (seq
+                                (let [[updated_continuation_list (delete-i continuation_list i)]]
+                                    (tbl-add subspace unification_ptrn updated_continuation_list)
+                                )
+                                (send ctxt-rtn continuation [[[unification_ptrn binding] product]])
+                                (update!)
+                                (ctxt-rtn ctxt product)
+                                #t
+                            )
+                       )
+                    )
+               )
+           )
+         )
+     ]]
+     ;;; If product was not consumed by a matching continuation above, store it
+     (if (null? result)
+         (seq
+             (let [[stored_value (tbl-get subspace unification_ptrn)]]
+                 (if (= #absent stored_value)
+                      (tbl-add subspace unification_ptrn [[product] [[]]])
+                      (let [[[products continuations] (tbl-get subspace unification_ptrn)]]
+                          (tbl-add subspace unification_ptrn [(append products product) continuations])
+                      )
+                 )
+             )
+             (update!)
+             (ctxt-rtn ctxt product)
          )
      )
-     (map consummation
-        ;;; TODO: Eliminate _index by changing implementation of map over consummation
-       (proc [_index [[unification_ptrn binding] continuation_list]]
-           (map continuation_list
-                (proc [_index [product_ptrn continuation]]
-                    (seq
-                       ;;; TODO: Only delete what was send or not flagged as subscribe
-                       (tbl-del subspace unification_ptrn)
-                       (if (match? NameSpace product_ptrn product)
-                           (send ctxt-rtn continuation [[[unification_ptrn binding] product]])
-                           #niv
-                       )
-                       binding
-                    )
-                )
-           )
-       )
      )
      (update!)
-     (ctxt-rtn ctxt product))))
+ )))

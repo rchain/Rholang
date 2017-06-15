@@ -21,8 +21,8 @@
 (defOprn HelloWorld)
 (defActor HelloWorldContract
     (method (HelloWorld world1 world2)
-        (let [[[[[_unification_ptrn _unification_binding] 8419030e6f88]] (consume t world1 **wildcard** **wildcard**)]]
-           ( (proc [msg] (produce t world2 **wildcard** msg)) 8419030e6f88))))
+        (let [[[[[_unification_ptrn _unification_binding] rholang65b542231ac3]] (consume t world1 **wildcard** **wildcard**)]]
+            ( (proc [msg] (produce t world2 **wildcard** msg)) rholang65b542231ac3))))
 
 (defOprn SimplePrinter)
 (defActor SimplePrinterContract
@@ -42,5 +42,5 @@
 
 ;;; Silently discard result of produce
 ;;; Otherwise it would misleadingly two copies of "Hello World!"
-(let [[result2 (produce t 'world1 'msg "Hello World!")]] #niv)
+(let [[result2 (produce t 'world1 **wildcard** "Hello World!")]] #niv)
 
