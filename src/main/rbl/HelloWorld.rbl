@@ -21,13 +21,13 @@
 (defOprn HelloWorld)
 (defActor HelloWorldContract
     (method (HelloWorld world1 world2)
-        (let [[[[[_unification_ptrn _unification_binding] rholang65b542231ac3]] (consume t world1 **wildcard** **wildcard**)]]
+        (let [[[[[_unification_ptrn _unification_binding] [rholang65b542231ac3]]] (consume t [world1] [**wildcard**] [**wildcard**])]]
             ( (proc [msg] (produce t world2 **wildcard** msg)) rholang65b542231ac3))))
 
 (defOprn SimplePrinter)
 (defActor SimplePrinterContract
 	(method (SimplePrinter channel ptrn)
-		(let [[ [[[_ _] product]] (consume t channel **wildcard** **wildcard**)]]
+		(let [[ [[[_ _] [product]]] (consume t [channel] [**wildcard**] [**wildcard**])]]
             (print product)
 		)
 	)
