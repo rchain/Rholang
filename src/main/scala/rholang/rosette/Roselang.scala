@@ -511,59 +511,48 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PInput, arg : A ) : R = {
     import scala.collection.JavaConverters._
 
-    def forToMap( binding : Bind, proc : Proc ) : R = {
-      binding match {
-        case inBind : InputBind => {
-          var productFresh = V( Fresh() )
-          for(
-            // [[ chan ]] is chanTerm
-            Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
-            // [[ ptrn ]] is ptrnTerm
-            Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
-            // [[ P ]] is bodyTerm
-            Location( procTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
-          ) yield {
-            // (let [[[[[_unification_ptrn _unification_binding] productFresh]] (consume t chanTerm **wildcard** ptrn) ]]
-            //   ((proc [ptrnTerm] bodyTerm ) productFresh)
-            // )
-            val quotedPtrnTerm = inBind.cpattern_ match {
-              case variable : CPtVar => V("**wildcard**")
-              case _ => (for( Location( q : StrTermCtxt, _ ) <- doQuote( ptrnTerm ) ) yield { q })
-                .getOrElse( throw new FailedQuotation( ptrnTerm ) )
+    def forToConsume(bindings: List[Bind]) = {
+      def toListOfTuples(bindingsComponents: List[Option[List[StrTermCtxt]]]) = {
+        bindingsComponents map {
+          case Some(channelGroup) => channelGroup
+        } transpose match {
+          case List(a, b, c, d, e, f) => (a, b, c, d, e, f)
+        }
+      }
+
+      for (
+        Location(procTerm: StrTermCtxt, _) <- visitDispatch(p.proc_, Here())
+      ) yield {
+        val bindingsComponents = bindings map {
+          case inBind: InputBind => {
+            for (
+              Location(chanTerm: StrTermCtxt, _) <- visitDispatch(inBind.chan_, Here());
+              Location(ptrnTerm: StrTermCtxt, _) <- visitDispatch(inBind.cpattern_, Here())
+            ) yield {
+              var productFresh = V(Fresh())
+              var unificationBindingFresh = V(Fresh())
+              var wildcard = V("**wildcard**")
+              val quotedPtrnTerm = inBind.cpattern_ match {
+                case variable: CPtVar => V("**wildcard**")
+                case _ => (for (Location(q: StrTermCtxt, _) <- doQuote(ptrnTerm)) yield {
+                  q
+                }).getOrElse(throw new FailedQuotation(ptrnTerm))
+              }
+              List(chanTerm, ptrnTerm, quotedPtrnTerm, productFresh, unificationBindingFresh, wildcard)
             }
-            val consumeTerm = B("consume")(TS, chanTerm, V("**wildcard**"), quotedPtrnTerm)
-            val letBindingsTerm = B(_list)(B(_list)(B(_list)(B(_list)(V("_unification_ptrn"), V("_unification_binding")), productFresh)), consumeTerm)
-            val bodyTerm = B("")(B("proc")(B(_list)(ptrnTerm), procTerm), productFresh)
-            L( B( "let" )(B(_list)(letBindingsTerm), bodyTerm), T() )
           }
+          case condBind: CondInputBind => throw new NotImplementedError("TODO: Handle condBind inside consume")
+          case bind => throw new UnexpectedBindingType(bind)
         }
-        case cndInBind : CondInputBind => {
-          for(
-            // [[ chan ]] is chanTerm
-            Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
-            // [[ ptrn ]] is ptrnTerm
-            Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.cpattern_, Here() );
-            Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
-            // [[ P ]] is bodyTerm
-            Location( bodyTerm : StrTermCtxt, _ ) <- visitDispatch( proc, Here() )
-          ) yield {
-            // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
-            L( 
-              B( _filter )(
-                B( _map )( chanTerm, B( _abs )( B(_list)(ptrnTerm), bodyTerm ) ),
-                filterTerm
-              ), 
-              T()
-            )
-          }
-        }
-        case _ => {
-          throw new UnexpectedBindingType( binding )
-        }
+        val (chanTerms, ptrnTerms, quotedPtrnTerms, productFreshes, unificationFreshes, wildcards) = toListOfTuples(bindingsComponents)
+        val consumeTerm = B("consume")(TS, B(_list)(chanTerms: _*), B(_list)(wildcards: _*), B(_list)(quotedPtrnTerms: _*))
+        val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFreshes: _*), B(_list)(productFreshes: _*)), consumeTerm)
+        val bodyTerm = B("")(B("proc")(B(_list)(B(_list)(ptrnTerms: _*)), procTerm), B(_list)(productFreshes: _*))
+        L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
       }
     }
 
-    combine( 
+    combine(
       arg,
       p.listbind_.asScala.toList match {
         case Nil => {
@@ -573,65 +562,21 @@ extends StrFoldCtxtVisitor {
           /*
            *  [[ for( ptrn <- chan )P ]]
            *  =
-           *  ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
+           *  (let [[[[unification_binding] [product]] (consume t [chanTerm] [**wildcard**] [ptrnTerm])]]
+           *    ((proc [[ptrnTerm]] bodyTerm) [product]))
            */
-          forToMap( binding, p.proc_ )
+          forToConsume(List(binding))
         }
         case bindings => {
           /*
            *  [[ for( ptrn <- chan; bindings )P ]]
            *  =
-           *  ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
+           *  (let [[[[unification_binding1 unification_binding2 ... unification_bindingN] [product1 product2 ... productN]]
+           *    (consume t [chanTerm1 chanTerm2 ... chanTermN] [**wildcards** ... **wildcards**] [ptrnTerm1 ptrnTerm2 ... ptrnTermN])]]
+           *      ((proc [[ptrnTerm1 ptrnTerm2 ... ptrnTermN]] bodyTerm) [product1 product2 ... productN])
+           *  )
            */
-
-          // Reversing the bindings allows for a tail recursion that
-          // can be optimized by hand to a fold. This means the
-          // compiler doesn't blow the stack on a deep set of bindings
-          // in exchange for performing the reverse operation.
-          val lastBinding :: rbindings = bindings.reverse
-
-          ( forToMap( lastBinding, p.proc_ ) /: rbindings )(
-            {
-              ( acc, e ) => {
-                e match {
-                  case inBind : InputBind => {
-                    for (
-                      // [[ chan ]] is chanTerm
-                      Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.chan_, Here() );
-                      // [[ ptrn ]] is ptrnTerm
-                      Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( inBind.cpattern_, Here() );
-                      Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
-                    ) yield {
-                      // ( flatMap [[ chan ]] proc [[ ptrn ]] [[ for( bindings )P ]] )
-                      L( B( _join )( chanTerm, B( _abs )( B(_list)(ptrnTerm), rbindingsTerm ) ), T() )
-                    }
-                  }
-                  case cndInBind : CondInputBind => {
-                    for(
-                      // [[ chan ]] is chanTerm
-                      Location( chanTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.chan_, Here() );
-                      // [[ ptrn ]] is ptrnTerm
-                      Location( ptrnTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.cpattern_, Here() );
-                      Location( filterTerm : StrTermCtxt, _ ) <- visitDispatch( cndInBind.proc_, Here() );
-                      Location( rbindingsTerm : StrTermCtxt, _ ) <- acc
-                    ) yield {
-                      // ( map [[ chan ]] proc [[ ptrn ]] [[ P ]] )
-                      L(
-                        B( _filter )(
-                          B( _map )( chanTerm, B( _abs )( B(_list)(ptrnTerm), rbindingsTerm ) ),
-                          filterTerm
-                        ),
-                        T()
-                      )
-                    }
-                  }
-                  case _ => {
-                    throw new UnexpectedBindingType( e )
-                  }
-                }
-              }
-            }
-          )
+          forToConsume(bindings)
         }
       }
     )
