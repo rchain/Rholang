@@ -38,6 +38,12 @@
 (defOprn flatten)
 (defPure Tuple (flatten) (fold (self) (proc [e acc k] (k (tuple-concat e acc))) []))
 
+(defOprn twoZip)
+(defPure Tuple (twoZip) (fold (self) (proc [[x y] acc k] (let [[[xs ys] acc]] (k [[x & xs] [y & ys]]))) [[] []]))
+
+(defOprn length)
+(defPure Tuple (length) (count (self) (proc [x] #t)))
+
 (defOprn tbl-unique-append)
 (defPure RblTable (tbl-unique-append key value)
     (let [[current_value (tbl-get (self) key)]]
@@ -156,7 +162,7 @@
                                         (if (match? NameSpace (tuple-safe-nth product_ptrns i) product)
                                             [
                                                 [(tuple-safe-nth channels i) (tuple-safe-nth (tuple-safe-nth subspace_groups i) j)]
-                                                [(tuple-safe-nth unification_ptrns i) unification_ptrn]
+                                                [(tuple-safe-nth unification_ptrns i) [unification_ptrn binding]]
                                                 ["product" (tuple-safe-nth product_ptrns i) [n product]]
                                             ]
                                         )))))
@@ -168,7 +174,7 @@
                                             (if (match? NameSpace (tuple-safe-nth product_ptrns i) product)
                                                 [
                                                     [(tuple-safe-nth channels i) (tuple-safe-nth (tuple-safe-nth subspace_groups i) j)]
-                                                    [(tuple-safe-nth unification_ptrns i) unification_ptrn]
+                                                    [(tuple-safe-nth unification_ptrns i) [unification_ptrn binding]]
                                                     ["continuation" (tuple-safe-nth product_ptrns i) [n o product]]
                                                 ]
                                             )))))))
@@ -195,9 +201,9 @@
 
     ;;; For each channel returned from value function, return the product and consume/delete it
     ;;; TODO: Return bindings and ptrn so they can be returned with ctxt-rtn
-    [products
+    [bindings_and_products
         (map reductions (proc [i channel]
-            (let [[[[_ subspace] [_ unification_ptrn] [type _ product_info]] channel]]
+            (let [[[[_ subspace] [_ [unification_ptrn binding]] [type _ product_info]] channel]]
                 (if (= type "product")
                     (let*
                         [
@@ -207,7 +213,7 @@
                         ]
                         (seq
                             (tbl-add subspace unification_ptrn [updated_data_struct continuations_struct])
-                            product
+                            [binding product]
                         )
                     )
                     ;;; (= type "continuation")
@@ -222,12 +228,12 @@
                         ]
                         (seq
                             (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
-                            product
+                            [binding product]
                         )
                     )))))]]
 
     (seq
-        (if (null? products)
+        (if (null? bindings_and_products)
             ;;; If continuation was not consumed by a matching product (value function returned none), store it and suspend
             (seq
                 (print "DEBUG: Waiting for data")
@@ -248,7 +254,7 @@
             )
             (seq
                 (update!)
-                (ctxt-rtn ctxt (map products (proc [i product] [["TODO: Add ptrn" "TODO: Add binding"] product])))))))) ;;; TODO: Remove ptrn and only return list of binding and corresponding product tuples
+                (ctxt-rtn ctxt (twoZip bindings_and_products)))))))
 
 ;;; This code is perfectly dual to the consumer code and so all the comments
 ;;; there apply in the corresponding code sites
@@ -341,13 +347,13 @@
                     [[data_struct continuations_struct] (tbl-get subspace unification_ptrn)]
                     [[n o product_ptrn] product_info]
                     [[product_ptrns_struct ctxt] (tuple-safe-nth continuations_struct n)]
-                    [updated_product_ptrns_struct (replace-i product_ptrns_struct o [product_ptrn product])]
+                    [updated_product_ptrns_struct (replace-i product_ptrns_struct o [product_ptrn product])] ;;; TODO: Eventually store binding
                 ]
                 ;;; If filled, send ctxt-rtn
                 (if (all updated_product_ptrns_struct (proc [[product_ptrn product]] (not (= product #absent))))
                     (seq
-                        ;;; TODO: Add binding and remove ptrn (do same for consume)
-                        (send ctxt-rtn ctxt [[[unification_ptrn #t] (map updated_product_ptrns_struct (proc [j [product_ptrn product]] product)) ]])
+                        ;;; TODO: Replace dummy bindings
+                        (send ctxt-rtn ctxt [(newN Tuple (length updated_product_ptrns_struct) #t) (map updated_product_ptrns_struct (proc [j [product_ptrn product]] product))])
                         (let [[updated_continuations_struct (delete-i continuations_struct n)]]
                             (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
                         )
