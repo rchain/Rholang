@@ -21,13 +21,13 @@
 (defOprn HelloWorld)
 (defActor HelloWorldContract
     (method (HelloWorld world1 world2)
-        (let [[[[rholangdf291a4baa09] [rholangc7196deae3c5]] (consume t [world1] [**wildcard**] [**wildcard**])]]
-            ( (proc [[msg]] (produce t world2 **wildcard** msg)) [rholangc7196deae3c5]))))
+        (let [[[[rholang5c4b13f58751] [rholangdf656748b6d1]] (consume t [world1] [**wildcard**] ['msg])]]
+            ( (proc [[msg]] (produce t world2 **wildcard** msg)) [rholangdf656748b6d1]))))
 
 (defOprn SimplePrinter)
 (defActor SimplePrinterContract
-	(method (SimplePrinter channel ptrn)
-		(let [[[_ [product]] (consume t [channel] [**wildcard**] [**wildcard**])]]
+	(method (SimplePrinter channel)
+		(let [[[_ [product]] (consume t [channel] [**wildcard**] ['msg])]]
             (print product)
 		)
 	)
@@ -38,7 +38,7 @@
 
 ;;; Invoke contract and printer
 (let [[result1 (HelloWorld contract 'world1 'world2)]] #niv)
-(SimplePrinter simplePrinter 'world2 'msg)
+(SimplePrinter simplePrinter 'world2)
 
 ;;; Silently discard result of produce
 ;;; Otherwise it would misleadingly two copies of "Hello World!"

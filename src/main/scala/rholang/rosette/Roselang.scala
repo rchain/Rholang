@@ -533,7 +533,6 @@ extends StrFoldCtxtVisitor {
               var unificationBindingFresh = V(Fresh())
               var wildcard = V("**wildcard**")
               val quotedPtrnTerm = inBind.cpattern_ match {
-                case variable: CPtVar => V("**wildcard**")
                 case _ => (for (Location(q: StrTermCtxt, _) <- doQuote(ptrnTerm)) yield {
                   q
                 }).getOrElse(throw new FailedQuotation(ptrnTerm))
