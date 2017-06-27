@@ -807,7 +807,7 @@ extends StrFoldCtxtVisitor {
 
     combine(
       arg,
-      Some( L( B( p.name_ )( (List( TS ) ++ actls):_* ), Top() ) )
+      Some( L( B( p.name_ )( (List(V(s"""${p.name_}Contract""")) ++ actls):_* ), Top() ) )
     )
   }
   override def visit(  p : PPar, arg : A ) : R = {
