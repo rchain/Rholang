@@ -49,6 +49,9 @@
 (defOprn length)
 (defPure Tuple (length) (count (self) (proc [x] #t)))
 
+(defOprn filter-niv)
+(defPure Tuple (filter-niv) (filter (self) (proc [x] (not (niv? x)))))
+
 (defOprn tbl-unique-append)
 (defPure RblTable (tbl-unique-append key value)
     (let [[current_value (tbl-get (self) key)]]
@@ -324,10 +327,33 @@
                         )
                     ))))))))]
     ;;; Value function
-    ;;; Input: [[(c1,p) (u,u) (pp, p)],[(c2,p) (u,u) (pp, p)],...]
-    ;;; Output: [(c1,p) (u,u) (pp, p)]
-    ;;; Since the channels are ordered by length, taking the head will always take the singletons first and then longer lists.
-    [reduction (head (flatten (flatten (flatten candidates))))] ;;; TODO: Refactor to (flattenN candidates 3) or (apply 3 flatten candidates)
+    ;;;
+    ;;; Chooses the consume to be filled out of all potential consumes that can be filled.
+    ;;; The current policy is to fill consumes that are almost filled and then fill the consume with the least number of channels.
+    ;;; Since the channels will be ordered by length, taking the head will always take the singletons first and then longer candidates.
+    [reduction
+        (let*
+            [
+                [flattened_candidates (flatten (flatten candidates))] ;;; TODO: Refactor to (flattenN candidates 3) or (apply 3 flatten candidates)
+                [filled_candidates (map flattened_candidates (proc [i candidate]
+                    (let*
+                        [
+                            [[[channel subspace] [_ unification_ptrn] [_ product_info]] candidate]
+                            [[data_struct continuations_struct] (tbl-get subspace unification_ptrn)]
+                            [[n o product_ptrn] product_info]
+                            [[product_ptrns_struct ctxt] (tuple-safe-nth continuations_struct n)]
+                            [updated_product_ptrns_struct (replace-i product_ptrns_struct o [product_ptrn product])]
+                        ]
+                        (if (all updated_product_ptrns_struct (proc [[product_ptrn product]] (not (= product #absent))))
+                            candidate
+                        ))))
+                ]
+            ]
+            (if (all filled_candidates (proc [candidate] (niv? candidate)))
+                (head flattened_candidates)
+                (head (filter-niv filled_candidates)))
+         )
+    ]
     ]
     (seq
         (if (null? reduction)
