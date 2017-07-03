@@ -25,17 +25,17 @@
 ;;; Deletes element at position i in Tuple
 (defOprn delete-i)
 (defPure Tuple (delete-i p)
-	(concat (prim-sub-object (self) 0 p)
-		(prim-sub-object (self) (fx+ p 1)
-				 (fx- (prim-size (self)) (fx+ p 1)))))
+    (concat (prim-sub-object (self) 0 p)
+        (prim-sub-object (self) (fx+ p 1)
+                 (fx- (prim-size (self)) (fx+ p 1)))))
 
 (defOprn replace-i)
 (defPure Tuple (replace-i p item)
-	(concat
-	    (prim-sub-object (self) 0 p)
-	    [item]
-		(prim-sub-object (self) (fx+ p 1)
-				 (fx- (prim-size (self)) (fx+ p 1)))))
+    (concat
+        (prim-sub-object (self) 0 p)
+        [item]
+        (prim-sub-object (self) (fx+ p 1)
+                 (fx- (prim-size (self)) (fx+ p 1)))))
 
 (defOprn symbol-list-concat)
 (defPure Tuple (symbol-list-concat) (->symbol (fold (self) (proc [e acc k] (k (string-concat acc (->string e)))) "")))
@@ -258,11 +258,10 @@
                             (tbl-add subspace unification_ptrns_concatenated [[] [[new_product_ptrns_struct ctxt]]])
                             (let [[[data_struct continuations_struct] stored_value]]
                                 (tbl-add subspace unification_ptrns_concatenated [data_struct (append continuations_struct [new_product_ptrns_struct ctxt])])))))
-                (update!)
             )
             (seq
-                (update!)
-                (ctxt-rtn ctxt (twoZip bindings_and_products)))))))
+                (ctxt-rtn ctxt (twoZip bindings_and_products))))
+        (update!))))
 
 ;;; This code is mostly dual to the consumer code and so all the comments
 ;;; there apply in the corresponding code sites.
@@ -386,7 +385,7 @@
                     (seq
                         ;;; TODO: Replace dummy bindings
                         (print "DEBUG: A consume was fully filled. Sending all products.")
-                        (send ctxt-rtn ctxt [(newN Tuple (length updated_product_ptrns_struct) #t) (map updated_product_ptrns_struct (proc [j [product_ptrn product]] product))])
+                        (ctxt-rtn ctxt [(newN Tuple (length updated_product_ptrns_struct) #t) (map updated_product_ptrns_struct (proc [j [product_ptrn product]] product))])
                         (let [[updated_continuations_struct (delete-i continuations_struct n)]]
                             (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
                         )
@@ -397,6 +396,6 @@
                 )
             )
         )
-        (update!)
         (ctxt-rtn ctxt product)
+        (update!)
     )))
