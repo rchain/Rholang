@@ -72,11 +72,7 @@ contract token(message_sender, total_supply) {
 
     def balance_of(owner, rtn) = {
         for (balances <- balances_channel) {
-            x!(*balances.get(owner)) |
-            for ( balance <- x ) {
-                rtn!( *balance )
-            } |
-            balances_channel!(*balances)
+            rtn!(*balances.get(owner)) | balances_channel!(*balances)
         }
     }
 
