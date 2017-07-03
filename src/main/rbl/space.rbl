@@ -128,7 +128,7 @@
                             (fold subspace_keys
                                 (proc [subspace_key acc k]
                                     (let [[[hits misses] acc]
-                                        [binding (any (tbl-get unification_ptrn_lookup_table subspace_key) (proc [subspace_key_component] (unify? NameSpace (tuple-safe-nth unification_ptrns i) subspace_key_component)))]]
+                                        [binding (any (tbl-get unification_ptrn_lookup_table (->symbol subspace_key)) (proc [subspace_key_component] (unify? NameSpace (tuple-safe-nth unification_ptrns i) subspace_key_component)))]]
                                 (if (niv? binding)
                                     (k [hits [subspace_key & misses]])
                                     (k [[[subspace_key binding] & hits] misses])))) [[] []])]
