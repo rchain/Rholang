@@ -177,10 +177,24 @@ public class ComposVisitor<A> implements
     {
       Double double_ = p.double_;
       return new coop.rchain.syntax.rholang.Absyn.QDouble(double_);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QString p, A arg)
+    {
+      String string_ = p.string_;
+      return new coop.rchain.syntax.rholang.Absyn.QString(string_);
     }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg)
     {
       String var_ = p.var_;
       return new coop.rchain.syntax.rholang.Absyn.QVar(var_);
+    }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QDot p, A arg)
+    {
+      Quantity quantity_ = p.quantity_.accept(this, arg);
+      String var_ = p.var_;
+      ListQuantity listquantity_ = new ListQuantity();
+      for (Quantity x : p.listquantity_)
+      {
+        listquantity_.add(x.accept(this,arg));
+      }
+      return new coop.rchain.syntax.rholang.Absyn.QDot(quantity_, var_, listquantity_);
     }    public Quantity visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg)
     {
       Quantity quantity_ = p.quantity_.accept(this, arg);

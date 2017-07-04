@@ -161,9 +161,20 @@ public class VisitSkel
     { /* Code For QDouble Goes Here */
       //p.double_;
       return null;
+    }    public R visit(coop.rchain.syntax.rholang.Absyn.QString p, A arg)
+    { /* Code For QString Goes Here */
+      //p.string_;
+      return null;
     }    public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg)
     { /* Code For QVar Goes Here */
       //p.var_;
+      return null;
+    }        public R visit(coop.rchain.syntax.rholang.Absyn.QDot p, A arg)
+    { /* Code For QDot Goes Here */
+      p.quantity_.accept(new QuantityVisitor<R,A>(), arg);
+      //p.var_;
+      for (Quantity x: p.listquantity_)
+      { /* ... */ }
       return null;
     }        public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg)
     { /* Code For QNeg Goes Here */

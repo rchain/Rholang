@@ -243,6 +243,21 @@ public class PrettyPrinter
     buf_.delete(0,buf_.length());
     return temp;
   }
+  public static String print(coop.rchain.syntax.rholang.Absyn.ListQuantity foo)
+  {
+    pp(foo, 0);
+    trim();
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
+  public static String show(coop.rchain.syntax.rholang.Absyn.ListQuantity foo)
+  {
+    sh(foo);
+    String temp = buf_.toString();
+    buf_.delete(0,buf_.length());
+    return temp;
+  }
   public static String print(coop.rchain.syntax.rholang.Absyn.Value foo)
   {
     pp(foo, 0);
@@ -771,29 +786,48 @@ public class PrettyPrinter
     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QBool)
     {
        coop.rchain.syntax.rholang.Absyn.QBool _qbool = (coop.rchain.syntax.rholang.Absyn.QBool) foo;
-       if (_i_ > 6) render(_L_PAREN);
+       if (_i_ > 7) render(_L_PAREN);
        pp(_qbool.rhobool_, 0);
-       if (_i_ > 6) render(_R_PAREN);
+       if (_i_ > 7) render(_R_PAREN);
     }
     else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QInt)
     {
        coop.rchain.syntax.rholang.Absyn.QInt _qint = (coop.rchain.syntax.rholang.Absyn.QInt) foo;
-       if (_i_ > 6) render(_L_PAREN);
+       if (_i_ > 7) render(_L_PAREN);
        pp(_qint.integer_, 0);
-       if (_i_ > 6) render(_R_PAREN);
+       if (_i_ > 7) render(_R_PAREN);
     }
     else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDouble)
     {
        coop.rchain.syntax.rholang.Absyn.QDouble _qdouble = (coop.rchain.syntax.rholang.Absyn.QDouble) foo;
-       if (_i_ > 6) render(_L_PAREN);
+       if (_i_ > 7) render(_L_PAREN);
        pp(_qdouble.double_, 0);
-       if (_i_ > 6) render(_R_PAREN);
+       if (_i_ > 7) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QString)
+    {
+       coop.rchain.syntax.rholang.Absyn.QString _qstring = (coop.rchain.syntax.rholang.Absyn.QString) foo;
+       if (_i_ > 7) render(_L_PAREN);
+       printQuoted(_qstring.string_);
+       if (_i_ > 7) render(_R_PAREN);
     }
     else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QVar)
     {
        coop.rchain.syntax.rholang.Absyn.QVar _qvar = (coop.rchain.syntax.rholang.Absyn.QVar) foo;
-       if (_i_ > 6) render(_L_PAREN);
+       if (_i_ > 7) render(_L_PAREN);
        pp(_qvar.var_, 0);
+       if (_i_ > 7) render(_R_PAREN);
+    }
+    else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDot)
+    {
+       coop.rchain.syntax.rholang.Absyn.QDot _qdot = (coop.rchain.syntax.rholang.Absyn.QDot) foo;
+       if (_i_ > 6) render(_L_PAREN);
+       pp(_qdot.quantity_, 7);
+       render(".");
+       pp(_qdot.var_, 0);
+       render("(");
+       pp(_qdot.listquantity_, 0);
+       render(")");
        if (_i_ > 6) render(_R_PAREN);
     }
     else     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QNeg)
@@ -895,6 +929,18 @@ public class PrettyPrinter
        if (_i_ > 1) render(_R_PAREN);
     }
   }
+
+  private static void pp(coop.rchain.syntax.rholang.Absyn.ListQuantity foo, int _i_)
+  {
+     for (java.util.Iterator<Quantity> it = foo.iterator(); it.hasNext();)
+     {
+       pp(it.next(), _i_);
+       if (it.hasNext()) {
+         render(",");
+       } else {
+         render("");
+       }
+     }  }
 
   private static void pp(coop.rchain.syntax.rholang.Absyn.Value foo, int _i_)
   {
@@ -1548,12 +1594,32 @@ public class PrettyPrinter
        sh(_qdouble.double_);
        render(")");
     }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QString)
+    {
+       coop.rchain.syntax.rholang.Absyn.QString _qstring = (coop.rchain.syntax.rholang.Absyn.QString) foo;
+       render("(");
+       render("QString");
+       sh(_qstring.string_);
+       render(")");
+    }
     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QVar)
     {
        coop.rchain.syntax.rholang.Absyn.QVar _qvar = (coop.rchain.syntax.rholang.Absyn.QVar) foo;
        render("(");
        render("QVar");
        sh(_qvar.var_);
+       render(")");
+    }
+    if (foo instanceof coop.rchain.syntax.rholang.Absyn.QDot)
+    {
+       coop.rchain.syntax.rholang.Absyn.QDot _qdot = (coop.rchain.syntax.rholang.Absyn.QDot) foo;
+       render("(");
+       render("QDot");
+       sh(_qdot.quantity_);
+       sh(_qdot.var_);
+       render("[");
+       sh(_qdot.listquantity_);
+       render("]");
        render(")");
     }
     if (foo instanceof coop.rchain.syntax.rholang.Absyn.QNeg)
@@ -1654,6 +1720,16 @@ public class PrettyPrinter
        sh(_qneq.quantity_2);
        render(")");
     }
+  }
+
+  private static void sh(coop.rchain.syntax.rholang.Absyn.ListQuantity foo)
+  {
+     for (java.util.Iterator<Quantity> it = foo.iterator(); it.hasNext();)
+     {
+       sh(it.next());
+       if (it.hasNext())
+         render(",");
+     }
   }
 
   private static void sh(coop.rchain.syntax.rholang.Absyn.Value foo)

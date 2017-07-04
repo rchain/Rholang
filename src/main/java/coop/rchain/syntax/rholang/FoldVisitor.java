@@ -179,8 +179,21 @@ public abstract class FoldVisitor<R,A> implements AllVisitor<R,A> {
       R r = leaf(arg);
       return r;
     }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QString p, A arg) {
+      R r = leaf(arg);
+      return r;
+    }
     public R visit(coop.rchain.syntax.rholang.Absyn.QVar p, A arg) {
       R r = leaf(arg);
+      return r;
+    }
+    public R visit(coop.rchain.syntax.rholang.Absyn.QDot p, A arg) {
+      R r = leaf(arg);
+      r = combine(p.quantity_.accept(this, arg), r, arg);
+      for (Quantity x : p.listquantity_)
+      {
+        r = combine(x.accept(this, arg), r, arg);
+      }
       return r;
     }
     public R visit(coop.rchain.syntax.rholang.Absyn.QNeg p, A arg) {

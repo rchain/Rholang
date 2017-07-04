@@ -42,10 +42,12 @@ separator nonempty CBranch "" ;
 -- Quantity
 QTrue.    RhoBool   ::= "true" ;
 QFalse.   RhoBool   ::= "false" ;
-QBool.    Quantity6 ::= RhoBool ;
-QInt.     Quantity6 ::= Integer ;
-QDouble.  Quantity6 ::= Double ;
-QVar.     Quantity6 ::= Var;
+QBool.    Quantity7 ::= RhoBool ;
+QInt.     Quantity7 ::= Integer ;
+QDouble.  Quantity7 ::= Double ;
+QString.  Quantity7 ::= String;
+QVar.     Quantity7 ::= Var;
+QDot.     Quantity6 ::= Quantity7 "." Var "(" [Quantity] ")" ;
 QNeg.     Quantity5 ::= "-" Quantity6 ;
 QMult.    Quantity4 ::= Quantity4 "*" Quantity5 ;
 QDiv.     Quantity4 ::= Quantity4 "/" Quantity5 ;
@@ -63,7 +65,9 @@ _. Quantity2 ::= Quantity3 ;
 _. Quantity3 ::= Quantity4 ;
 _. Quantity4 ::= Quantity5 ;
 _. Quantity5 ::= Quantity6 ;
-_. Quantity6 ::= "(" Quantity ")" ;
+_. Quantity6 ::= Quantity7 ;
+_. Quantity7 ::= "(" Quantity ")" ;
+separator Quantity "," ;
 
 -- Values
 VQuant.   Value   ::= Quantity ;
