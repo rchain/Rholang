@@ -6,15 +6,15 @@ contract token(message_sender, total_supply) {
             for (balance_of_sender <- x
                ; balances_of_receiver <- y) {
                 match (
-                    *balance_of_sender >= _amount,
-                    _amount > 0,
-                    *balance_of_receiver + _amount > *balance_of_receiver) {
+                    *balance_of_sender >= amount,
+                    amount > 0,
+                    *balance_of_receiver + amount > *balance_of_receiver) {
 
                     case (true, true, true) => {
                         balances_channel!(
                             *balances
-                                .update(message_sender, *balance_of_sender - _amount)
-                                .update(to, *balance_of_receiver+_amount)
+                                .update(message_sender, *balance_of_sender - amount)
+                                .update(to, *balance_of_receiver+amount)
                         )
                         rtn!(true)
                     }
@@ -38,18 +38,18 @@ contract token(message_sender, total_supply) {
                 ; sender_allowed <- y
                 ; balance_of_receiver <- z ) {
                 match (
-                    *balance_of_sender >= _amount,
-                    *sender_allowed >= _amount,
-                    _amount > 0,
-                    *balance_of_receiver + _amount > *balance_of_receiver) {
+                    *balance_of_sender >= amount,
+                    *sender_allowed >= amount,
+                    amount > 0,
+                    *balance_of_receiver + amount > *balance_of_receiver) {
                     case (true, true, true, true) => {
                         balances_channel!(
                             *balances
-                                .update(from, *balance_of_sender-_amount)
-                                .update(to, *balance_of_receiver+_amount)
+                                .update(from, *balance_of_sender-amount)
+                                .update(to, *balance_of_receiver+amount)
                         ) |
                         allowed_channel!(
-                            *allowed.update(from, message_sender, *sender_allowed -_amount)
+                            *allowed.update(from, message_sender, *sender_allowed-amount)
                         ) |
                         rtn!(true)
                     }
