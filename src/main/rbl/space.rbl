@@ -65,6 +65,37 @@
     )
 )
 
+(defOprn get)
+(defPure RblTable (get key)
+    (tbl-get (self) key)
+)
+
+(defOprn insert)
+(defPure RblTable (insert & keys/value)
+    (let*
+        [
+            [[value & reverse_keys] (reverse keys/value)]
+            [[[last_key] remaining_reverse_keys] (if (= (length reverse_keys) 1) [reverse_keys []] [[(head reverse_keys)] (tail reverse_keys)])]
+            [unreversed_keys (reverse remaining_reverse_keys)]
+            [final_tbl
+                (if (null? unreversed_keys)
+                    (self)
+                    (fold
+                        unreversed_keys
+                        (proc [key acc k]
+                            (if (null? key)
+                                acc
+                                (k (tbl-get acc key)))
+                        )
+                        (self)))]
+        ]
+        (seq
+            (tbl-add final_tbl last_key value)
+            final_tbl
+        )
+    )
+)
+
 (defOprn consume)
 (defOprn produce)
 (defOprn unify?)
