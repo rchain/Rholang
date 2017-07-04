@@ -1192,6 +1192,7 @@ extends StrFoldCtxtVisitor {
     // TODO: Fill in rest of ValPattern subclasses
     p match {
       case vPtStruct : VPtStruct => visit( vPtStruct, arg )
+      case vPtTuple : VPtTuple => visit (vPtTuple, arg)
       case vPtInt : VPtInt => visit( vPtInt, arg )
     }
   }
@@ -1217,6 +1218,30 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       L( B(p.var_)( structContents:_* ), Top() )
+    )
+  }
+  override def visit(  p : VPtTuple, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+
+    val tupleContents =
+      ( List[StrTermCtxt]() /: p.listppattern_.asScala.toList )(
+        {
+          ( acc, e ) => {
+            visitDispatch( e, Here() ) match {
+              case Some( Location( frml : StrTermCtxt, _ ) ) => {
+                acc ++ List( frml )
+              }
+              case None => {
+                acc
+              }
+            }
+          }
+        }
+      )
+
+    combine(
+      arg,
+      L( B(_list)( tupleContents:_* ), Top() )
     )
   }
   override def visit(  p : VPtInt, arg: A ): R = {
