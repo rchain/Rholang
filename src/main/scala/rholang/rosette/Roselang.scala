@@ -890,6 +890,9 @@ extends StrFoldCtxtVisitor {
       case bool : QBool => visitDispatch( bool.rhobool_, arg )
       case int : QInt => visit( int, arg )
       case double : QDouble => visit( double, arg )
+      case string : QString => visit( string, arg )
+
+      case method : QDot => visit( method, arg )
 
       case neg : QNeg => visit(neg, arg)
       case mult : QMult => visit(mult, arg)
@@ -936,6 +939,41 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       L(G( s"""#f"""), Top())
+    )
+  }
+  override def visit(  p : QString, arg : A ) : R = {
+    combine(
+      arg,
+      L( G( p.string_ ), Top() )
+    )
+  }
+  override def visit( p : QDot, arg : A) : R = {
+    import scala.collection.JavaConverters._
+
+    /* [[ quantity ]].method_name( [ [[ quantity_arg1 ]], [[ quantity_arg2 ]], ... ] )
+     * =
+     * (method_name quantity quantity_arg1 quantity_arg2)
+     */
+    combine(
+      arg,
+      for (Location( q : StrTermCtxt, _ ) <- visitDispatch( p.quantity_, Here() )) yield {
+        val qArgs =
+          ( List[StrTermCtxt]() /: p.listquantity_.asScala.toList )(
+            {
+              ( acc, e ) => {
+                visitDispatch( e, Here() ) match {
+                  case Some( Location( frml : StrTermCtxt, _ ) ) => {
+                    acc ++ List( frml )
+                  }
+                  case None => {
+                    acc
+                  }
+                }
+              }
+            }
+          )
+        L( B(p.var_)( (List(q) ++ qArgs):_* ), Top() )
+      }
     )
   }
   override def visit( p : QNeg, arg : A) : R = {
