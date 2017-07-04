@@ -1104,6 +1104,32 @@ extends StrFoldCtxtVisitor {
       L( G( s"""'${p.char_}'"""), Top() )
     )
   }
+  override def visit(  p : ETuple, arg : A ) : R = {
+    import scala.collection.JavaConverters._
+    val procTerms =
+      ( List[StrTermCtxt]() /: p.listproc_.asScala.toList )(
+        {
+          ( acc, e ) => {
+            visitDispatch( e, Here() ) match {
+              case Some( Location( frml : StrTermCtxt, _ ) ) => {
+                acc ++ List( frml )
+              }
+              case None => {
+                acc
+              }
+            }
+          }
+        }
+      )
+    combine(
+      arg,
+      L( B(_list)( procTerms:_* ), Top() )
+    )
+
+
+
+  }
+
   /* Pattern */
   def visitDispatch( p : CPattern, arg : A ) : R = {
     p match {
