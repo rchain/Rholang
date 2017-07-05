@@ -735,20 +735,24 @@ extends StrFoldCtxtVisitor {
                   Location(continuation: StrTermCtxt, _) <- visitDispatch(pm.proc_, Here());
                   Location(remainder: StrTermCtxt, _) <- acc
                 ) yield {
-
-                  def createProcForPatternBindings = {
-                    val procTerm = B(_abs)(B(_list)(pattern), continuation)
-                    B("")(procTerm, pTerm) // TODO: Potentially allow StrTermPtdCtxtBr without Namespace ?
-                  }
-
-                  val matchTerm = B(_match)(pTerm, pattern)
-                  val matchTrueTerm = if (hasVariable(pm.ppattern_)) {
-                    createProcForPatternBindings
-                  } else {
+                  if (isWild(pm.ppattern_)) {
+                    // Assumes VarPtWild comes at the end of a list of case statements
                     continuation
+                  } else {
+                    def createProcForPatternBindings = {
+                      val procTerm = B(_abs)(B(_list)(pattern), continuation)
+                      B("")(procTerm, pTerm) // TODO: Potentially allow StrTermPtdCtxtBr without Namespace ?
+                    }
+
+                    val matchTerm = B(_match)(pTerm, pattern)
+                    val matchTrueTerm = if (hasVariable(pm.ppattern_)) {
+                      createProcForPatternBindings
+                    } else {
+                      continuation
+                    }
+                    val ifTerm = B(_if)(matchTerm, matchTrueTerm, remainder)
+                    L(ifTerm, Top())
                   }
-                  val ifTerm = B(_if)(matchTerm, matchTrueTerm, remainder)
-                  L(ifTerm, Top())
                 }
               }
               case _ => throw new UnexpectedPMBranchType(e)
@@ -766,6 +770,18 @@ extends StrFoldCtxtVisitor {
       arg,
       patternMatchVisitAux
     )
+  }
+
+  def isWild(p: PPattern): Boolean = {
+    p match {
+      case pPtVar: PPtVar => {
+        pPtVar.varpattern_ match {
+          case wild : VarPtWild => true
+          case _ => false
+        }
+      }
+      case _ => false
+    }
   }
 
   def hasVariable(p: PPattern): Boolean = {
