@@ -1,29 +1,30 @@
+// TODO: Implement booleans in Tuples
+// TODO: Implement Map() call
+
 contract token(message_sender, total_supply) {
     def transfer(message_sender, to, amount, rtn) = {
         for (balances <- balances_channel) {
             x!(balances.get(message_sender)) |
             y!(balances.get(to)) |
+                // TODO: Discuss how to handle the #absent that is sent instead of 0 as mentioned by @jos.denmark
             for (balance_of_sender <- x
-               ; balances_of_receiver <- y) {
-                match (
-                    balance_of_sender >= _amount,
-                    _amount > 0,
-                    balance_of_receiver + _amount > balance_of_receiver) {
-
-                    case (true, true, true) => {
+               ; balance_of_receiver <- y) {
+                match [
+                    balance_of_sender >= amount,
+                    amount > 0,
+                    balance_of_receiver + amount > balance_of_receiver] with
+                    <true, true, true> => {
                         balances_channel!(
-                            balances
-                                .update(message_sender, balance_of_sender - _amount)
-                                .update(to, balance_of_receiver+_amount)
-                        )
+                            (balances
+                                .insert(message_sender, balance_of_sender - amount))
+                                .insert(to, balance_of_receiver+amount)
+                        ) |
                         rtn!(true)
                     }
-
-                    case _ => {
-                        balances_channel!(balances)
+                    _ => {
+                        balances_channel!(balances) |
                         rtn!(false)
                     }
-                }
             }
         }
     }
@@ -37,35 +38,35 @@ contract token(message_sender, total_supply) {
             for ( balance_of_sender <- x
                 ; sender_allowed <- y
                 ; balance_of_receiver <- z ) {
-                match (
-                    balance_of_sender >= _amount,
-                    sender_allowed >= _amount,
-                    _amount > 0,
-                    balance_of_receiver + _amount > balance_of_receiver) {
-                    case (true, true, true, true) => {
+                match [
+                    balance_of_sender >= amount,
+                    sender_allowed >= amount,
+                    amount > 0,
+                    balance_of_receiver + amount > balance_of_receiver] with
+                    <true, true, true, true> => {
                         balances_channel!(
-                            balances
-                                .update(from, balance_of_sender-_amount)
-                                .update(to, balance_of_receiver+_amount)
+                            (balances
+                                .insert(from, balance_of_sender-amount))
+                                .insert(to, balance_of_receiver+amount)
                         ) |
                         allowed_channel!(
-                            allowed.update(from, message_sender, sender_allowed -_amount)
-                        )
+                            allowed.insert(from, message_sender, sender_allowed -amount)
+                        ) |
                         rtn!(true)
                     }
-                    case _ => {
+                    _ => {
                         balances_channel!(balances) |
                         allowed_channel!(allowed) |
                         rtn!(false)
                     }
-                }
+
             }
         }
     }
 
     def approve(message_sender, spender, amount, rtn) {
         for (allowed <- allowed_channel) {
-            allowed_channel!(allowed.update(message_sender,spender,amount)) |
+            allowed_channel!(allowed.insert(message_sender,spender,amount)) |
             rtn!(true)
         }
     }
@@ -95,7 +96,7 @@ contract token(message_sender, total_supply) {
         owner_channel!(message_sender) |
         balances_channel!(Map()) |
         for (balances <- balances_channel) {
-            balances_channel!( balances.update(message_sender, total_supply) )
+            balances_channel!( balances.insert(message_sender, total_supply) )
         }
     }
 }
