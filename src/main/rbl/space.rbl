@@ -7,7 +7,10 @@
 ;; ------------------------------------------------------------------------
 
 ;;; TODO: Add tag for whether persistent
+;;; TODO: Translate match in compiler
 (add '**wildcard** #niv) ;; TODO: Add wildcard token in Rosette implementation and swap out #niv
+
+(add 'p (method [x] (seq (prim-print x) (display #\\n))))
 
 (defOprn append)
 (defPure Tuple (append item) (reverse [item & (reverse (self))]))
@@ -130,6 +133,16 @@
 (let* [
     [[channels unification_ptrns product_ptrns] location]
         ;;; the channel and the pattern of incoming messages to look for are destructured and bound
+    [_ (seq
+        (print (->symbol "DEBUG: Calling consume("))
+        (print channels)
+        (print (->symbol ", "))
+        (print unification_ptrns)
+        (print (->symbol ", "))
+        (print product_ptrns)
+        (print (->symbol ")"))
+        (p "")
+        )]
     [channels_concatenated (symbol-list-concat channels)]
     [unification_ptrns_concatenated (symbol-list-concat unification_ptrns)]
     [expanded_channel_groups
@@ -237,6 +250,14 @@
         )
     ]
 
+    [_
+        (seq
+            (print "About to print reductions")
+            (print reductions)
+            (display #\\n)
+        )]
+
+
     ;;; For each channel returned from value function, return the product and consume/delete it
     ;;; TODO: Return bindings and ptrn so they can be returned with ctxt-rtn
     [bindings_and_products
@@ -274,7 +295,7 @@
         (if (null? bindings_and_products)
             ;;; If continuation was not consumed by a matching product (value function returned none), store it and suspend
             (seq
-                (print "DEBUG: Waiting for data")
+                (p "DEBUG: Waiting for data")
                 (let*
                     [
                         [subspace (tuplespace-tbl-get-or-create chart channels_concatenated)]
@@ -301,6 +322,19 @@
 ;;; TODO: Implement product stealing from consumes to allow for other consumes to be filled
 (defRMethod NameSpace (produce ctxt & production)
 (let* [[[channel unification_ptrn product] production]
+    [_
+        (seq
+                (print (->symbol "DEBUG: Calling produce("))
+                (print channel)
+                (print (->symbol ", "))
+                (print unification_ptrn)
+                (print (->symbol ", "))
+                (print product)
+                (print (->symbol ")"))
+                (p "")
+
+        )]
+
     [expanded_channels
         (seq
             (tbl-unique-append channel_lookup_table channel channel)
@@ -384,6 +418,12 @@
                 (head (filter-niv filled_candidates)))
          )
     ]
+    [_
+        (seq
+            (print "About to print reduction")
+            (print reduction)
+            (display #\\n)
+        )]
     ]
     (seq
         (if (null? reduction)
@@ -394,7 +434,7 @@
                     [stored_value (tbl-get subspace unification_ptrn)]
                 ]
                 (seq
-                (print "DEBUG: No consumes were filled. Storing product.")
+                (p "DEBUG: No consumes were filled. Storing product.")
                 (tbl-add unification_ptrn_lookup_table (->symbol unification_ptrn) [unification_ptrn])
                 (if (= #absent stored_value)
                     (tbl-add subspace unification_ptrn [[product] []])
@@ -415,14 +455,17 @@
                 (if (all updated_product_ptrns_struct (proc [[product_ptrn product]] (not (= product #absent))))
                     (seq
                         ;;; TODO: Replace dummy bindings
-                        (print "DEBUG: A consume was fully filled. Sending all products.")
+                        (p "DEBUG: A consume was fully filled. Sending all products.")
                         (ctxt-rtn ctxt [(newN Tuple (length updated_product_ptrns_struct) #t) (map updated_product_ptrns_struct (proc [j [product_ptrn product]] product))])
                         (let [[updated_continuations_struct (delete-i continuations_struct n)]]
                             (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
                         )
                     )
                     (let [[updated_continuations_struct (replace-i continuations_struct n [updated_product_ptrns_struct ctxt])]]
-                        (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
+                        (seq
+                            (p "DEBUG: A consume was partially filled.")
+                            (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
+                        )
                     )
                 )
             )
