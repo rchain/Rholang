@@ -1125,9 +1125,6 @@ extends StrFoldCtxtVisitor {
       arg,
       L( B(_list)( procTerms:_* ), Top() )
     )
-
-
-
   }
 
   /* Pattern */
@@ -1193,6 +1190,8 @@ extends StrFoldCtxtVisitor {
     p match {
       case vPtStruct : VPtStruct => visit( vPtStruct, arg )
       case vPtTuple : VPtTuple => visit (vPtTuple, arg)
+      case vPtTrue : VPtTrue => visit( vPtTrue, arg )
+      case vPtFalse : VPtFalse => visit( vPtFalse, arg )
       case vPtInt : VPtInt => visit( vPtInt, arg )
     }
   }
@@ -1242,6 +1241,18 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       L( B(_list)( tupleContents:_* ), Top() )
+    )
+  }
+  override def visit(  p : VPtTrue, arg: A ): R = {
+    combine(
+      arg,
+      L( G( s"""#t"""), Top() )
+    )
+  }
+  override def visit(  p : VPtFalse, arg: A ): R = {
+    combine(
+      arg,
+      L( G( s"""#f"""), Top() )
     )
   }
   override def visit(  p : VPtInt, arg: A ): R = {
