@@ -384,11 +384,11 @@ extends StrFoldCtxtVisitor {
   /* Contr */
   def visit( p : Contr, arg : A ) : R = {
     p match {
-      case dcontr : DContr => visit( dcontr, arg )
+      case dcontr : DContr => visitDispatch( dcontr.proc_, arg )
       case _ => throw new UnexpectedContractType( p )
     }
   }
-  override def visit( p : DContr, arg : A ) : R = {
+  override def visit( p : PContr, arg : A ) : R = {
     import scala.collection.JavaConverters._
     /*
      * [| contract <Name>( <formals> ) = { <body> } |]( t )
@@ -416,9 +416,9 @@ extends StrFoldCtxtVisitor {
             }
           )
         val methodTerm =
-          B( _method )( B( p.name_ )( formals:_* ), pTerm )
+          B( _method )( B( p.var_ )( formals:_* ), pTerm )
         val actorTerm =
-          B( _defActor )( G( s"""${p.name_}Contract""" ), methodTerm )
+          B( _defActor )( G( s"""${p.var_}Contract""" ), methodTerm )
 
         L( actorTerm, Top() )
       })
@@ -440,10 +440,23 @@ extends StrFoldCtxtVisitor {
       case pMatch : PMatch => visit( pMatch, arg )
       case pNew : PNew => visit( pNew, arg )
       case pConstr : PConstr => visit( pConstr, arg )
+      case pContr : PContr => visit (pContr, arg)
+      case pPrint : PPrint => visit (pPrint, arg)
       case pPar : PPar => visit( pPar, arg )
     }
   }
-
+  override def visit(  p : PPrint, arg : A ) : R = {
+    combine(
+      arg,
+      for(
+        Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() )
+      ) yield {
+        val printTerm = B("print")(pTerm)
+        val displayTerm = B("display")(G( "#\\\\n"))
+        L( B( "seq" )( printTerm, displayTerm ), Top() )
+      }
+    )
+  }
   override def visit(  p : PNil, arg : A ) : R = {    
     combine( arg, Some( L( G( "#niv" ), T() ) ) )
   }
@@ -823,7 +836,7 @@ extends StrFoldCtxtVisitor {
 
     combine(
       arg,
-      Some( L( B( p.name_ )( (List(V(s"""${p.name_}Contract""")) ++ actls):_* ), Top() ) )
+      Some( L( B( p.var_ )( (List(V(s"""${p.var_}Contract""")) ++ actls):_* ), Top() ) )
     )
   }
   override def visit(  p : PPar, arg : A ) : R = {
@@ -847,13 +860,16 @@ extends StrFoldCtxtVisitor {
   def visitDispatch(  p : Chan, arg : A ) : R = {
     p match {
       case cVar : CVar => visit( cVar, arg )
-      case cQuote : CVar => visit( cQuote, arg )
+      case cQuote : CQuote => visit( cQuote, arg )
     }
   }
   override def visit(  p : CVar, arg : A ) : R = {
     combine( arg, Some( L( V( p.var_ ), T() ) ) )
   }
-  override def visit(  p : CQuote, arg : A ) : R
+  override def visit(  p : CQuote, arg : A ) : R = {
+    // TODO: Handle quoting and unquoting
+    combine( arg, visitDispatch( p.proc_, Here() ) )
+  }
   /* Bind */
   def visit( b : Bind, arg : A ) : R
   override def visit(  p : InputBind, arg : A ) : R = {
@@ -907,6 +923,7 @@ extends StrFoldCtxtVisitor {
       case int : QInt => visit( int, arg )
       case double : QDouble => visit( double, arg )
       case string : QString => visit( string, arg )
+      case map : QMap => visit( map, arg )
 
       case method : QDot => visit( method, arg )
 
@@ -960,7 +977,13 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : QString, arg : A ) : R = {
     combine(
       arg,
-      L( G( p.string_ ), Top() )
+      L( G( s"""'${p.string_}""" ), Top() )
+    )
+  }
+  override def visit( p : QMap, arg : A) : R = {
+    combine(
+      arg,
+      L(G( s"""(new RblTable)"""), Top())
     )
   }
   override def visit( p : QDot, arg : A) : R = {
