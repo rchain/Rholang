@@ -1,0 +1,14 @@
+;;; HelloWorld Contract that doesn't require any extra Rosette code to execute
+
+(let [[helloworld 'rholang1818ce99d81b]]
+    (block
+        (let [[[[rholangeb5e024a7b91] [rholang806bc9562d96]]
+                (consume t [helloworld] [**wildcard**] ['world])]]
+            ( (proc [world] (let [[[[rholangac65f8dcbef0] [rholangdb8341c5c892]]
+                    (consume t [world] [**wildcard**] ['msg])]]
+                ( (proc [[msg]] (seq (print msg) (display #\\n))) [rholangdb8341c5c892]))) rholang806bc9562d96))
+        (let [[world 'rholang7ae6a494b7a7]]
+            (block
+                (produce t helloworld **wildcard** world)
+                (produce t world **wildcard** "Hello World")))))
+

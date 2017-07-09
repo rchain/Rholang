@@ -476,3 +476,5 @@
         (ctxt-rtn ctxt product)
         (update!)
     )))
+
+(define t (new NameSpace))
