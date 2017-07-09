@@ -1,0 +1,33 @@
+;;; Test to see if injecting the corresponding code object of the ctxt from the C++ source
+;;; in an RMethod works as intended
+
+;;; Should output
+;;; "Hello"
+;;; "Foo"
+;;; "Bar"
+
+(defActor Tester (slots& tbl (new RblTable)))
+(defOprn consumeTest)
+(defOprn produceTest)
+
+(defRMethod Tester (consumeTest ctxt-tuple) ;;; ctxt-tuple is the tuple [ctxt code]
+    (tbl-add tbl 'key ctxt-tuple)
+    (update!)
+)
+(defRMethod Tester (produceTest _ctxt-tuple message)
+    (let [[[consumeCtxt consumeCode] (tbl-get tbl 'key)]]
+        (ctxt-rtn consumeCtxt message)
+        (update!)
+        (run consumeCode) ;;; Re-post consume
+    )
+)
+
+(define x (new Tester))
+(let [[y (consumeTest x)]]
+    (print y)
+    (display #\\n)
+)
+
+(produceTest x "Hello")
+(produceTest x "Foo")
+(produceTest x "Bar")
