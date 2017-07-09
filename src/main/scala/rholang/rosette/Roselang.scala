@@ -997,7 +997,7 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : QString, arg : A ) : R = {
     combine(
       arg,
-      L( G( s"""'${p.string_}""" ), Top() )
+      L( G( s""""${p.string_}"""" ), Top() )
     )
   }
   override def visit( p : QMap, arg : A) : R = {

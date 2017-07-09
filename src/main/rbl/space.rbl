@@ -70,7 +70,7 @@
 
 (defOprn get)
 (defPure RblTable (get key)
-    (tbl-get (self) key)
+    (tbl-get (self) (->symbol key))
 )
 
 (defOprn insert)
@@ -88,12 +88,12 @@
                         (proc [key acc k]
                             (if (null? key)
                                 acc
-                                (k (tbl-get acc key)))
+                                (k (tbl-get acc (->symbol key))))
                         )
                         (self)))]
         ]
         (seq
-            (tbl-add final_tbl last_key value)
+            (tbl-add final_tbl (->symbol last_key) value)
             final_tbl
         )
     )
