@@ -390,37 +390,51 @@ extends StrFoldCtxtVisitor {
   }
   override def visit( p : PContr, arg : A ) : R = {
     import scala.collection.JavaConverters._
+
     /*
      * [| contract <Name>( <formals> ) = { <body> } |]( t )
      * =
-     * (defActor <Name>Contract 
-     *   (method (<Name> [| formals |]( t )) [| body |]))
+     * (let [[ [[binding1] [[arg1 arg2 ...]]] (consume t [<Name>] [**wildcard**] [[<formals>]]) ]]
+     *     ((proc [[<formals>]] [| body |]) [products])
+     * )
+     *
      */
     combine(
       arg,
       (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
-        val formals =
-          ( List[StrTermCtxt]() /: p.listcpattern_.asScala.toList )(
-            {
-              ( acc, e ) => {
-                visitDispatch( e, Here() ) match {
-                  case Some( Location( frml : StrTermCtxt, _ ) ) => {
-                    acc ++ List( frml )
-                  }
-                  case None => {
-                    acc
-                  }
-                }
-              }
-            }
-          )
-        val methodTerm =
-          B( _method )( B( p.var_ )( formals:_* ), pTerm )
-        val actorTerm =
-          B( _defActor )( G( s"""${p.var_}Contract""" ), methodTerm )
 
-        L( actorTerm, Top() )
+        def toListOfTuples(bindingsComponents: List[Option[List[StrTermCtxt]]]) = {
+          bindingsComponents map {
+            case Some(channelGroup) => channelGroup
+          } transpose match {
+            case List(a, b, c) => (a, b, c)
+          }
+        }
+
+        val bindingsComponents = p.listcpattern_.asScala.toList map {
+          case ptrn: CPattern => {
+            for (
+              Location(ptrnTerm: StrTermCtxt, _) <- visitDispatch(ptrn, Here())
+            ) yield {
+              var productFresh = V(Fresh())
+              val quotedPtrnTerm = (for (Location(q: StrTermCtxt, _) <- doQuote(ptrnTerm)) yield {
+                q
+              }).getOrElse(throw new FailedQuotation(ptrnTerm))
+              List(ptrnTerm, quotedPtrnTerm, productFresh)
+            }
+          }
+        }
+
+
+        var wildcard = V("**wildcard**")
+        var unificationFresh = V(Fresh())
+        val (formals, quotedFormals, productFreshes) = toListOfTuples(bindingsComponents)
+
+        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(B(_list)(quotedFormals: _*)))
+        val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(B(_list)(productFreshes: _*))), consumeTerm)
+        val bodyTerm = B("")(B("proc")(B(_list)(B(_list)(formals: _*)), pTerm), B(_list)(productFreshes: _*))
+        L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
       })
     )
   }
