@@ -75,8 +75,10 @@
 
 (defOprn insert)
 (defPure RblTable (insert & keys/value)
+    ;;; Inserts (new RblTable) if a lookup is #absent when looping through keys
     (let*
         [
+            ;;; TODO: Find way to deconstruct without reversing
             [[value & reverse_keys] (reverse keys/value)]
             [[[last_key] remaining_reverse_keys] (if (= (length reverse_keys) 1) [reverse_keys []] [[(head reverse_keys)] (tail reverse_keys)])]
             [unreversed_keys (reverse remaining_reverse_keys)]
@@ -88,7 +90,21 @@
                         (proc [key acc k]
                             (if (null? key)
                                 acc
-                                (k (tbl-get acc (->symbol key))))
+                                (k
+                                    (let
+                                        [[value (tbl-get acc (->symbol key))]]
+                                        (if (= #absent value)
+                                            (let [[newTbl (new RblTable)]]
+                                                (seq
+                                                    (tbl-add acc (->symbol key) newTbl)
+                                                    newTbl
+                                                )
+                                            )
+                                            value
+                                        )
+                                    )
+                                )
+                            )
                         )
                         (self)))]
         ]
