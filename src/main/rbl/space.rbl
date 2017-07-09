@@ -143,6 +143,13 @@
     )
 )
 
+(defOprn (insertMultiple & key/vals) (sbo& (sbo RblTable)) pure&
+    (iterate loop [[[k v & r] key/vals]]
+        (seq (tbl-add (self) (->symbol k) v)
+            (if (null? r)
+                (self)
+                (loop r)))))
+
 (defOprn consume)
 (defOprn produce)
 (defOprn unify?)
