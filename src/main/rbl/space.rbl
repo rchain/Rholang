@@ -73,6 +73,34 @@
     (tbl-get (self) (->symbol key))
 )
 
+(defOprn getOrElse)
+(defPure RblTable (getOrElse & keys/elseValue)
+    (let*
+        [
+            ;;; TODO: Find way to deconstruct without reversing
+            [[elseValue & reverse_keys] (reverse keys/elseValue)]
+            [unreversed_keys (reverse reverse_keys)]
+            [final_value
+                (fold unreversed_keys
+                    (proc [key acc k]
+                        ;;; TODO: (null? key) is a proxy for checking if the unreversed_keys have exhausted.
+                        ;;; We need to handle when key is null.
+                        (if (null? key)
+                            acc
+                            (if (type? acc RblTable)
+                                (let [[value (tbl-get acc (->symbol key))]]
+                                    (if (= #absent value) elseValue (k value))
+                                )
+                                elseValue
+                            )
+                        )
+                    )
+                    (self))]
+        ]
+        final_value
+    )
+)
+
 (defOprn insert)
 (defPure RblTable (insert & keys/value)
     ;;; Inserts (new RblTable) if a lookup is #absent when looping through keys
