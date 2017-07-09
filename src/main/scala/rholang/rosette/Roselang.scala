@@ -388,6 +388,7 @@ extends StrFoldCtxtVisitor {
       case _ => throw new UnexpectedContractType( p )
     }
   }
+  // TODO: Handle case no arguments to contract
   override def visit( p : PContr, arg : A ) : R = {
     import scala.collection.JavaConverters._
 
@@ -412,7 +413,8 @@ extends StrFoldCtxtVisitor {
           }
         }
 
-        val bindingsComponents = p.listcpattern_.asScala.toList map {
+        val ptrnTermList = p.listcpattern_.asScala.toList
+        val bindingsComponents = ptrnTermList map {
           case ptrn: CPattern => {
             for (
               Location(ptrnTerm: StrTermCtxt, _) <- visitDispatch(ptrn, Here())
@@ -427,13 +429,21 @@ extends StrFoldCtxtVisitor {
         }
 
 
-        var wildcard = V("**wildcard**")
-        var unificationFresh = V(Fresh())
-        val (formals, quotedFormals, productFreshes) = toListOfTuples(bindingsComponents)
+        val wildcard = V("**wildcard**")
+        val unificationFresh = V(Fresh())
+        val (formals, quotedFormals, productFreshes) =
+          if (ptrnTermList.length == 1) {
+            toListOfTuples(bindingsComponents) match {
+              case (List(a), List(b), List(c)) => (a, b, c)
+            }
+          } else {
+            val (formalsUnwrapped, quotedFormalsUnwrapped, productFreshesUnwrapped) = toListOfTuples(bindingsComponents)
+            (B(_list)(formalsUnwrapped: _*), B(_list)(quotedFormalsUnwrapped: _*), B(_list)(productFreshesUnwrapped: _*))
+          }
 
-        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(B(_list)(quotedFormals: _*)))
-        val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(B(_list)(productFreshes: _*))), consumeTerm)
-        val bodyTerm = B("")(B("proc")(B(_list)(B(_list)(formals: _*)), pTerm), B(_list)(productFreshes: _*))
+        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals))
+        val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(productFreshes)), consumeTerm)
+        val bodyTerm = B("")(B("proc")(B(_list)(formals), pTerm), productFreshes)
         L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
       })
     )
