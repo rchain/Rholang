@@ -127,10 +127,11 @@
     )
 )
 
-(defRMethod NameSpace (consume ctxt & location)
+(defRMethod NameSpace (consume ctxt-tuple & location)
     ;;; by making this a reflective method - RMethod - we gain access to the awaiting continuation
     ;;; bound to the formal parameter ctxt
 (let* [
+    [[ctxt code] ctxt-tuple]
     [[channels unification_ptrns product_ptrns] location]
         ;;; the channel and the pattern of incoming messages to look for are destructured and bound
     [_ (seq
@@ -320,8 +321,10 @@
 ;;; Unlike consume, produce only takes in a single channel and does not suspend.
 
 ;;; TODO: Implement product stealing from consumes to allow for other consumes to be filled
-(defRMethod NameSpace (produce ctxt & production)
-(let* [[[channel unification_ptrn product] production]
+(defRMethod NameSpace (produce ctxt-tuple & production)
+(let* [
+    [[ctxt code] ctxt-tuple]
+    [[channel unification_ptrn product] production]
     [_
         (seq
                 (print (->symbol "DEBUG: Calling produce("))
