@@ -601,7 +601,13 @@ extends StrFoldCtxtVisitor {
       arg,
       (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
-        val newBindings = newVars.map( { ( v ) => { B(_list)(V( v ), V( Fresh() )) } } )
+        val newBindings = newVars.map( { ( v ) => {
+          val fresh = V(Fresh())
+          val quotedFresh = (for (Location(q: StrTermCtxt, _) <- doQuote(fresh)) yield {
+            q
+          }).getOrElse(throw new FailedQuotation(fresh))
+          B(_list)(V( v ), quotedFresh)
+        } } )
         L( B( "let" )( ( List(B(_list)(newBindings:_*)) ++ List( pTerm )):_* ), Top() )
       })
     )
