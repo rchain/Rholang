@@ -395,7 +395,7 @@ extends StrFoldCtxtVisitor {
     /*
      * [| contract <Name>( <formals> ) = { <body> } |]( t )
      * =
-     * (let [[ [[binding1] [[arg1 arg2 ...]]] (consume t [<Name>] [**wildcard**] [[<formals>]]) ]]
+     * (let [[ [[binding1] [[arg1 arg2 ...]]] (consume t [<Name>] [**wildcard**] [[<formals>]] #t) ]] // #t for persistent
      *     ((proc [[<formals>]] [| body |]) [products])
      * )
      *
@@ -441,7 +441,7 @@ extends StrFoldCtxtVisitor {
             (B(_list)(formalsUnwrapped: _*), B(_list)(quotedFormalsUnwrapped: _*), B(_list)(productFreshesUnwrapped: _*))
           }
 
-        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals))
+        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals), G("#f")) // TODO: Switch to true when bindings can be injected
         val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(productFreshes)), consumeTerm)
         val bodyTerm = B("")(B("proc")(B(_list)(formals), pTerm), productFreshes)
         L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
@@ -581,7 +581,7 @@ extends StrFoldCtxtVisitor {
           case bind => throw new UnexpectedBindingType(bind)
         }
         val (chanTerms, ptrnTerms, quotedPtrnTerms, productFreshes, unificationFreshes, wildcards) = toListOfTuples(bindingsComponents)
-        val consumeTerm = B("consume")(TS, B(_list)(chanTerms: _*), B(_list)(wildcards: _*), B(_list)(quotedPtrnTerms: _*))
+        val consumeTerm = B("consume")(TS, B(_list)(chanTerms: _*), B(_list)(wildcards: _*), B(_list)(quotedPtrnTerms: _*), G("#f")) // #f for persistent
         val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFreshes: _*), B(_list)(productFreshes: _*)), consumeTerm)
         val bodyTerm = B("")(B("proc")(B(_list)(B(_list)(ptrnTerms: _*)), procTerm), B(_list)(productFreshes: _*))
         L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
