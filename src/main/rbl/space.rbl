@@ -186,7 +186,7 @@
     ;;; by making this a reflective method - RMethod - we gain access to the awaiting continuation
     ;;; bound to the formal parameter ctxt
 (let* [
-    [[ctxt code] ctxt-tuple]
+    [[ctxt [code env]] ctxt-tuple]
     [[channels unification_ptrns product_ptrns persistent] location]
         ;;; the channel and the pattern of incoming messages to look for are destructured and bound
     [_ (seq
@@ -363,9 +363,9 @@
                         (tbl-add reverse_channel_lookup_table channels_concatenated channels)
                         (tbl-add unification_ptrn_lookup_table unification_ptrns_concatenated unification_ptrns)
                         (if (= #absent stored_value)
-                            (tbl-add subspace unification_ptrns_concatenated [[] [[new_product_ptrns_struct [ctxt code persistent]]]])
+                            (tbl-add subspace unification_ptrns_concatenated [[] [[new_product_ptrns_struct [ctxt [code env] persistent]]]])
                             (let [[[data_struct continuations_struct] stored_value]]
-                                (tbl-add subspace unification_ptrns_concatenated [data_struct (append continuations_struct [new_product_ptrns_struct [ctxt code persistent]])])))))
+                                (tbl-add subspace unification_ptrns_concatenated [data_struct (append continuations_struct [new_product_ptrns_struct [ctxt [code env] persistent]])])))))
                 (update!)
             )
             (seq
@@ -375,7 +375,7 @@
                     (seq
                         (p "About to re-post continuation")
                         (update!)
-                        (run code)
+                        (run-with-env code env)
                     )
                     (update!)
                 )
@@ -389,7 +389,7 @@
 ;;; TODO: Implement product stealing from consumes to allow for other consumes to be filled
 (defRMethod NameSpace (produce ctxt-tuple & production)
 (let* [
-    [[ctxt code] ctxt-tuple]
+    [[ctxt _] ctxt-tuple]
     [[channel unification_ptrn product] production]
     [_
         (seq
@@ -541,7 +541,7 @@
                     [[[_ subspace] [_ unification_ptrn] [_ product_info]] reduction]
                     [[data_struct continuations_struct] (tbl-get subspace unification_ptrn)]
                     [[n o product_ptrn] product_info]
-                    [[product_ptrns_struct [consume_ctxt consume_code consume_persistent]] (tuple-safe-nth continuations_struct n)]
+                    [[product_ptrns_struct [consume_ctxt [consume_code consume_env] consume_persistent]] (tuple-safe-nth continuations_struct n)]
                     [updated_product_ptrns_struct (replace-i product_ptrns_struct o [product_ptrn product])] ;;; TODO: Eventually store binding
                 ]
 
@@ -559,12 +559,12 @@
                             (seq
                                 (p "About to re-post continuation")
                                 (update!)
-                                (run consume_code)
+                                (run-with-env consume_code consume_env)
                             )
                             (update!)
                         )
                     )
-                    (let [[updated_continuations_struct (replace-i continuations_struct n [updated_product_ptrns_struct [consume_ctxt consume_code consume_persistent]])]]
+                    (let [[updated_continuations_struct (replace-i continuations_struct n [updated_product_ptrns_struct [consume_ctxt [consume_code consume_env] consume_persistent]])]]
                         (seq
                             (p "DEBUG: A consume was partially filled.")
                             (tbl-add subspace unification_ptrn [data_struct updated_continuations_struct])
