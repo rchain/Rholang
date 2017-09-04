@@ -1,14 +1,19 @@
 ;;; HelloWorld Contract that doesn't require any extra Rosette code to execute
 
-(let [[helloworld 'rholang1818ce99d81b]]
-    (block
-        (let [[[[rholangeb5e024a7b91] [rholang806bc9562d96]]
-                (consume t [helloworld] [**wildcard**] ['world])]]
-            ( (proc [world] (let [[[[rholangac65f8dcbef0] [rholangdb8341c5c892]]
-                    (consume t [world] [**wildcard**] ['msg])]]
-                ( (proc [[msg]] (seq (print msg) (display #\\n))) [rholangdb8341c5c892]))) rholang806bc9562d96))
-        (let [[world 'rholang7ae6a494b7a7]]
-            (block
-                (produce t helloworld **wildcard** world)
-                (produce t world **wildcard** "Hello World")))))
+(run (compile
+
+(new LetExpr (TX (TX 'helloworld (Q 'rholangd0644faf397e)))
+    (BX
+        (RX (PX (TX) (RX 'run (RX 'compile (new LetExpr (TX (TX (TX (TX 'rholangc16a55fc8060) (TX 'rholangba234a36a48d))
+                (RX 'consume 't (TX 'helloworld) (TX '**wildcard**) (TX (Q 'world)) '#t)))
+            (RX (PX (TX 'world) (new LetExpr (TX (TX (TX (TX 'rholang3152ec0ea6ee) (TX 'rholangea0140df2ecd))
+                    (RX 'consume 't (TX 'world) (TX '**wildcard**) (TX (Q 'msg)) '#f)))
+                (RX (PX (TX (TX 'msg)) (SqX (RX 'print 'msg) (RX 'display '#\\n))) (TX 'rholangea0140df2ecd)))) 'rholangba234a36a48d))))))
+        (new LetExpr (TX (TX 'world (Q 'rholang85f793b45738)))
+            (BX
+                (RX 'produce 't 'helloworld '**wildcard** 'world)
+                (RX 'produce 't 'world '**wildcard** "Hello World")
+            ))))
+
+))
 
