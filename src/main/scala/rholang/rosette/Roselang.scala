@@ -103,18 +103,23 @@ object ComprehensionOps {
 }
 
 object RosetteOps {
-  val _abs = "proc"
+  val _abs = "PX"
   val _defActor = "defActor"
   val _method = "method"
-  val _produce = "produce"
-  val _block = "block"
+  // TODO: Extract quote marks
+  val _produce = "'produce"
+  val _consume = "'consume"
+  val _block = "BX"
   val _quote = "Q"
   val _rx = "RX"
-  val _run = "run"
-  val _compile = "compile"
+  val _seq = "SqX"
+  var _let = "new LetExpr"
+  val _run = "'run"
+  val _compile = "'compile"
   var _if = "if"
   var _match = "match?" // TODO: Adjust based on Rosette implementation. This operation checks for equality in the "match" implementation.
-  var _list = "list" // TODO: Extract into "temporary operations" set
+  var _list = "TX" // TODO: Extract into "temporary operations" set
+  val _wildcard = "'**wildcard**"
 }
 
 trait StrFoldCtxtVisitor
@@ -276,7 +281,7 @@ extends StrFoldCtxtVisitor {
   import RosetteOps._
 
   def theTupleSpaceVar : String
-  def TS() = V("t") // TODO: Replace with V( theTupleSpaceVar ) ?
+  def TS() = V("'t") // TODO: Replace with V( theTupleSpaceVar ) ?
   def CH() = V( theCtxtVar )
   def H() = HV( theCtxtVar )
   def Here() = Some( HV( theCtxtVar ) )
@@ -394,10 +399,12 @@ extends StrFoldCtxtVisitor {
 
     /*
      * [| contract <Name>( <formals> ) = { <body> } |]( t )
+     *
      * =
-     * (let [[ [[binding1] [[arg1 arg2 ...]]] (consume t [<Name>] [**wildcard**] [[<formals>]] #t) ]] // #t for persistent
-     *     ((proc [[<formals>]] [| body |]) [products])
-     * )
+     *
+     * (proc [] (run (compile
+     *  (let [[ [[binding1] [[arg1 arg2 ...]]] (consume t [<Name>] [**wildcard**] [[<formals>]] #t) ]] // #t for persistent
+     *    ((proc [[<formals>]] [| body |]) [products])))))
      *
      */
     combine(
@@ -419,7 +426,7 @@ extends StrFoldCtxtVisitor {
             for (
               Location(ptrnTerm: StrTermCtxt, _) <- visitDispatch(ptrn, Here())
             ) yield {
-              var productFresh = V(Fresh())
+              var productFresh = V(s"""'${Fresh()}""")
               val quotedPtrnTerm = (for (Location(q: StrTermCtxt, _) <- doQuote(ptrnTerm)) yield {
                 q
               }).getOrElse(throw new FailedQuotation(ptrnTerm))
@@ -429,8 +436,8 @@ extends StrFoldCtxtVisitor {
         }
 
 
-        val wildcard = V("**wildcard**")
-        val unificationFresh = V(Fresh())
+        val wildcard = V(_wildcard)
+        val unificationFresh = V(s"""'${Fresh()}""")
         val (formals, quotedFormals, productFreshes) =
           if (ptrnTermList.length == 1) {
             toListOfTuples(bindingsComponents) match {
@@ -441,10 +448,10 @@ extends StrFoldCtxtVisitor {
             (B(_list)(formalsUnwrapped: _*), B(_list)(quotedFormalsUnwrapped: _*), B(_list)(productFreshesUnwrapped: _*))
           }
 
-        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals), G("#f")) // TODO: Switch to true when bindings can be injected
+        val consumeTerm = B(_rx)(G(_consume), TS, B(_list)( G(s"""'${p.var_}""") ), B(_list)(wildcard), B(_list)(quotedFormals), G("'#t")) // TODO: Switch to true when bindings can be injected
         val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(productFreshes)), consumeTerm)
-        val bodyTerm = B("")(B("proc")(B(_list)(formals), pTerm), productFreshes)
-        L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
+        val bodyTerm = B(_rx)(B(_abs)(B(_list)(formals), pTerm), productFreshes)
+        L(B(_rx)(B(_abs)(B(_list)(G("")), B(_rx)(G(_run), B(_rx)(G(_compile), B(_let)(B(_list)(letBindingsTerm), bodyTerm))))), T())
       })
     )
   }
@@ -475,9 +482,9 @@ extends StrFoldCtxtVisitor {
       for(
         Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() )
       ) yield {
-        val printTerm = B("print")(pTerm)
-        val displayTerm = B("display")(G( "#\\\\n"))
-        L( B( "seq" )( printTerm, displayTerm ), Top() )
+        val printTerm = B(_rx)(G("'print"), pTerm)
+        val displayTerm = B(_rx)(G("'display"), G( "'#\\\\n"))
+        L( B( _seq )( printTerm, displayTerm ), Top() )
       }
     )
   }
@@ -540,7 +547,7 @@ extends StrFoldCtxtVisitor {
     combine(
       arg,
       for( Location( cTerm : StrTermCtxt, _ ) <- visitDispatch( p.chan_, Here() ) ) yield {
-        L( B( _produce )( (List( TS ) ++ List(cTerm) ++ List(V("**wildcard**")) ++ actls):_* ), Top() )
+        L( B(_rx)( (List(G(_produce)) ++ List( TS ) ++ List(cTerm) ++ List(V(_wildcard)) ++ actls):_* ), Top() )
       }
     )
   }
@@ -566,9 +573,9 @@ extends StrFoldCtxtVisitor {
               Location(chanTerm: StrTermCtxt, _) <- visitDispatch(inBind.chan_, Here());
               Location(ptrnTerm: StrTermCtxt, _) <- visitDispatch(inBind.cpattern_, Here())
             ) yield {
-              var productFresh = V(Fresh())
-              var unificationBindingFresh = V(Fresh())
-              var wildcard = V("**wildcard**")
+              var productFresh = V(s"""'${Fresh()}""")
+              var unificationBindingFresh = V(s"""'${Fresh()}""")
+              var wildcard = V(_wildcard)
               val quotedPtrnTerm = inBind.cpattern_ match {
                 case _ => (for (Location(q: StrTermCtxt, _) <- doQuote(ptrnTerm)) yield {
                   q
@@ -581,10 +588,10 @@ extends StrFoldCtxtVisitor {
           case bind => throw new UnexpectedBindingType(bind)
         }
         val (chanTerms, ptrnTerms, quotedPtrnTerms, productFreshes, unificationFreshes, wildcards) = toListOfTuples(bindingsComponents)
-        val consumeTerm = B("consume")(TS, B(_list)(chanTerms: _*), B(_list)(wildcards: _*), B(_list)(quotedPtrnTerms: _*), G("#f")) // #f for persistent
+        val consumeTerm = B(_rx)(G(_consume), TS, B(_list)(chanTerms: _*), B(_list)(wildcards: _*), B(_list)(quotedPtrnTerms: _*), G("'#f")) // #f for persistent
         val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFreshes: _*), B(_list)(productFreshes: _*)), consumeTerm)
-        val bodyTerm = B("")(B("proc")(B(_list)(B(_list)(ptrnTerms: _*)), procTerm), B(_list)(productFreshes: _*))
-        L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
+        val bodyTerm = B(_rx)(B(_abs)(B(_list)(B(_list)(ptrnTerms: _*)), procTerm), B(_list)(productFreshes: _*))
+        L(B(_let)(B(_list)(letBindingsTerm), bodyTerm), T())
       }
     }
 
@@ -621,19 +628,19 @@ extends StrFoldCtxtVisitor {
   override def visit(  p : PNew, arg : A ) : R = {
     import scala.collection.JavaConverters._
     val newVars = p.listvar_.asScala.toList
-    combine( 
+    combine(
       arg,
       (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
-      yield {
-        val newBindings = newVars.map( { ( v ) => {
-          val fresh = V(Fresh())
-          val quotedFresh = (for (Location(q: StrTermCtxt, _) <- doQuote(fresh)) yield {
-            q
-          }).getOrElse(throw new FailedQuotation(fresh))
-          B(_list)(V( v ), quotedFresh)
-        } } )
-        L( B( "let" )( ( List(B(_list)(newBindings:_*)) ++ List( pTerm )):_* ), Top() )
-      })
+        yield {
+          val newBindings = newVars.map( { ( v ) => {
+            val fresh = V(s"""'${Fresh()}""")
+            val quotedFresh = (for (Location(q: StrTermCtxt, _) <- doQuote(fresh)) yield {
+              q
+            }).getOrElse(throw new FailedQuotation(fresh))
+            B(_list)(V( s"""'${v}""" ), quotedFresh)
+          } } )
+          L( B(_let)( ( List(B(_list)(newBindings:_*)) ++ List( pTerm )):_* ), Top() )
+        })
     )
   }
   override def visit(  p : PChoice, arg : A ) : R = {
@@ -894,7 +901,7 @@ extends StrFoldCtxtVisitor {
     }
   }
   override def visit(  p : CVar, arg : A ) : R = {
-    combine( arg, Some( L( V( p.var_ ), T() ) ) )
+    combine( arg, Some( L( V( s"""'${p.var_}""" ), T() ) ) )
   }
   override def visit(  p : CQuote, arg : A ) : R = {
     // TODO: Handle quoting and unquoting
@@ -972,7 +979,7 @@ extends StrFoldCtxtVisitor {
     }
   }
   override def visit(  p : QVar, arg : A ) : R = {
-    combine( arg, L(V(p.var_), Top()) )
+    combine( arg, L(V(s"""'${p.var_}"""), Top()) )
   }
   def visitDispatch( p : RhoBool, arg : A ) : R = {
     p match {
@@ -1212,7 +1219,7 @@ extends StrFoldCtxtVisitor {
     }
   }
   override def visit(p: VarPtVar, arg: A): R = {
-    combine( arg, L(V(p.var_), Top()) )
+    combine( arg, L(V(s"""'${p.var_}"""), Top()) )
   }
   override def visit(  p : VarPtWild, arg : A ) : R
 
