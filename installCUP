@@ -1,0 +1,6 @@
+mkdir lib
+cd lib
+wget -O cup.tar.gz http://www2.cs.tum.edu/projects/cup/download.php?file=java-cup-bin-11b-20160615.tar.gz
+tar -xvzf cup.tar.gz
+rm cup.tar.gz
+

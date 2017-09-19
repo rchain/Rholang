@@ -1,0 +1,8 @@
+mkdir lib
+cd lib
+wget https://www.cs.princeton.edu/~appel/modern/java/JLex/Archive/1.2.6/Main.java
+javac Main.java
+jar cvfe JLex.jar Main *.class
+rm *.class
+rm Main.java
+
