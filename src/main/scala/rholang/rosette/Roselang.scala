@@ -280,10 +280,16 @@ extends StrFoldCtxtVisitor {
   def CH() = V( theCtxtVar )
   def H() = HV( theCtxtVar )
   def Here() = Some( HV( theCtxtVar ) )
+
+  // TODO: Swap with something crypotgraphically secure and ensure Fresh and FreshSymbol are of uniform length
+  // A FreshSymbol contains a quote in Rosette while a Fresh doesn't
   def Fresh() = {
-    val prefix = "rholang"
-    val uuidComponents = java.util.UUID.randomUUID.toString.split( "-" )
-    prefix + uuidComponents( uuidComponents.length - 1 )
+    val prefix = "Rholang"
+    val uuidComponents = java.util.UUID.randomUUID.toString.split("-")
+    prefix + uuidComponents(uuidComponents.length - 1)
+  }
+  def FreshSymbol( debugSymbol: String ) = {
+    s"""(generateFresh "${debugSymbol}")"""
   }
 
   def isTopLevel( r : R ) : Boolean = {
@@ -626,11 +632,8 @@ extends StrFoldCtxtVisitor {
       (for( Location( pTerm : StrTermCtxt, _ ) <- visitDispatch( p.proc_, Here() ) )
       yield {
         val newBindings = newVars.map( { ( v ) => {
-          val fresh = V(Fresh())
-          val quotedFresh = (for (Location(q: StrTermCtxt, _) <- doQuote(fresh)) yield {
-            q
-          }).getOrElse(throw new FailedQuotation(fresh))
-          B(_list)(V( v ), quotedFresh)
+          val fresh = V(FreshSymbol(v))
+          B(_list)(V( v ), fresh)
         } } )
         L( B( "let" )( ( List(B(_list)(newBindings:_*)) ++ List( pTerm )):_* ), Top() )
       })
