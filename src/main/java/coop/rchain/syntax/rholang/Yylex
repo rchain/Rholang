@@ -69,14 +69,16 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 <YYINITIAL>total { return new Symbol(sym._SYMB_42); }
 <YYINITIAL>true { return new Symbol(sym._SYMB_43); }
 <YYINITIAL>with { return new Symbol(sym._SYMB_44); }
-<YYINITIAL>"//"[^\n]*\n { /* skip */ }
+<YYINITIAL>"//"[^\n]*\n { /* BNFC single-line comment */ }
 <YYINITIAL>"/*" { yybegin(COMMENT); }
 <COMMENT>"*/" { yybegin(YYINITIAL); }
-<COMMENT>. { /* skip */ }
-<COMMENT>[\n] { /* skip */ }
+<COMMENT>. { }
+<COMMENT>[\n] { }
 
-<YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Name, yytext().intern()); }
-<YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|')* { return new Symbol(sym.Var, yytext().intern()); }
+
+<YYINITIAL>{CAPITAL}({LETTER}|{DIGIT}|_|'|-)* { return new Symbol(sym.Name, yytext().intern()); }
+<YYINITIAL>{SMALL}({LETTER}|{DIGIT}|_|'|-)* { return new Symbol(sym.Var, yytext().intern()); }
+
 <YYINITIAL>"\"" { yybegin(STRING); }
 <STRING>\\ { yybegin(ESCAPED); }
 <STRING>\" { String foo = pstring; pstring = new String(); yybegin(YYINITIAL); return new Symbol(sym._STRING_, foo.intern()); }
@@ -86,6 +88,7 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 <ESCAPED>\\ { pstring += "\\"; yybegin(STRING); }
 <ESCAPED>t  { pstring += "\t"; yybegin(STRING); }
 <ESCAPED>.  { pstring += yytext(); yybegin(STRING); }
+
 <YYINITIAL>"'" { yybegin(CHAR); }
 <CHAR>\\ { yybegin(CHARESC); }
 <CHAR>[^'] { yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
@@ -93,6 +96,7 @@ IDENT = ({LETTER}|{DIGIT}|['_])
 <CHARESC>t { yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character('\t')); }
 <CHARESC>. { yybegin(CHAREND); return new Symbol(sym._CHAR_, new Character(yytext().charAt(0))); }
 <CHAREND>"'" {yybegin(YYINITIAL);}
+
 <YYINITIAL>{DIGIT}+"."{DIGIT}+("e"(\-)?{DIGIT}+)? { return new Symbol(sym._DOUBLE_, new Double(yytext())); }
 <YYINITIAL>{DIGIT}+ { return new Symbol(sym._INTEGER_, new Integer(yytext())); }
 
