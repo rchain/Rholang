@@ -312,7 +312,7 @@ extends StrFoldCtxtVisitor {
               }
             }
           )
-          L( B( _rx )( (List( B( _quote )( V( op ) ) ) ++ qterms):_* ), Top() )
+          L( B( _rx )( (List( ( V( op ) ) ) ++ qterms):_* ), Top() )
         }
       }
     }
@@ -441,10 +441,10 @@ extends StrFoldCtxtVisitor {
             (B(_list)(formalsUnwrapped: _*), B(_list)(quotedFormalsUnwrapped: _*), B(_list)(productFreshesUnwrapped: _*))
           }
 
-        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals), G("#f")) // TODO: Switch to true when bindings can be injected
+        val consumeTerm = B("consume")(TS, B(_list)( G(p.var_) ), B(_list)(wildcard), B(_list)(quotedFormals), G("#t"))
         val letBindingsTerm = B(_list)(B(_list)(B(_list)(unificationFresh), B(_list)(productFreshes)), consumeTerm)
         val bodyTerm = B("")(B("proc")(B(_list)(formals), pTerm), productFreshes)
-        L(B("let")(B(_list)(letBindingsTerm), bodyTerm), T())
+        L(B("")(B(_abs)(B(_list)(G("")), B(_run)(B(_compile)(B("let")(B(_list)(letBindingsTerm), bodyTerm))))), T())
       })
     )
   }
@@ -1041,7 +1041,7 @@ extends StrFoldCtxtVisitor {
               }
             }
           )
-        L( B(_rx)( (List(V(s"""'${p.var_}""")) ++ List(q) ++ qArgs):_* ), Top() )
+        L( B("")( (List(V(s"""${p.var_}""")) ++ List(q) ++ qArgs):_* ), Top() )
       }
     )
   }
