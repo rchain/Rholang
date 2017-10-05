@@ -12,6 +12,10 @@
 
 (add 'p (method [x] (seq (prim-print x) (display #\\n))))
 
+(random-number-init)
+(defOprn generateFresh)
+(defProc (generateFresh) (->symbol (string-concat "Rholang" (->string (random-number)))))
+
 (defOprn append)
 (defPure Tuple (append item) (reverse [item & (reverse (self))]))
 
@@ -147,12 +151,16 @@
     )
 )
 
-(defOprn (insertMultiple & key/vals) (sbo& (sbo RblTable)) pure&
-    (iterate loop [[[k v & r] key/vals]]
-        (seq (tbl-add (self) (->symbol k) v)
-            (if (null? r)
-                (self)
-                (loop r)))))
+
+(defOprn insertMany)
+(defPure RblTable (insertMany & keys/vals)
+   (iterate loop [[[k v & r] keys/vals]]
+       (seq (tbl-add (self) (->symbol k) v)
+           (if (null? r)
+               (self)
+               (loop r))))
+)
+
 
 (defOprn consume)
 (defOprn produce)
