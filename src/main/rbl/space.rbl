@@ -14,7 +14,7 @@
 
 (random-number-init)
 (defOprn generateFresh)
-(defProc (generateFresh) (->symbol (string-concat "Rholang" (->string (random-number)))))
+(defProc (generateFresh debugSymbol) (->symbol (string-concat "Rholang-" debugSymbol "-" (->string (random-number)))))
 
 (defOprn append)
 (defPure Tuple (append item) (reverse [item & (reverse (self))]))
