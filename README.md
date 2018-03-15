@@ -1,6 +1,6 @@
-# Deprecated Repository
+# This repository has moved to a [subdirectory of the rchain repo](https://github.com/rchain/rchain/tree/master/rholang)
 
-This repository has moved to a [subdirectory of the rchain repo](https://github.com/rchain/rchain/tree/master/rholang). If you're interested in playing with the Rholang SDK please see [the developer website](https://developer.rchain.coop).
+If you're interested in playing with the Rholang SDK please see [the developer website](https://developer.rchain.coop).
 
 # Rholang
 
