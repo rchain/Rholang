@@ -1,3 +1,7 @@
+# Deprecated Repository
+
+This repository has moved to a [subdirectory of the rchain repo](https://github.com/rchain/rchain/tree/master/rholang). If you're interested in playing with the Rholang SDK please see [the developer website](https://developer.rchain.coop).
+
 # Rholang
 
 Rholang is a behaviorally typed, concurrent programming language, with a focus on message-passing and formally modeled by the ρ-calculus, a reflective, higher-order extension of the π-calculus. It is designed to be used to implement protocols and "smart contracts" on a general-purpose blockchain, but could be used in other settings as well.
